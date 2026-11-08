@@ -452,9 +452,7 @@ impl Emitter {
                 let tname = match &target.kind {
                     ExprKind::Ident(n) => n.clone(),
                     _ => {
-                        return Err(
-                            "complex assignment target: beyond core subset; refusing".into()
-                        )
+                        return Err("complex assignment target: beyond core subset; refusing".into())
                     }
                 };
                 let (_, emitted) = self
@@ -472,7 +470,9 @@ impl Emitter {
             }
             StmtKind::Ret(e) => {
                 if !self.unit.in_func {
-                    return Err("top-level ret: no return slot in the main procedure; refusing".into());
+                    return Err(
+                        "top-level ret: no return slot in the main procedure; refusing".into(),
+                    );
                 }
                 match e {
                     Some(x) => {
@@ -539,7 +539,7 @@ impl Emitter {
                             if n == "say" {
                                 if args.len() != 1 {
                                     return Err(
-                                        "say: exactly one argument in core subset; refusing".into()
+                                        "say: exactly one argument in core subset; refusing".into(),
                                     );
                                 }
                                 let (v, vt) = self.gen_expr(args[0].expr())?;
@@ -567,10 +567,7 @@ impl Emitter {
     fn gen_expr(&mut self, e: &Expr) -> Result<(String, Ty), String> {
         match &e.kind {
             ExprKind::Int(n) => Ok((n.to_string(), Ty::Int)),
-            ExprKind::Bool(b) => Ok((
-                if *b { "True".into() } else { "False".into() },
-                Ty::Bool,
-            )),
+            ExprKind::Bool(b) => Ok((if *b { "True".into() } else { "False".into() }, Ty::Bool)),
             ExprKind::Str(s) => Ok((ada_str(s), Ty::Str)),
             ExprKind::Float(_) => Err("float: beyond core subset; refusing".into()),
             ExprKind::Dec(_) => Err("dec: beyond core subset; refusing".into()),
@@ -724,7 +721,10 @@ fn require_bools(l: Ty, r: Ty, op: &str) -> Result<(), String> {
     if l == Ty::Bool && r == Ty::Bool {
         Ok(())
     } else {
-        Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+        Err(format!(
+            "`{}` on non-bool: beyond core subset; refusing",
+            op
+        ))
     }
 }
 

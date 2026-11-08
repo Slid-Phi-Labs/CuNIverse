@@ -57,7 +57,7 @@ jobs:
           # Only programs that must be exact across all three v1 targets.
           # modules.cuni intentionally refuses JS (ext collision); link needs a
           # wired server — covered by cargo test, not this gate.
-          # v1 gate: identical stdout on py/go/js. The 144-seat catalog,
+          # v1 gate: identical stdout on py/go/js. The 53-entry catalog,
           # including the honest Solidity refusal, is cargo test on CI.
           "$BIN" check \
             --only py,go,js \
@@ -122,7 +122,7 @@ jobs:
         if: always()
         run: |
           echo "### CuNi Bank" >> "$GITHUB_STEP_SUMMARY"
-          echo "Paste N get X. Ingest → emit → prove. v1 --from py. Not 119 ingest parsers." >> "$GITHUB_STEP_SUMMARY"
+          echo "Paste N get X. Ingest → emit → prove. v1 --from py. Not 53 ingest parsers. The deposit still runs the full 53-entry catalog gate." >> "$GITHUB_STEP_SUMMARY"
 
   link-flagship:
     name: link demo (Go server ← py/js/go clients)

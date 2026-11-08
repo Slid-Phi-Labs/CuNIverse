@@ -239,10 +239,7 @@ impl<'a> Codegen<'a> {
 
     /// Build a JSON object value from (field, value-SQL) pairs.
     fn jobject(&self, fields: &[(String, String)]) -> String {
-        let pairs: Vec<String> = fields
-            .iter()
-            .map(|(k, v)| format!("'{k}', {v}"))
-            .collect();
+        let pairs: Vec<String> = fields.iter().map(|(k, v)| format!("'{k}', {v}")).collect();
         match self.dialect {
             Dialect::SQLite => format!("json_object({})", pairs.join(", ")),
             Dialect::MySQL => format!("JSON_OBJECT({})", pairs.join(", ")),
@@ -433,7 +430,8 @@ impl<'a> Codegen<'a> {
         // The typeck proved both sides dec; this is defense in depth.
         if l.kind != VKind::Dec || r.kind != VKind::Dec {
             return Err(
-                "cannot mix dec and non-dec — convert explicitly (`dec_of_int` / `int_of_dec`)".into(),
+                "cannot mix dec and non-dec — convert explicitly (`dec_of_int` / `int_of_dec`)"
+                    .into(),
             );
         }
         // Literal fast path: exact Rust arithmetic, loud refusal.
@@ -450,18 +448,51 @@ impl<'a> Codegen<'a> {
                     }
                     a.checked_mul(10_000).map(|p| p / b)
                 }
-                BinOp::Eq => return Ok(Val::scalar(if a == b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Ne => return Ok(Val::scalar(if a != b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Lt => return Ok(Val::scalar(if a < b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Gt => return Ok(Val::scalar(if a > b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Le => return Ok(Val::scalar(if a <= b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Ge => return Ok(Val::scalar(if a >= b { "1" } else { "0" }.into(), VKind::Bool)),
+                BinOp::Eq => {
+                    return Ok(Val::scalar(
+                        if a == b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Ne => {
+                    return Ok(Val::scalar(
+                        if a != b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Lt => {
+                    return Ok(Val::scalar(
+                        if a < b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Gt => {
+                    return Ok(Val::scalar(
+                        if a > b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Le => {
+                    return Ok(Val::scalar(
+                        if a <= b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Ge => {
+                    return Ok(Val::scalar(
+                        if a >= b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
                 _ => None,
             };
             match v {
                 Some(x) => {
                     if x > i64::MAX as i128 || x < i64::MIN as i128 {
-                        return Err("dec arithmetic overflowed the SQL seat's int64 envelope; refusing".into());
+                        return Err(
+                            "dec arithmetic overflowed the SQL seat's int64 envelope; refusing"
+                                .into(),
+                        );
                     }
                     return Ok(Val::scalar(x.to_string(), VKind::Dec));
                 }
@@ -471,14 +502,21 @@ impl<'a> Codegen<'a> {
                     return Err(match op {
                         BinOp::Mod => "`%` is not defined on `dec`; refusing".into(),
                         BinOp::And | BinOp::Or => "`and`/`or` need booleans; refusing".into(),
-                        _ => "dec arithmetic overflowed the SQL seat's int64 envelope; refusing".into(),
+                        _ => "dec arithmetic overflowed the SQL seat's int64 envelope; refusing"
+                            .into(),
                     });
                 }
             }
         }
         match op {
-            BinOp::Add => Ok(Val::scalar(format!("(({}) + ({}))", l.sql, r.sql), VKind::Dec)),
-            BinOp::Sub => Ok(Val::scalar(format!("(({}) - ({}))", l.sql, r.sql), VKind::Dec)),
+            BinOp::Add => Ok(Val::scalar(
+                format!("(({}) + ({}))", l.sql, r.sql),
+                VKind::Dec,
+            )),
+            BinOp::Sub => Ok(Val::scalar(
+                format!("(({}) - ({}))", l.sql, r.sql),
+                VKind::Dec,
+            )),
             // trunc(a*b/10000). Documented 2^53 domain (see above).
             BinOp::Mul => Ok(Val::scalar(
                 format!("CAST((({}) * ({})) / 10000 AS INTEGER)", l.sql, r.sql),
@@ -497,7 +535,10 @@ impl<'a> Codegen<'a> {
             BinOp::Mod => Err("`%` is not defined on `dec`; refusing".into()),
             BinOp::Eq | BinOp::Ne => {
                 let o = if matches!(op, BinOp::Eq) { "=" } else { "<>" };
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
             BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                 let o = match op {
@@ -506,7 +547,10 @@ impl<'a> Codegen<'a> {
                     BinOp::Le => "<=",
                     _ => ">=",
                 };
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
             BinOp::And | BinOp::Or => Err("`and`/`or` need booleans; refusing".into()),
         }
@@ -541,7 +585,6 @@ impl<'a> Codegen<'a> {
         }
     }
 
-
     /// `time` binary ops (docs/TIME.md §3): a closed world — the typeck
     /// proved the valid shapes (`time ± int`, `time − time`, `time`
     /// comparisons). Literal operands are folded in Rust with checked
@@ -574,12 +617,42 @@ impl<'a> Codegen<'a> {
                 BinOp::Add => a.checked_add(b).map(|x| (x, VKind::Time)),
                 BinOp::Sub if rt => a.checked_sub(b).map(|x| (x, VKind::Int)),
                 BinOp::Sub => a.checked_sub(b).map(|x| (x, VKind::Time)),
-                BinOp::Eq => return Ok(Val::scalar(if a == b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Ne => return Ok(Val::scalar(if a != b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Lt => return Ok(Val::scalar(if a < b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Gt => return Ok(Val::scalar(if a > b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Le => return Ok(Val::scalar(if a <= b { "1" } else { "0" }.into(), VKind::Bool)),
-                BinOp::Ge => return Ok(Val::scalar(if a >= b { "1" } else { "0" }.into(), VKind::Bool)),
+                BinOp::Eq => {
+                    return Ok(Val::scalar(
+                        if a == b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Ne => {
+                    return Ok(Val::scalar(
+                        if a != b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Lt => {
+                    return Ok(Val::scalar(
+                        if a < b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Gt => {
+                    return Ok(Val::scalar(
+                        if a > b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Le => {
+                    return Ok(Val::scalar(
+                        if a <= b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
+                BinOp::Ge => {
+                    return Ok(Val::scalar(
+                        if a >= b { "1" } else { "0" }.into(),
+                        VKind::Bool,
+                    ))
+                }
                 _ => None,
             };
             match v {
@@ -592,16 +665,25 @@ impl<'a> Codegen<'a> {
             }
         }
         match op {
-            BinOp::Add => Ok(Val::scalar(format!("(({}) + ({}))", l.sql, r.sql), VKind::Time)),
+            BinOp::Add => Ok(Val::scalar(
+                format!("(({}) + ({}))", l.sql, r.sql),
+                VKind::Time,
+            )),
             // time - int -> time; time - time -> int.
             BinOp::Sub if rt => Ok(Val::scalar(
                 format!("(({}) - ({}))", l.sql, r.sql),
                 VKind::Int,
             )),
-            BinOp::Sub => Ok(Val::scalar(format!("(({}) - ({}))", l.sql, r.sql), VKind::Time)),
+            BinOp::Sub => Ok(Val::scalar(
+                format!("(({}) - ({}))", l.sql, r.sql),
+                VKind::Time,
+            )),
             BinOp::Eq | BinOp::Ne => {
                 let o = if matches!(op, BinOp::Eq) { "=" } else { "<>" };
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
             BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                 let o = match op {
@@ -610,7 +692,10 @@ impl<'a> Codegen<'a> {
                     BinOp::Le => "<=",
                     _ => ">=",
                 };
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
             _ => Err("time binary op shape rejected by codegen; refusing".into()),
         }
@@ -682,7 +767,10 @@ impl<'a> Codegen<'a> {
                 Item::Iface(i) => {
                     // No runtime meaning on this seat (methods are free
                     // functions in CuNi); a comment, not a lie.
-                    self.out.push_str(&format!("-- iface {} (no runtime effect on the SQL seat)\n", i.name));
+                    self.out.push_str(&format!(
+                        "-- iface {} (no runtime effect on the SQL seat)\n",
+                        i.name
+                    ));
                 }
                 Item::Ext(e) => {
                     return Err(format!(
@@ -692,7 +780,8 @@ impl<'a> Codegen<'a> {
                 }
                 Item::Use(u) => {
                     // Unreachable: check.rs resolves `use` before codegen.
-                    self.out.push_str(&format!("-- use {} (resolved by the front-end)\n", u.name));
+                    self.out
+                        .push_str(&format!("-- use {} (resolved by the front-end)\n", u.name));
                 }
                 Item::Stmt(s) => script.push(s),
             }
@@ -954,7 +1043,12 @@ impl<'a> Codegen<'a> {
         }
     }
 
-    fn exec_if(&mut self, cond: &Expr, then_body: &[Stmt], else_body: &[Stmt]) -> Result<(), String> {
+    fn exec_if(
+        &mut self,
+        cond: &Expr,
+        then_body: &[Stmt],
+        else_body: &[Stmt],
+    ) -> Result<(), String> {
         let c = self.eval(cond)?;
         if !matches!(c.kind, VKind::Bool | VKind::Any) {
             return Err("`if` condition must be a bool; refusing".into());
@@ -1066,11 +1160,10 @@ impl<'a> Codegen<'a> {
             match b {
                 Some(bname) => {
                     // `for i, x in xs`
-                    self.env.insert(a.to_string(), Val::scalar(k.to_string(), VKind::Int));
-                    self.env.insert(
-                        bname.to_string(),
-                        Val::scalar(elem_sql, ek.clone()),
-                    );
+                    self.env
+                        .insert(a.to_string(), Val::scalar(k.to_string(), VKind::Int));
+                    self.env
+                        .insert(bname.to_string(), Val::scalar(elem_sql, ek.clone()));
                 }
                 None => {
                     self.env
@@ -1200,7 +1293,8 @@ fn merge_kind(a: &VKind, b: &VKind) -> VKind {
     }
 }
 
-fn kind_of_type(ty: &Type) -> Result<VKind, String> {    match ty {
+fn kind_of_type(ty: &Type) -> Result<VKind, String> {
+    match ty {
         Type::Named(n) => match n.as_str() {
             "int" => Ok(VKind::Int),
             // The SQL seat stores dec as a scaled INTEGER (docs/DECIMAL.md
@@ -1216,7 +1310,9 @@ fn kind_of_type(ty: &Type) -> Result<VKind, String> {    match ty {
             "list" => Ok(VKind::List(vec![kind_of_type(&args[0])?])),
             "map" => Err("maps have no SQL mapping; refusing".into()),
             "opt" => kind_of_type(&args[0]),
-            other => Err(format!("generic type `{other}` has no SQL mapping; refusing")),
+            other => Err(format!(
+                "generic type `{other}` has no SQL mapping; refusing"
+            )),
         },
     }
 }
@@ -1298,7 +1394,9 @@ impl<'a> Codegen<'a> {
                             .and_then(|k| kinds.get(k).cloned())
                             .or_else(|| {
                                 let mut u = kinds.iter();
-                                u.next().filter(|first| kinds.iter().all(|k| k == *first)).cloned()
+                                u.next()
+                                    .filter(|first| kinds.iter().all(|k| k == *first))
+                                    .cloned()
                             })
                             .unwrap_or(VKind::Any);
                         Ok(Val::scalar(self.jget(&b.sql, &ix.sql, &ek), ek))
@@ -1310,9 +1408,7 @@ impl<'a> Codegen<'a> {
                             VKind::Str,
                         ))
                     }
-                    _ => Err(format!(
-                        "indexing needs a list or string target; refusing"
-                    )),
+                    _ => Err(format!("indexing needs a list or string target; refusing")),
                 }
             }
             ExprKind::Field { base, name } => {
@@ -1367,7 +1463,10 @@ impl<'a> Codegen<'a> {
                 Err(_) => Ok(Self::time_to_text_sql(&v.sql)),
             },
             VKind::Str => Ok(v.sql.clone()),
-            VKind::Bool => Ok(format!("CASE WHEN ({}) THEN 'True' ELSE 'False' END", v.sql)),
+            VKind::Bool => Ok(format!(
+                "CASE WHEN ({}) THEN 'True' ELSE 'False' END",
+                v.sql
+            )),
             VKind::Null => Ok("'None'".into()),
             _ => Err("cannot interpolate a composite value into a string; refusing".into()),
         }
@@ -1497,14 +1596,24 @@ impl<'a> Codegen<'a> {
                 // NULL never equals NULL in SQL; the py seat says
                 // `none == none` is True, so literal NULLs use IS.
                 if Self::is_null_sql(&l.sql) || Self::is_null_sql(&r.sql) {
-                    let o = if matches!(op, BinOp::Eq) { "IS" } else { "IS NOT" };
-                    return Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool));
+                    let o = if matches!(op, BinOp::Eq) {
+                        "IS"
+                    } else {
+                        "IS NOT"
+                    };
+                    return Ok(Val::scalar(
+                        format!("(({}) {o} ({}))", l.sql, r.sql),
+                        VKind::Bool,
+                    ));
                 }
                 if let Some(f) = Self::fold(op, &l.sql, &r.sql) {
                     return Ok(Val::scalar(f, VKind::Bool));
                 }
                 let o = if matches!(op, BinOp::Eq) { "=" } else { "<>" };
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
             BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                 if let Some(f) = Self::fold(op, &l.sql, &r.sql) {
@@ -1518,14 +1627,24 @@ impl<'a> Codegen<'a> {
                 };
                 // Strings compare by code point in py; SQLite's BINARY
                 // collation orders UTF-8 the same way.
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
             BinOp::And | BinOp::Or => {
                 if let Some(f) = Self::fold(op, &l.sql, &r.sql) {
                     return Ok(Val::scalar(f, VKind::Bool));
                 }
-                let o = if matches!(op, BinOp::And) { "AND" } else { "OR" };
-                Ok(Val::scalar(format!("(({}) {o} ({}))", l.sql, r.sql), VKind::Bool))
+                let o = if matches!(op, BinOp::And) {
+                    "AND"
+                } else {
+                    "OR"
+                };
+                Ok(Val::scalar(
+                    format!("(({}) {o} ({}))", l.sql, r.sql),
+                    VKind::Bool,
+                ))
             }
         }
     }
@@ -1556,19 +1675,31 @@ impl<'a> Codegen<'a> {
             "(({y}) BETWEEN 1 AND 9999 AND ({mo}) BETWEEN 1 AND 12 AND ({d}) BETWEEN 1 AND {dim} AND ({h}) BETWEEN 0 AND 23 AND ({mi}) BETWEEN 0 AND 59 AND ({s}) BETWEEN 0 AND 59)",
             y = y, mo = mo, d = d, h = h, mi = mi, s = s, dim = dim
         );
-        let y0 = format!("(CASE WHEN ({mo}) <= 2 THEN ({y}) - 1 ELSE ({y}) END)", y = y, mo = mo);
+        let y0 = format!(
+            "(CASE WHEN ({mo}) <= 2 THEN ({y}) - 1 ELSE ({y}) END)",
+            y = y,
+            mo = mo
+        );
         let era = format!("(({y0}) / 400)", y0 = y0);
         let yoe = format!("(({y0}) - ({era}) * 400)", y0 = y0, era = era);
         let mp = format!("((({mo}) + 9) % 12)", mo = mo);
         let doy = format!("((153 * ({mp}) + 2) / 5 + ({d}) - 1)", mp = mp, d = d);
         let doe = format!(
             "(({yoe}) * 365 + ({yoe}) / 4 - ({yoe}) / 100 + ({doy}))",
-            yoe = yoe, doy = doy
+            yoe = yoe,
+            doy = doy
         );
-        let days = format!("(({era}) * 146097 + ({doe}) - 719468)", era = era, doe = doe);
+        let days = format!(
+            "(({era}) * 146097 + ({doe}) - 719468)",
+            era = era,
+            doe = doe
+        );
         let epoch = format!(
             "(({days}) * 86400 + ({h}) * 3600 + ({mi}) * 60 + ({s}))",
-            days = days, h = h, mi = mi, s = s
+            days = days,
+            h = h,
+            mi = mi,
+            s = s
         );
         Ok(Val::scalar(
             format!(
@@ -1582,9 +1713,7 @@ impl<'a> Codegen<'a> {
     fn eval_call(&mut self, callee: &Expr, args: &[CallArg]) -> Result<Val, String> {
         if let ExprKind::Ident(fname) = &callee.kind {
             match fname.as_str() {
-                "say" => {
-                    return Err("`say` is a statement, not an expression; refusing".into())
-                }
+                "say" => return Err("`say` is a statement, not an expression; refusing".into()),
                 "range" => {
                     if args.len() != 1 {
                         return Err("`range` takes exactly one argument; refusing".into());
@@ -1593,11 +1722,9 @@ impl<'a> Codegen<'a> {
                     // Unrolling needs a compile-time-known length; a
                     // `let`-bound literal still has literal SQL text, so
                     // this covers the realistic cases.
-                    let count: i64 = n
-                        .sql
-                        .trim()
-                        .parse()
-                        .map_err(|_| "`range()` needs a compile-time-known size on the SQL seat; refusing")?;
+                    let count: i64 = n.sql.trim().parse().map_err(|_| {
+                        "`range()` needs a compile-time-known size on the SQL seat; refusing"
+                    })?;
                     if count < 0 {
                         return Err("`range()` with a negative size; refusing".into());
                     }
@@ -1611,7 +1738,10 @@ impl<'a> Codegen<'a> {
                     }
                     let v = self.eval(args[0].expr())?;
                     return Ok(Val::scalar(
-                        format!("CASE WHEN ({}) < 0 THEN -({}) ELSE ({}) END", v.sql, v.sql, v.sql),
+                        format!(
+                            "CASE WHEN ({}) < 0 THEN -({}) ELSE ({}) END",
+                            v.sql, v.sql, v.sql
+                        ),
                         v.kind,
                     ));
                 }
@@ -1624,7 +1754,10 @@ impl<'a> Codegen<'a> {
                     let o = if fname == "min" { "<=" } else { ">=" };
                     let kind = merge_kind(&a.kind, &b.kind);
                     return Ok(Val::scalar(
-                        format!("CASE WHEN (({}) {o} ({})) THEN ({}) ELSE ({}) END", a.sql, b.sql, a.sql, b.sql),
+                        format!(
+                            "CASE WHEN (({}) {o} ({})) THEN ({}) ELSE ({}) END",
+                            a.sql, b.sql, a.sql, b.sql
+                        ),
                         kind,
                     ));
                 }
@@ -1637,7 +1770,8 @@ impl<'a> Codegen<'a> {
                     // Literal: exact checked math, loud on overflow.
                     if let Ok(n) = v.sql.trim().parse::<i128>() {
                         let s = n.checked_mul(10_000).ok_or_else(|| {
-                            "dec_of_int overflowed the SQL seat's int64 envelope; refusing".to_string()
+                            "dec_of_int overflowed the SQL seat's int64 envelope; refusing"
+                                .to_string()
                         })?;
                         Self::check_dec_literal(s)?;
                         return Ok(Val::scalar(s.to_string(), VKind::Dec));
@@ -1653,7 +1787,10 @@ impl<'a> Codegen<'a> {
                     if let Ok(n) = v.sql.trim().parse::<i128>() {
                         let t = n / 10_000;
                         if t > i64::MAX as i128 || t < i64::MIN as i128 {
-                            return Err("int_of_dec overflowed the SQL seat's int64 envelope; refusing".into());
+                            return Err(
+                                "int_of_dec overflowed the SQL seat's int64 envelope; refusing"
+                                    .into(),
+                            );
                         }
                         return Ok(Val::scalar(t.to_string(), VKind::Int));
                     }
@@ -1767,8 +1904,8 @@ impl<'a> Codegen<'a> {
                             }
                             None => {
                                 return Err(format!(
-                                    "named constructor `{fname}` is missing field `{fname2}`; refusing"
-                                ))
+                                "named constructor `{fname}` is missing field `{fname2}`; refusing"
+                            ))
                             }
                         }
                     }
@@ -1819,7 +1956,7 @@ impl<'a> Codegen<'a> {
                         ("time", "epoch") => {
                             if args.len() != 6 {
                                 return Err(
-                                    "`time.epoch` takes exactly six arguments; refusing".into(),
+                                    "`time.epoch` takes exactly six arguments; refusing".into()
                                 );
                             }
                             let av: Vec<Val> = args

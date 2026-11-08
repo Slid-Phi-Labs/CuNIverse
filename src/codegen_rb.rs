@@ -162,13 +162,28 @@ impl Codegen {
         self.line(1, "a.to_f / b");
         self.line(0, "end");
         self.out.push('\n');
-        self.line(0, "# CuNi `dec`: fixed-point decimal, scale 10^4, exact (docs/DECIMAL.md).");
-        self.line(0, "# Stored as a scaled Integer; operators keep the tag and the scale, so");
-        self.line(0, "# plain `+ - * /` in emitted code stay exact with no codegen type");
-        self.line(0, "# inference. Mixing with plain Integer is refused (TypeError) — the");
+        self.line(
+            0,
+            "# CuNi `dec`: fixed-point decimal, scale 10^4, exact (docs/DECIMAL.md).",
+        );
+        self.line(
+            0,
+            "# Stored as a scaled Integer; operators keep the tag and the scale, so",
+        );
+        self.line(
+            0,
+            "# plain `+ - * /` in emitted code stay exact with no codegen type",
+        );
+        self.line(
+            0,
+            "# inference. Mixing with plain Integer is refused (TypeError) — the",
+        );
         self.line(0, "# typeck already rejected it; this is defense in depth.");
         self.line(0, "def _cuni_tdiv(a, b)");
-        self.line(1, "# Truncation toward zero (docs/DECIMAL.md §3) — Integer#div floors.");
+        self.line(
+            1,
+            "# Truncation toward zero (docs/DECIMAL.md §3) — Integer#div floors.",
+        );
         self.line(1, "q = a.div(b)");
         self.line(1, "r = a - q * b");
         self.line(1, "(r != 0 && (a < 0) != (b < 0)) ? q + 1 : q");
@@ -207,42 +222,93 @@ impl Codegen {
         self.line(2, "fs = \"0\" if fs.empty?");
         self.line(2, "(neg ? \"-\" : \"\") + i.to_s + \".\" + fs");
         self.line(1, "end");
-        self.line(1, "def +(o); CuniDec.new(__getobj__ + CuniDec.check!(o).__getobj__); end");
-        self.line(1, "def -(o); CuniDec.new(__getobj__ - CuniDec.check!(o).__getobj__); end");
+        self.line(
+            1,
+            "def +(o); CuniDec.new(__getobj__ + CuniDec.check!(o).__getobj__); end",
+        );
+        self.line(
+            1,
+            "def -(o); CuniDec.new(__getobj__ - CuniDec.check!(o).__getobj__); end",
+        );
         self.line(1, "def *(o); CuniDec.new(CuniDec.tdiv(__getobj__ * CuniDec.check!(o).__getobj__, SCALE)); end");
         self.line(1, "def /(o)");
         self.line(2, "o = CuniDec.check!(o)");
-        self.line(2, "raise ZeroDivisionError, \"cuni: dec division by zero\" if o.__getobj__ == 0");
-        self.line(2, "CuniDec.new(CuniDec.tdiv(__getobj__ * SCALE, o.__getobj__))");
+        self.line(
+            2,
+            "raise ZeroDivisionError, \"cuni: dec division by zero\" if o.__getobj__ == 0",
+        );
+        self.line(
+            2,
+            "CuniDec.new(CuniDec.tdiv(__getobj__ * SCALE, o.__getobj__))",
+        );
         self.line(1, "end");
         self.line(1, "def -@; CuniDec.new(-__getobj__); end");
-        self.line(1, "def <=>(o); __getobj__ <=> (o.is_a?(CuniDec) ? o.__getobj__ : o); end");
-        self.line(1, "def ==(o); o.is_a?(CuniDec) && __getobj__ == o.__getobj__; end");
+        self.line(
+            1,
+            "def <=>(o); __getobj__ <=> (o.is_a?(CuniDec) ? o.__getobj__ : o); end",
+        );
+        self.line(
+            1,
+            "def ==(o); o.is_a?(CuniDec) && __getobj__ == o.__getobj__; end",
+        );
         self.line(1, "def to_s; CuniDec.dec_str(__getobj__); end");
         self.line(1, "def inspect; to_s; end");
         self.line(0, "end");
         self.out.push('\n');
-        self.line(0, "# CuNi `time`: int64 unix epoch seconds, UTC (docs/TIME.md).");
-        self.line(0, "# Stored as an Integer (the epoch); operators keep the tag, so plain");
-        self.line(0, "# `+`/`-` in emitted code stay exact with no codegen type inference.");
-        self.line(0, "# Mixing with anything but a plain Integer duration is refused");
-        self.line(0, "# (TypeError) — the typeck already rejected it; this is defense in depth.");
+        self.line(
+            0,
+            "# CuNi `time`: int64 unix epoch seconds, UTC (docs/TIME.md).",
+        );
+        self.line(
+            0,
+            "# Stored as an Integer (the epoch); operators keep the tag, so plain",
+        );
+        self.line(
+            0,
+            "# `+`/`-` in emitted code stay exact with no codegen type inference.",
+        );
+        self.line(
+            0,
+            "# Mixing with anything but a plain Integer duration is refused",
+        );
+        self.line(
+            0,
+            "# (TypeError) — the typeck already rejected it; this is defense in depth.",
+        );
         self.line(0, "def _cuni_parse_time(s)");
-        self.line(1, "# Strict ISO-8601 UTC -> CuniTime (docs/TIME.md §2, §5). Bad input");
+        self.line(
+            1,
+            "# Strict ISO-8601 UTC -> CuniTime (docs/TIME.md §2, §5). Bad input",
+        );
         self.line(1, "# raises loudly — never a silent value.");
         self.line(1, "bad = -> { raise ArgumentError, \"cuni: parse_time: bad ISO-8601 UTC timestamp — refused\" }");
         self.line(1, "bad.call unless s.is_a?(String) && s.length == 20");
         self.line(1, "bad.call unless s[4] == \"-\" && s[7] == \"-\" && s[10] == \"T\" && s[13] == \":\" && s[16] == \":\" && s[19] == \"Z\"");
-        self.line(1, "dg = [s[0, 4], s[5, 2], s[8, 2], s[11, 2], s[14, 2], s[17, 2]]");
-        self.line(1, "bad.call unless dg.all? { |g| g.match?(/\\A[0-9]+\\z/) }");
+        self.line(
+            1,
+            "dg = [s[0, 4], s[5, 2], s[8, 2], s[11, 2], s[14, 2], s[17, 2]]",
+        );
+        self.line(
+            1,
+            "bad.call unless dg.all? { |g| g.match?(/\\A[0-9]+\\z/) }",
+        );
         self.line(1, "y, mo, d, h, mi, sec = dg.map(&:to_i)");
-        self.line(1, "bad.call unless (1..9999).include?(y) && (1..12).include?(mo)");
+        self.line(
+            1,
+            "bad.call unless (1..9999).include?(y) && (1..12).include?(mo)",
+        );
         self.line(1, "dim = 31");
         self.line(1, "dim = 30 if [4, 6, 9, 11].include?(mo)");
         self.line(1, "if mo == 2");
-        self.line(2, "dim = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 29 : 28");
+        self.line(
+            2,
+            "dim = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 29 : 28",
+        );
         self.line(1, "end");
-        self.line(1, "bad.call unless (1..dim).include?(d) && h <= 23 && mi <= 59 && sec <= 59");
+        self.line(
+            1,
+            "bad.call unless (1..dim).include?(d) && h <= 23 && mi <= 59 && sec <= 59",
+        );
         self.line(1, "y0 = mo <= 2 ? y - 1 : y");
         self.line(1, "era = y0.div(400)");
         self.line(1, "yoe = y0 - era * 400");
@@ -258,7 +324,10 @@ impl Codegen {
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_days_between(a, b)");
-        self.line(1, "# (a - b) is Integer seconds (CuniTime#-); trunc toward zero.");
+        self.line(
+            1,
+            "# (a - b) is Integer seconds (CuniTime#-); trunc toward zero.",
+        );
         self.line(1, "CuniTime.tdiv(a - b, 86400)");
         self.line(0, "end");
         self.out.push('\n');
@@ -278,11 +347,17 @@ impl Codegen {
         // Canonical ISO-8601 UTC rendering (docs/TIME.md §4). A class method
         // (same BasicObject reason as tdiv above).
         self.line(1, "def self.time_str(v)");
-        self.line(2, "days, sod = v.divmod(86400)  # divmod floors: correct for negatives");
+        self.line(
+            2,
+            "days, sod = v.divmod(86400)  # divmod floors: correct for negatives",
+        );
         self.line(2, "z = days + 719468");
         self.line(2, "era = z.div(146097)");
         self.line(2, "doe = z - era * 146097");
-        self.line(2, "yoe = (doe - doe.div(1460) + doe.div(36524) - doe.div(146096)).div(365)");
+        self.line(
+            2,
+            "yoe = (doe - doe.div(1460) + doe.div(36524) - doe.div(146096)).div(365)",
+        );
         self.line(2, "y = yoe + era * 400");
         self.line(2, "doy = doe - (365 * yoe + yoe.div(4) - yoe.div(100))");
         self.line(2, "mp = (5 * doy + 2).div(153)");
@@ -291,11 +366,20 @@ impl Codegen {
         self.line(2, "y += 1 if m <= 2");
         self.line(2, "hh, rem = sod.divmod(3600)");
         self.line(2, "mi, ss = rem.divmod(60)");
-        self.line(2, "ys = (y < 0 ? \"-\" : \"\") + y.abs.to_s.rjust(4, \"0\")");
-        self.line(2, "\"%s-%02d-%02dT%02d:%02d:%02dZ\" % [ys, m, d, hh, mi, ss]");
+        self.line(
+            2,
+            "ys = (y < 0 ? \"-\" : \"\") + y.abs.to_s.rjust(4, \"0\")",
+        );
+        self.line(
+            2,
+            "\"%s-%02d-%02dT%02d:%02d:%02dZ\" % [ys, m, d, hh, mi, ss]",
+        );
         self.line(1, "end");
         self.line(1, "def +(o)");
-        self.line(2, "raise TypeError, \"cuni: cannot add time + time — refusing\" if o.is_a?(CuniTime)");
+        self.line(
+            2,
+            "raise TypeError, \"cuni: cannot add time + time — refusing\" if o.is_a?(CuniTime)",
+        );
         self.line(2, "CuniTime.new(__getobj__ + CuniTime.check_int!(o))");
         self.line(1, "end");
         // `int + time`: Integer#+ calls coerce since CuniTime is not Numeric —
@@ -305,7 +389,10 @@ impl Codegen {
         self.line(2, "[CuniTime.new(o), self]");
         self.line(1, "end");
         self.line(1, "def -(o)");
-        self.line(2, "return __getobj__ - o.__getobj__ if o.is_a?(CuniTime)  # time - time -> int");
+        self.line(
+            2,
+            "return __getobj__ - o.__getobj__ if o.is_a?(CuniTime)  # time - time -> int",
+        );
         self.line(2, "CuniTime.new(__getobj__ - CuniTime.check_int!(o))");
         self.line(1, "end");
         // Unary minus keeps the tag (docs/TIME.md §3); without this,
@@ -314,8 +401,14 @@ impl Codegen {
         self.line(2, "CuniTime.new(-__getobj__)");
         self.line(1, "end");
         self.line(1, "def -@; CuniTime.new(-__getobj__); end");
-        self.line(1, "def <=>(o); __getobj__ <=> (o.is_a?(CuniTime) ? o.__getobj__ : o); end");
-        self.line(1, "def ==(o); o.is_a?(CuniTime) && __getobj__ == o.__getobj__; end");
+        self.line(
+            1,
+            "def <=>(o); __getobj__ <=> (o.is_a?(CuniTime) ? o.__getobj__ : o); end",
+        );
+        self.line(
+            1,
+            "def ==(o); o.is_a?(CuniTime) && __getobj__ == o.__getobj__; end",
+        );
         self.line(1, "def to_s; CuniTime.time_str(__getobj__); end");
         self.line(1, "def inspect; to_s; end");
         self.line(0, "end");
@@ -325,8 +418,14 @@ impl Codegen {
         self.line(0, "CUNI_JSON_INT_MAX = 9007199254740991");
         self.out.push('\n');
         self.line(0, "def _cuni_json_num(n)");
-        self.line(1, "# Integer or Float from JSON.parse; the value-based integer rule");
-        self.line(1, "# (docs/STDLIB.md §1.1). Ruby Integers are exact (bignum).");
+        self.line(
+            1,
+            "# Integer or Float from JSON.parse; the value-based integer rule",
+        );
+        self.line(
+            1,
+            "# (docs/STDLIB.md §1.1). Ruby Integers are exact (bignum).",
+        );
         self.line(1, "if n.is_a?(Integer)");
         self.line(2, "raise CuNiError, \"json.parse: number is not an integer in ±(2^53−1)\" if n.abs > CUNI_JSON_INT_MAX");
         self.line(2, "return n");
@@ -340,7 +439,10 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_json_walk(v)");
         self.line(1, "case v");
-        self.line(1, "when Hash then v.each_with_object({}) { |(k, x), o| o[k] = _cuni_json_walk(x) }");
+        self.line(
+            1,
+            "when Hash then v.each_with_object({}) { |(k, x), o| o[k] = _cuni_json_walk(x) }",
+        );
         self.line(1, "when Array then v.map { |x| _cuni_json_walk(x) }");
         self.line(1, "when Integer, Float then _cuni_json_num(v)");
         self.line(1, "when String, TrueClass, FalseClass, NilClass then v");
@@ -350,7 +452,10 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_json_parse(s)");
         self.line(1, "require \"json\"");
-        self.line(1, "raise CuNiError, \"json.parse needs a str\" unless s.is_a?(String)");
+        self.line(
+            1,
+            "raise CuNiError, \"json.parse needs a str\" unless s.is_a?(String)",
+        );
         self.line(1, "begin");
         self.line(2, "v = JSON.parse(s)");
         self.line(1, "rescue JSON::ParserError");
@@ -364,12 +469,21 @@ impl Codegen {
         self.line(1, "case v");
         self.line(1, "when Hash");
         self.line(2, "v.each_key { |k| raise CuNiError, \"json.emit: map keys must be strings\" unless k.is_a?(String) }");
-        self.line(2, "v.each_with_object({}) { |(k, x), o| o[k] = _cuni_json_emit_norm(x) }");
+        self.line(
+            2,
+            "v.each_with_object({}) { |(k, x), o| o[k] = _cuni_json_emit_norm(x) }",
+        );
         self.line(1, "when Array then v.map { |x| _cuni_json_emit_norm(x) }");
         self.line(1, "when Integer then v");
-        self.line(1, "when Float then raise CuNiError, \"json.emit: floats have no JSON integer form\"");
+        self.line(
+            1,
+            "when Float then raise CuNiError, \"json.emit: floats have no JSON integer form\"",
+        );
         self.line(1, "when String, TrueClass, FalseClass, NilClass then v");
-        self.line(1, "else raise CuNiError, \"json.emit: value has no JSON form\"");
+        self.line(
+            1,
+            "else raise CuNiError, \"json.emit: value has no JSON form\"",
+        );
         self.line(1, "end");
         self.line(0, "end");
         self.out.push('\n');
@@ -378,7 +492,10 @@ impl Codegen {
         self.line(1, "case v");
         self.line(1, "when Hash");
         self.line(2, "o = {}");
-        self.line(2, "v.keys.sort_by { |k| k.bytes }.each { |k| o[k] = _cuni_json_sort(v[k]) }");
+        self.line(
+            2,
+            "v.keys.sort_by { |k| k.bytes }.each { |k| o[k] = _cuni_json_sort(v[k]) }",
+        );
         self.line(2, "o");
         self.line(1, "when Array then v.map { |x| _cuni_json_sort(x) }");
         self.line(1, "else v");
@@ -387,7 +504,10 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_json_emit(m)");
         self.line(1, "require \"json\"");
-        self.line(1, "raise CuNiError, \"json.emit needs a map\" unless m.is_a?(Hash)");
+        self.line(
+            1,
+            "raise CuNiError, \"json.emit needs a map\" unless m.is_a?(Hash)",
+        );
         self.line(1, "JSON.generate(_cuni_json_sort(_cuni_json_emit_norm(m)))");
         self.line(0, "end");
         self.out.push('\n');
@@ -405,7 +525,10 @@ impl Codegen {
         self.line(1, "z += 719468");
         self.line(1, "era = z / 146097");
         self.line(1, "doe = z - era * 146097");
-        self.line(1, "yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365");
+        self.line(
+            1,
+            "yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365",
+        );
         self.line(1, "y = yoe + era * 400");
         self.line(1, "doy = doe - (365 * yoe + yoe / 4 - yoe / 100)");
         self.line(1, "mp = (5 * doy + 2) / 153");
@@ -416,21 +539,51 @@ impl Codegen {
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_time_epoch(y, mo, d, h, mi, s)");
-        self.line(1, "raise CuNiError, \"time.epoch: year out of range 1..9999\" unless (1..9999).cover?(y)");
-        self.line(1, "raise CuNiError, \"time.epoch: month out of range 1..12\" unless (1..12).cover?(mo)");
-        self.line(1, "raise CuNiError, \"time.epoch: hour out of range 0..23\" unless (0..23).cover?(h)");
-        self.line(1, "raise CuNiError, \"time.epoch: minute out of range 0..59\" unless (0..59).cover?(mi)");
-        self.line(1, "raise CuNiError, \"time.epoch: second out of range 0..59\" unless (0..59).cover?(s)");
+        self.line(
+            1,
+            "raise CuNiError, \"time.epoch: year out of range 1..9999\" unless (1..9999).cover?(y)",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \"time.epoch: month out of range 1..12\" unless (1..12).cover?(mo)",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \"time.epoch: hour out of range 0..23\" unless (0..23).cover?(h)",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \"time.epoch: minute out of range 0..59\" unless (0..59).cover?(mi)",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \"time.epoch: second out of range 0..59\" unless (0..59).cover?(s)",
+        );
         self.line(1, "leap = y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)");
-        self.line(1, "dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1]");
-        self.line(1, "raise CuNiError, \"time.epoch: day out of range for month\" unless (1..dim).cover?(d)");
-        self.line(1, "_cuni_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s");
+        self.line(
+            1,
+            "dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1]",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \"time.epoch: day out of range for month\" unless (1..dim).cover?(d)",
+        );
+        self.line(
+            1,
+            "_cuni_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s",
+        );
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_time_parts(e)");
         self.line(1, "lo = _cuni_days_from_civil(1, 1, 1) * 86400");
-        self.line(1, "hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399");
-        self.line(1, "raise CuNiError, \"time.parts: epoch out of range 1..9999\" unless e >= lo && e <= hi");
+        self.line(
+            1,
+            "hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \"time.parts: epoch out of range 1..9999\" unless e >= lo && e <= hi",
+        );
         self.line(1, "days = e.div(86400)");
         self.line(1, "secs = e - days * 86400");
         self.line(1, "y, mo, d = _cuni_civil_from_days(days)");
@@ -438,24 +591,48 @@ impl Codegen {
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_split(s, sep)");
-        self.line(1, "raise CuNiError, \".split needs strings\" unless s.is_a?(String) && sep.is_a?(String)");
-        self.line(1, "raise CuNiError, \".split: empty separator; refusing\" if sep.empty?");
-        self.line(1, "# Ruby drops the single empty part of \"\".split; the spec keeps it.");
+        self.line(
+            1,
+            "raise CuNiError, \".split needs strings\" unless s.is_a?(String) && sep.is_a?(String)",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \".split: empty separator; refusing\" if sep.empty?",
+        );
+        self.line(
+            1,
+            "# Ruby drops the single empty part of \"\".split; the spec keeps it.",
+        );
         self.line(1, "return [\"\"] if s.empty?");
         self.line(1, "s.split(sep, -1)");
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_join(sep, parts)");
-        self.line(1, "raise CuNiError, \".join needs a str separator\" unless sep.is_a?(String)");
-        self.line(1, "raise CuNiError, \".join needs a list<str>\" unless parts.is_a?(Array)");
+        self.line(
+            1,
+            "raise CuNiError, \".join needs a str separator\" unless sep.is_a?(String)",
+        );
+        self.line(
+            1,
+            "raise CuNiError, \".join needs a list<str>\" unless parts.is_a?(Array)",
+        );
         self.line(1, "parts.each { |x| raise CuNiError, \".join: all parts must be str\" unless x.is_a?(String) }");
         self.line(1, "parts.join(sep)");
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_trim(s)");
-        self.line(1, "raise CuNiError, \".trim needs a str\" unless s.is_a?(String)");
-        self.line(1, "# ASCII whitespace only (docs/STDLIB.md §3.3) — not String#strip's set.");
-        self.line(1, "s.gsub(/\\A[ \\t\\n\\v\\f\\r]+|[ \\t\\n\\v\\f\\r]+\\z/, \"\")");
+        self.line(
+            1,
+            "raise CuNiError, \".trim needs a str\" unless s.is_a?(String)",
+        );
+        self.line(
+            1,
+            "# ASCII whitespace only (docs/STDLIB.md §3.3) — not String#strip's set.",
+        );
+        self.line(
+            1,
+            "s.gsub(/\\A[ \\t\\n\\v\\f\\r]+|[ \\t\\n\\v\\f\\r]+\\z/, \"\")",
+        );
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "def _cuni_contains(s, sub)");
@@ -465,8 +642,12 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_sha256(s)");
         self.line(1, "require \"digest\"");
-        self.line(1, "raise CuNiError, \"sha256 needs a str\" unless s.is_a?(String)");
-        self.line(1, "Digest::SHA256.hexdigest(s)");        self.line(0, "end");
+        self.line(
+            1,
+            "raise CuNiError, \"sha256 needs a str\" unless s.is_a?(String)",
+        );
+        self.line(1, "Digest::SHA256.hexdigest(s)");
+        self.line(0, "end");
         self.out.push('\n');
         self.line(0, "class CuNiError < StandardError; end");
         self.out.push('\n');
@@ -803,13 +984,25 @@ impl Codegen {
                         // `time` builtins (docs/TIME.md §5).
                         "parse_time" => return format!("_cuni_parse_time({})", one()),
                         "add_seconds" => {
-                            let a = args.first().map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
-                            let b = args.get(1).map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
+                            let a = args
+                                .first()
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
+                            let b = args
+                                .get(1)
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
                             return format!("_cuni_add_seconds({a}, {b})");
                         }
                         "days_between" => {
-                            let a = args.first().map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
-                            let b = args.get(1).map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
+                            let a = args
+                                .first()
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
+                            let b = args
+                                .get(1)
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
                             return format!("_cuni_days_between({a}, {b})");
                         }
                         _ => {}
@@ -1008,7 +1201,11 @@ fn kind_of_literal(e: &Expr) -> Option<VarKind> {
 
 /// Is this expression a CuNi `time`? Mirrors the go/js backends' tracking
 /// so `int + time` can be emitted time-first.
-fn is_time_expr(e: &Expr, scope: &HashMap<String, VarKind>, fn_time_rets: &HashSet<String>) -> bool {
+fn is_time_expr(
+    e: &Expr,
+    scope: &HashMap<String, VarKind>,
+    fn_time_rets: &HashSet<String>,
+) -> bool {
     match &e.kind {
         ExprKind::Time(_) => true,
         ExprKind::Ident(n) => scope.get(n) == Some(&VarKind::Time),
@@ -1025,10 +1222,7 @@ fn is_time_expr(e: &Expr, scope: &HashMap<String, VarKind>, fn_time_rets: &HashS
             {
                 false
             }
-            _ => {
-                is_time_expr(lhs, scope, fn_time_rets)
-                    || is_time_expr(rhs, scope, fn_time_rets)
-            }
+            _ => is_time_expr(lhs, scope, fn_time_rets) || is_time_expr(rhs, scope, fn_time_rets),
         },
         _ => false,
     }

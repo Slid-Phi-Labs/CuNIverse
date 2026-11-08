@@ -158,7 +158,10 @@ fn withholding_gates_on_money_seats() {
 
 fn pinned_verdicts(fixture: &str, expected: &str) {
     let (ok, stdout, stderr) = run_cuni(&["run", fixture], None);
-    assert!(ok, "cuni run failed for {fixture}\nstdout:\n{stdout}\nstderr:\n{stderr}");
+    assert!(
+        ok,
+        "cuni run failed for {fixture}\nstdout:\n{stdout}\nstderr:\n{stderr}"
+    );
     assert_eq!(
         stdout, expected,
         "verdicts drifted for {fixture} — the law changed without the gate catching it"
@@ -196,7 +199,10 @@ fn audit_gen_key_writes_guarded_keypair() {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        let mode = std::fs::metadata(&key).expect("stat .key").permissions().mode();
+        let mode = std::fs::metadata(&key)
+            .expect("stat .key")
+            .permissions()
+            .mode();
         assert_eq!(mode & 0o777, 0o600, ".key must be mode 600, got {mode:o}");
     }
     let pub_hex = std::fs::read_to_string(&publ).expect("missing .pub file");
@@ -206,7 +212,10 @@ fn audit_gen_key_writes_guarded_keypair() {
     );
     // Key material is never silently replaced: a second gen-key refuses.
     let (ok2, _, stderr2) = run_cuni(&["audit", "--gen-key", "testauditor"], Some(&dir));
-    assert!(!ok2, "gen-key overwrote existing key files — it must refuse");
+    assert!(
+        !ok2,
+        "gen-key overwrote existing key files — it must refuse"
+    );
     assert!(
         stderr2.contains("refusing to overwrite"),
         "overwrite refusal lost its message\n{stderr2}"
@@ -217,7 +226,10 @@ fn audit_gen_key_writes_guarded_keypair() {
 fn gen_key_in(dir: &Path, name: &str) -> (PathBuf, PathBuf) {
     let (ok, stdout, stderr) = run_cuni(&["audit", "--gen-key", name], Some(dir));
     assert!(ok, "gen-key failed\nstdout:\n{stdout}\nstderr:\n{stderr}");
-    (dir.join(format!("{name}.key")), dir.join(format!("{name}.pub")))
+    (
+        dir.join(format!("{name}.key")),
+        dir.join(format!("{name}.pub")),
+    )
 }
 
 fn write(path: &Path, contents: &str) {
@@ -289,15 +301,30 @@ fn audit_pass_py_impl_with_signature() {
     let (key, _) = gen_key_in(&dir, "auditor");
     let law = law_path(FEE);
     let (ok, v, json_text) = run_audit(&dir, &law, "bank_fee.py", FEE_PY_IMPL, Some(&key));
-    assert!(ok, "audit of a matching impl must exit 0, verdict={}", v["verdict"]);
+    assert!(
+        ok,
+        "audit of a matching impl must exit 0, verdict={}",
+        v["verdict"]
+    );
     assert_eq!(v["verdict"], "PASS");
     assert_receipt_hashes(&v, &law, FEE_PY_IMPL, FEE_VERDICTS);
-    let seats: Vec<&str> = v["seats_run"].as_array().unwrap().iter().map(|s| s.as_str().unwrap()).collect();
+    let seats: Vec<&str> = v["seats_run"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s.as_str().unwrap())
+        .collect();
     for seat in ["py", "rs", "go", "java", "sql"] {
-        assert!(seats.contains(&seat), "gold gate must run {seat}; ran {seats:?}");
+        assert!(
+            seats.contains(&seat),
+            "gold gate must run {seat}; ran {seats:?}"
+        );
     }
     assert!(is_iso8601_utc(v["timestamp_utc"].as_str().unwrap()));
-    assert_eq!(v["cuni_version"].as_str().unwrap(), env!("CARGO_PKG_VERSION"));
+    assert_eq!(
+        v["cuni_version"].as_str().unwrap(),
+        env!("CARGO_PKG_VERSION")
+    );
     // The signature re-verifies from the JSON bytes alone.
     assert!(
         v["signer_pubkey"].as_str().is_some_and(|s| s.len() == 64),
@@ -321,7 +348,11 @@ fn audit_pass_java_impl() {
     let dir = scratch_dir("audit_java");
     let law = law_path(WITHHOLD);
     let (ok, v, _) = run_audit(&dir, &law, "Main.java", WITHHOLD_JAVA_IMPL, None);
-    assert!(ok, "audit of a matching Java impl must exit 0, verdict={}", v["verdict"]);
+    assert!(
+        ok,
+        "audit of a matching Java impl must exit 0, verdict={}",
+        v["verdict"]
+    );
     assert_eq!(v["verdict"], "PASS");
     assert_receipt_hashes(&v, &law, WITHHOLD_JAVA_IMPL, WITHHOLD_VERDICTS);
     let _ = std::fs::remove_dir_all(&dir);
@@ -333,7 +364,11 @@ fn audit_pass_rs_impl() {
     let dir = scratch_dir("audit_rs");
     let law = law_path(INTEREST);
     let (ok, v, _) = run_audit(&dir, &law, "impl_accrue.rs", INTEREST_RS_IMPL, None);
-    assert!(ok, "audit of a matching Rust impl must exit 0, verdict={}", v["verdict"]);
+    assert!(
+        ok,
+        "audit of a matching Rust impl must exit 0, verdict={}",
+        v["verdict"]
+    );
     assert_eq!(v["verdict"], "PASS");
     assert_receipt_hashes(&v, &law, INTEREST_RS_IMPL, INTEREST_VERDICTS);
     let _ = std::fs::remove_dir_all(&dir);
@@ -346,11 +381,25 @@ fn audit_pass_sql_impl_unsigned() {
     let dir = scratch_dir("audit_sql");
     let law = law_path(FEE);
     let (ok, v, json_text) = run_audit(&dir, &law, "bank_fee.sql", FEE_SQL_IMPL, None);
-    assert!(ok, "audit of a matching SQL impl must exit 0, verdict={}", v["verdict"]);
+    assert!(
+        ok,
+        "audit of a matching SQL impl must exit 0, verdict={}",
+        v["verdict"]
+    );
     assert_eq!(v["verdict"], "PASS");
-    assert!(v.get("signature").is_none(), "unsigned receipt must omit signature");
-    assert!(v.get("signer_pubkey").is_none(), "unsigned receipt must omit signer_pubkey");
-    assert_eq!(verify_receipt(&json_text), Ok(false), "unsigned receipt verifies as Ok(false)");
+    assert!(
+        v.get("signature").is_none(),
+        "unsigned receipt must omit signature"
+    );
+    assert!(
+        v.get("signer_pubkey").is_none(),
+        "unsigned receipt must omit signer_pubkey"
+    );
+    assert_eq!(
+        verify_receipt(&json_text),
+        Ok(false),
+        "unsigned receipt verifies as Ok(false)"
+    );
     let _ = std::fs::remove_dir_all(&dir);
 }
 

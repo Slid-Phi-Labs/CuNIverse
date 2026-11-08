@@ -2,6 +2,15 @@
 
 > CuNi is a programming language with one hard rule: one source either behaves exactly the same on every target it builds for, or it refuses to build. 53 catalog targets; `cuni check` proves byte-identical stdout. Open source under AGPL-3.0-or-later, or a commercial grant.
 
+## One product, seven arms
+
+CuNi is one product: a compiler trunk and one exactness gate, delivered
+through Studio, Bank, Audit, Onchain, Exactness, Transparency, and Tap.
+Every arm runs the same `cuni check`; none has an approximate mode.
+
+- [ARMS](https://github.com/ceedot-rock/CuNIverse/blob/master/ARMS.md): the arm registry, human page
+- [arms.json](https://github.com/ceedot-rock/CuNIverse/blob/master/arms.json): the same registry, machine-readable
+
 ## Docs
 
 - [README](https://github.com/ceedot-rock/cuni): install, quick start, the exactness contract

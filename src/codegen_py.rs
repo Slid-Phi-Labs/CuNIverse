@@ -149,18 +149,27 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_div(a, b):");
         self.line(1, "if type(a) is CuniDec and type(b) is CuniDec:");
-        self.line(2, "return a / b  # CuniDec.__truediv__: trunc(a*10000/b) toward zero, exact");
+        self.line(
+            2,
+            "return a / b  # CuniDec.__truediv__: trunc(a*10000/b) toward zero, exact",
+        );
         self.line(1, "if type(a) is int and type(b) is int and b != 0:");
         self.line(2, "return int(a / b) if a * b < 0 else a // b");
         self.line(1, "return a / b");
         self.out.push('\n');
         self.line(0, "def _cuni_tdiv(a, b):");
-        self.line(1, "# Truncation toward zero (docs/DECIMAL.md §3) — Python's // floors.");
+        self.line(
+            1,
+            "# Truncation toward zero (docs/DECIMAL.md §3) — Python's // floors.",
+        );
         self.line(1, "q = abs(a) // abs(b)");
         self.line(1, "return -q if (a < 0) != (b < 0) else q");
         self.out.push('\n');
         self.line(0, "def _cuni_dec_str(v):");
-        self.line(1, "# Canonical dec rendering of a scaled int (docs/DECIMAL.md §6).");
+        self.line(
+            1,
+            "# Canonical dec rendering of a scaled int (docs/DECIMAL.md §6).",
+        );
         self.line(1, "neg = v < 0");
         self.line(1, "mag = -v if neg else v");
         self.line(1, "i, f = divmod(mag, 10000)");
@@ -174,10 +183,22 @@ impl Codegen {
         self.line(1, "return _cuni_tdiv(int(d), 10000)");
         self.out.push('\n');
         self.line(0, "class CuniDec(int):");
-        self.line(1, "# CuNi `dec`: fixed-point decimal, scale 10^4, exact (docs/DECIMAL.md).");
-        self.line(1, "# Stored as a scaled int; every operator keeps the tag and the scale,");
-        self.line(1, "# so plain `+ - * /` in emitted code stay exact with no codegen");
-        self.line(1, "# type inference. Mixing with plain int is refused (TypeError) — the");
+        self.line(
+            1,
+            "# CuNi `dec`: fixed-point decimal, scale 10^4, exact (docs/DECIMAL.md).",
+        );
+        self.line(
+            1,
+            "# Stored as a scaled int; every operator keeps the tag and the scale,",
+        );
+        self.line(
+            1,
+            "# so plain `+ - * /` in emitted code stay exact with no codegen",
+        );
+        self.line(
+            1,
+            "# type inference. Mixing with plain int is refused (TypeError) — the",
+        );
         self.line(1, "# typeck already rejected it; this is defense in depth.");
         self.line(1, "__slots__ = ()");
         self.line(1, "def __str__(self):");
@@ -188,19 +209,31 @@ impl Codegen {
         self.line(2, "return _cuni_dec_str(int(self)) if not spec else format(_cuni_dec_str(int(self)), spec)");
         self.line(1, "def __add__(self, o):");
         self.line(2, "if not isinstance(o, CuniDec):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")",
+        );
         self.line(2, "return CuniDec(int(self) + int(o))");
         self.line(1, "def __sub__(self, o):");
         self.line(2, "if not isinstance(o, CuniDec):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")",
+        );
         self.line(2, "return CuniDec(int(self) - int(o))");
         self.line(1, "def __mul__(self, o):");
         self.line(2, "if not isinstance(o, CuniDec):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")",
+        );
         self.line(2, "return CuniDec(_cuni_tdiv(int(self) * int(o), 10000))");
         self.line(1, "def __truediv__(self, o):");
         self.line(2, "if not isinstance(o, CuniDec):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix dec and non-dec — convert explicitly\")",
+        );
         self.line(2, "if int(o) == 0:");
         self.line(3, "raise ZeroDivisionError(\"cuni: dec division by zero\")");
         self.line(2, "return CuniDec(_cuni_tdiv(int(self) * 10000, int(o)))");
@@ -209,13 +242,22 @@ impl Codegen {
         self.out.push('\n');
         // ---- CuNi `time`: int64 unix epoch seconds, UTC (docs/TIME.md) ----
         self.line(0, "def _cuni_time_str(v):");
-        self.line(1, "# Canonical ISO-8601 UTC rendering of an epoch (docs/TIME.md §4).");
-        self.line(1, "# Pure integer civil-from-days; divmod floors, so negatives work.");
+        self.line(
+            1,
+            "# Canonical ISO-8601 UTC rendering of an epoch (docs/TIME.md §4).",
+        );
+        self.line(
+            1,
+            "# Pure integer civil-from-days; divmod floors, so negatives work.",
+        );
         self.line(1, "days, sod = divmod(v, 86400)");
         self.line(1, "z = days + 719468");
         self.line(1, "era = z // 146097");
         self.line(1, "doe = z - era * 146097");
-        self.line(1, "yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365");
+        self.line(
+            1,
+            "yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365",
+        );
         self.line(1, "y = yoe + era * 400");
         self.line(1, "doy = doe - (365 * yoe + yoe // 4 - yoe // 100)");
         self.line(1, "mp = (5 * doy + 2) // 153");
@@ -225,25 +267,43 @@ impl Codegen {
         self.line(1, "hh, rem = divmod(sod, 3600)");
         self.line(1, "mi, ss = divmod(rem, 60)");
         self.line(1, "ys = (\"-\" if y < 0 else \"\") + str(abs(y)).zfill(4)");
-        self.line(1, "return f\"{ys}-{m:02d}-{d:02d}T{hh:02d}:{mi:02d}:{ss:02d}Z\"");
+        self.line(
+            1,
+            "return f\"{ys}-{m:02d}-{d:02d}T{hh:02d}:{mi:02d}:{ss:02d}Z\"",
+        );
         self.out.push('\n');
         self.line(0, "def _cuni_parse_time(s):");
-        self.line(1, "# Strict ISO-8601 UTC -> CuniTime (docs/TIME.md §2, §5). Bad input");
+        self.line(
+            1,
+            "# Strict ISO-8601 UTC -> CuniTime (docs/TIME.md §2, §5). Bad input",
+        );
         self.line(1, "# raises loudly — never a silent value.");
         self.line(1, "def _bad(): raise ValueError(\"cuni: parse_time: bad ISO-8601 UTC timestamp — refused\")");
         self.line(1, "if not isinstance(s, str) or len(s) != 20: _bad()");
         self.line(1, "if s[4] != \"-\" or s[7] != \"-\" or s[10] != \"T\" or s[13] != \":\" or s[16] != \":\" or s[19] != \"Z\": _bad()");
-        self.line(1, "for i in (0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18):");
+        self.line(
+            1,
+            "for i in (0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18):",
+        );
         self.line(2, "if not (\"0\" <= s[i] <= \"9\"): _bad()");
         self.line(1, "y, mo, d = int(s[0:4]), int(s[5:7]), int(s[8:10])");
-        self.line(1, "h, mi, sec = int(s[11:13]), int(s[14:16]), int(s[17:19])");
+        self.line(
+            1,
+            "h, mi, sec = int(s[11:13]), int(s[14:16]), int(s[17:19])",
+        );
         self.line(1, "if not (1 <= y <= 9999): _bad()");
         self.line(1, "if not (1 <= mo <= 12): _bad()");
         self.line(1, "dim = 31");
         self.line(1, "if mo in (4, 6, 9, 11): dim = 30");
-        self.line(1, "elif mo == 2: dim = 29 if (y % 4 == 0 and (y % 100 != 0 or y % 400 == 0)) else 28");
+        self.line(
+            1,
+            "elif mo == 2: dim = 29 if (y % 4 == 0 and (y % 100 != 0 or y % 400 == 0)) else 28",
+        );
         self.line(1, "if not (1 <= d <= dim): _bad()");
-        self.line(1, "if not (0 <= h <= 23 and 0 <= mi <= 59 and 0 <= sec <= 59): _bad()");
+        self.line(
+            1,
+            "if not (0 <= h <= 23 and 0 <= mi <= 59 and 0 <= sec <= 59): _bad()",
+        );
         self.line(1, "y0 = y - 1 if mo <= 2 else y");
         self.line(1, "era = y0 // 400");
         self.line(1, "yoe = y0 - era * 400");
@@ -251,23 +311,53 @@ impl Codegen {
         self.line(1, "doy = (153 * mp + 2) // 5 + d - 1");
         self.line(1, "doe = yoe * 365 + yoe // 4 - yoe // 100 + doy");
         self.line(1, "days = era * 146097 + doe - 719468");
-        self.line(1, "return CuniTime(days * 86400 + h * 3600 + mi * 60 + sec)");
+        self.line(
+            1,
+            "return CuniTime(days * 86400 + h * 3600 + mi * 60 + sec)",
+        );
         self.out.push('\n');
         self.line(0, "def _cuni_add_seconds(t, s):");
-        self.line(1, "return t + s  # CuniTime.__add__: time + int -> time, loud on misuse");
+        self.line(
+            1,
+            "return t + s  # CuniTime.__add__: time + int -> time, loud on misuse",
+        );
         self.out.push('\n');
         self.line(0, "def _cuni_days_between(a, b):");
-        self.line(1, "# (a - b) is int seconds (CuniTime.__sub__); trunc toward zero.");
+        self.line(
+            1,
+            "# (a - b) is int seconds (CuniTime.__sub__); trunc toward zero.",
+        );
         self.line(1, "return _cuni_tdiv(a - b, 86400)");
         self.out.push('\n');
         self.line(0, "class CuniTime(int):");
-        self.line(1, "# CuNi `time`: int64 unix epoch seconds, UTC (docs/TIME.md).");
-        self.line(1, "# Stored as a plain int (the epoch); every operator keeps the tag,");
-        self.line(1, "# so plain `+`/`-` in emitted code stay exact with no codegen");
-        self.line(1, "# type inference. `int + time` works via __radd__ (CuniTime is an");
-        self.line(1, "# int subclass, so Python tries the reflected op first). Mixing");
-        self.line(1, "# with anything but a plain int duration is refused (TypeError) —");
-        self.line(1, "# the typeck already rejected it; this is defense in depth.");
+        self.line(
+            1,
+            "# CuNi `time`: int64 unix epoch seconds, UTC (docs/TIME.md).",
+        );
+        self.line(
+            1,
+            "# Stored as a plain int (the epoch); every operator keeps the tag,",
+        );
+        self.line(
+            1,
+            "# so plain `+`/`-` in emitted code stay exact with no codegen",
+        );
+        self.line(
+            1,
+            "# type inference. `int + time` works via __radd__ (CuniTime is an",
+        );
+        self.line(
+            1,
+            "# int subclass, so Python tries the reflected op first). Mixing",
+        );
+        self.line(
+            1,
+            "# with anything but a plain int duration is refused (TypeError) —",
+        );
+        self.line(
+            1,
+            "# the typeck already rejected it; this is defense in depth.",
+        );
         self.line(1, "__slots__ = ()");
         self.line(1, "def __str__(self):");
         self.line(2, "return _cuni_time_str(int(self))");
@@ -278,19 +368,31 @@ impl Codegen {
         self.line(2, "return s if not spec else format(s, spec)");
         self.line(1, "def __add__(self, o):");
         self.line(2, "if isinstance(o, CuniTime):");
-        self.line(3, "raise TypeError(\"cuni: cannot add time + time — refusing\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot add time + time — refusing\")",
+        );
         self.line(2, "if not isinstance(o, int):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix time and non-int — refusing\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix time and non-int — refusing\")",
+        );
         self.line(2, "return CuniTime(int(self) + int(o))");
         self.line(1, "def __radd__(self, o):");
         self.line(2, "if isinstance(o, CuniTime) or not isinstance(o, int):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix time and non-int — refusing\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix time and non-int — refusing\")",
+        );
         self.line(2, "return CuniTime(int(o) + int(self))");
         self.line(1, "def __sub__(self, o):");
         self.line(2, "if isinstance(o, CuniTime):");
         self.line(3, "return int(self) - int(o)  # time - time -> int seconds");
         self.line(2, "if not isinstance(o, int):");
-        self.line(3, "raise TypeError(\"cuni: cannot mix time and non-int — refusing\")");
+        self.line(
+            3,
+            "raise TypeError(\"cuni: cannot mix time and non-int — refusing\")",
+        );
         self.line(2, "return CuniTime(int(self) - int(o))");
         self.line(1, "def __neg__(self):");
         self.line(2, "return CuniTime(-int(self))");
@@ -301,13 +403,19 @@ impl Codegen {
         self.line(0, "_CUNI_JSON_INT_MAX = 9007199254740991");
         self.out.push('\n');
         self.line(0, "def _cuni_json_int_value(tok):");
-        self.line(1, "\"\"\"Value-based integer rule (docs/STDLIB.md §1.1): accept iff the");
+        self.line(
+            1,
+            "\"\"\"Value-based integer rule (docs/STDLIB.md §1.1): accept iff the",
+        );
         self.line(1, "number's exact value is an integer in ±(2^53−1).\"\"\"");
         self.line(1, "t = tok.strip()");
         self.line(1, "neg = t.startswith(\"-\")");
         self.line(1, "if neg: t = t[1:]");
         self.line(1, "if \"e\" in t or \"E\" in t:");
-        self.line(2, "mant, _, exp_s = t.replace(\"E\", \"e\").partition(\"e\")");
+        self.line(
+            2,
+            "mant, _, exp_s = t.replace(\"E\", \"e\").partition(\"e\")",
+        );
         self.line(2, "exp = int(exp_s)");
         self.line(1, "else: mant, exp = t, 0");
         self.line(1, "if \".\" in mant:");
@@ -330,10 +438,19 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_json_parse(s):");
         self.line(1, "import json as _json");
-        self.line(1, "if not isinstance(s, str): raise CuNiError(\"json.parse needs a str\")");
+        self.line(
+            1,
+            "if not isinstance(s, str): raise CuNiError(\"json.parse needs a str\")",
+        );
         self.line(1, "try:");
-        self.line(2, "v = _json.loads(s, parse_int=_cuni_json_int_value, parse_float=_cuni_json_int_value)");
-        self.line(1, "except ValueError: raise CuNiError(\"json.parse: invalid JSON\")");
+        self.line(
+            2,
+            "v = _json.loads(s, parse_int=_cuni_json_int_value, parse_float=_cuni_json_int_value)",
+        );
+        self.line(
+            1,
+            "except ValueError: raise CuNiError(\"json.parse: invalid JSON\")",
+        );
         self.line(1, "if not isinstance(v, dict): raise CuNiError(\"json.parse: top-level JSON value must be an object\")");
         self.line(1, "return v");
         self.out.push('\n');
@@ -343,16 +460,25 @@ impl Codegen {
         self.line(1, "if isinstance(v, float): raise CuNiError(\"json.emit: floats have no JSON integer form\")");
         self.line(1, "if isinstance(v, str): return v");
         self.line(1, "if v is None: return None");
-        self.line(1, "if isinstance(v, list): return [_cuni_json_norm(x) for x in v]");
+        self.line(
+            1,
+            "if isinstance(v, list): return [_cuni_json_norm(x) for x in v]",
+        );
         self.line(1, "if isinstance(v, dict):");
         self.line(2, "for k in v:");
-        self.line(3, "if not isinstance(k, str): raise CuNiError(\"json.emit: map keys must be strings\")");
+        self.line(
+            3,
+            "if not isinstance(k, str): raise CuNiError(\"json.emit: map keys must be strings\")",
+        );
         self.line(2, "return {k: _cuni_json_norm(x) for k, x in v.items()}");
         self.line(1, "raise CuNiError(\"json.emit: value has no JSON form\")");
         self.out.push('\n');
         self.line(0, "def _cuni_json_emit(m):");
         self.line(1, "import json as _json");
-        self.line(1, "if not isinstance(m, dict): raise CuNiError(\"json.emit needs a map\")");
+        self.line(
+            1,
+            "if not isinstance(m, dict): raise CuNiError(\"json.emit needs a map\")",
+        );
         self.line(1, "return _json.dumps(_cuni_json_norm(m), sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)");
         self.out.push('\n');
         self.line(0, "def _cuni_days_from_civil(y, m, d):");
@@ -368,7 +494,10 @@ impl Codegen {
         self.line(1, "z += 719468");
         self.line(1, "era = z // 146097");
         self.line(1, "doe = z - era * 146097");
-        self.line(1, "yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365");
+        self.line(
+            1,
+            "yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365",
+        );
         self.line(1, "y = yoe + era * 400");
         self.line(1, "doy = doe - (365 * yoe + yoe // 4 - yoe // 100)");
         self.line(1, "mp = (5 * doy + 2) // 153");
@@ -378,23 +507,42 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "def _cuni_time_epoch(y, mo, d, h, mi, s):");
         self.line(1, "for v, lo, hi, nm in ((y,1,9999,\"year\"),(mo,1,12,\"month\"),(h,0,23,\"hour\"),(mi,0,59,\"minute\"),(s,0,59,\"second\")):");
-        self.line(2, "if not (lo <= v <= hi): raise CuNiError(\"time.epoch: %s out of range\" % nm)");
+        self.line(
+            2,
+            "if not (lo <= v <= hi): raise CuNiError(\"time.epoch: %s out of range\" % nm)",
+        );
         self.line(1, "dim = [31, 29 if y % 4 == 0 and (y % 100 != 0 or y % 400 == 0) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1]");
-        self.line(1, "if not (1 <= d <= dim): raise CuNiError(\"time.epoch: day out of range for month\")");
-        self.line(1, "return _cuni_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s");
+        self.line(
+            1,
+            "if not (1 <= d <= dim): raise CuNiError(\"time.epoch: day out of range for month\")",
+        );
+        self.line(
+            1,
+            "return _cuni_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s",
+        );
         self.out.push('\n');
         self.line(0, "def _cuni_time_parts(e):");
         self.line(1, "lo = _cuni_days_from_civil(1, 1, 1) * 86400");
-        self.line(1, "hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399");
-        self.line(1, "if not (lo <= e <= hi): raise CuNiError(\"time.parts: epoch out of range 1..9999\")");
+        self.line(
+            1,
+            "hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399",
+        );
+        self.line(
+            1,
+            "if not (lo <= e <= hi): raise CuNiError(\"time.parts: epoch out of range 1..9999\")",
+        );
         self.line(1, "days, secs = divmod(e, 86400)");
         self.line(1, "y, mo, d = _cuni_civil_from_days(days)");
         self.line(1, "return {\"year\": y, \"month\": mo, \"day\": d, \"hour\": secs // 3600, \"min\": (secs % 3600) // 60, \"sec\": secs % 60}");
         self.out.push('\n');
         self.line(0, "def sha256(s):");
         self.line(1, "import hashlib as _hashlib");
-        self.line(1, "if not isinstance(s, str): raise CuNiError(\"sha256 needs a str\")");
-        self.line(1, "return _hashlib.sha256(s.encode(\"utf-8\")).hexdigest()");        self.out.push('\n');
+        self.line(
+            1,
+            "if not isinstance(s, str): raise CuNiError(\"sha256 needs a str\")",
+        );
+        self.line(1, "return _hashlib.sha256(s.encode(\"utf-8\")).hexdigest()");
+        self.out.push('\n');
         self.line(0, "class CuNiError(Exception):");
         self.line(
             1,
@@ -850,13 +998,25 @@ impl Codegen {
                         // `time` builtins (docs/TIME.md §5).
                         "parse_time" => return format!("_cuni_parse_time({})", one()),
                         "add_seconds" => {
-                            let a = args.first().map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "None".to_string());
-                            let b = args.get(1).map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "None".to_string());
+                            let a = args
+                                .first()
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "None".to_string());
+                            let b = args
+                                .get(1)
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "None".to_string());
                             return format!("_cuni_add_seconds({a}, {b})");
                         }
                         "days_between" => {
-                            let a = args.first().map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "None".to_string());
-                            let b = args.get(1).map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "None".to_string());
+                            let a = args
+                                .first()
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "None".to_string());
+                            let b = args
+                                .get(1)
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "None".to_string());
                             return format!("_cuni_days_between({a}, {b})");
                         }
                         _ => {}

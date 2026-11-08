@@ -8,6 +8,9 @@ Protocol v1.1.1 · Install: `cargo install cuni` · Studio: https://cuni-studio.
 
 ## [Unreleased]
 
+- CuNi is declared one product with seven arms — Studio, Bank, Audit, Onchain, Exactness, Transparency, Tap — with a human registry ([`ARMS.md`](ARMS.md)), a machine registry ([`arms.json`](arms.json)), and `cargo test --test arms` failing if either drifts.
+- Hosted discovery files (`.well-known/cuni-protocol.json`, `protocol.json`, `agents.json`, `llms.txt`) now state the real 53-entry catalog instead of the stale 144 count.
+- Studio default `spend-control` is portable: the flagship law no longer uses `link`, so the money-seat gate and `--emit-all` pass. The `link` interop form remains in `examples/link.cuni` and the Agent pack.
 - Audited CI checks (version/license coherence, secret scan) — workflow staged; requires a token with `workflow` scope to land
 
 ---

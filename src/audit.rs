@@ -189,8 +189,7 @@ pub fn gen_keypair(name: &str, dir: &Path) -> Result<(PathBuf, PathBuf), String>
 
 /// Load a 32-byte raw secret key file (as written by [`gen_keypair`]).
 pub fn load_signing_key(path: &Path) -> Result<SigningKey, String> {
-    let bytes =
-        fs::read(path).map_err(|e| format!("read signer key {}: {e}", path.display()))?;
+    let bytes = fs::read(path).map_err(|e| format!("read signer key {}: {e}", path.display()))?;
     if bytes.len() != 32 {
         return Err(format!(
             "signer key {} is {} bytes, expected 32 raw secret bytes",
@@ -349,7 +348,13 @@ pub fn run_foreign_impl(impl_path: &Path, timeout: Duration) -> Result<Vec<u8>, 
             let r = (|| {
                 run_blocking(
                     "javac",
-                    &["-encoding".to_string(), "UTF-8".to_string(), "-d".to_string(), dir_s.clone(), path_s.clone()],
+                    &[
+                        "-encoding".to_string(),
+                        "UTF-8".to_string(),
+                        "-d".to_string(),
+                        dir_s.clone(),
+                        path_s.clone(),
+                    ],
                     timeout,
                 )?;
                 run_blocking(

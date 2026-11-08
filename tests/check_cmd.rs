@@ -193,7 +193,11 @@ fn ingest_python_subset_roundtrip() {
 fn check_ext_collision_fails_js_yeet() {
     // ext-collision.cuni gets yeeted on JS emit — exactness must FAIL (not silent pass)
     let (ok, stdout, _) = check(&["examples/ext-collision.cuni", "--timeout", "60"]);
-    assert!(!ok, "expected FAIL for ext-collision.cuni, got:\n{}", stdout);
+    assert!(
+        !ok,
+        "expected FAIL for ext-collision.cuni, got:\n{}",
+        stdout
+    );
     assert!(
         stdout.contains("exactness: FAIL") || stdout.contains("REFUSE"),
         "expected refuse/fail messaging:\n{}",
@@ -321,7 +325,10 @@ fn check_default_runs_money_seats() {
         .map(|s| s.as_str().unwrap())
         .collect();
     for seat in ["py", "rs", "go", "java", "sql", "js"] {
-        assert!(ran.contains(&seat), "default set must include {seat}: {ran:?}");
+        assert!(
+            ran.contains(&seat),
+            "default set must include {seat}: {ran:?}"
+        );
     }
     assert!(
         !ran.contains(&"swift"),

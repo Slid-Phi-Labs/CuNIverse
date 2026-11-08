@@ -379,11 +379,20 @@ impl Codegen {
         self.line(0, "const cuniMaxInt64 = int64(1<<63 - 1)");
         self.line(0, "const cuniMinInt64 = int64(-1 << 63)");
         self.out.push('\n');
-        self.line(0, "func cuniDecRefuse(msg string) { panic(\"cuni: \" + msg + \" \\u2014 refused\") }");
+        self.line(
+            0,
+            "func cuniDecRefuse(msg string) { panic(\"cuni: \" + msg + \" \\u2014 refused\") }",
+        );
         self.out.push('\n');
         self.line(0, "func cuniTdiv64(a, b int64) int64 {");
-        self.line(1, "// Truncation toward zero (docs/DECIMAL.md §3); b != 0. Go's / already truncates.");
-        self.line(1, "if b == -1 && a == cuniMinInt64 { cuniDecRefuse(\"dec division overflow\") }");
+        self.line(
+            1,
+            "// Truncation toward zero (docs/DECIMAL.md §3); b != 0. Go's / already truncates.",
+        );
+        self.line(
+            1,
+            "if b == -1 && a == cuniMinInt64 { cuniDecRefuse(\"dec division overflow\") }",
+        );
         self.line(1, "return a / b");
         self.line(0, "}");
         self.out.push('\n');
@@ -409,7 +418,10 @@ impl Codegen {
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "func cuniDecNeg(a cuniDec) cuniDec {");
-        self.line(1, "if a == cuniDec(cuniMinInt64) { cuniDecRefuse(\"dec negation overflow\") }");
+        self.line(
+            1,
+            "if a == cuniDec(cuniMinInt64) { cuniDecRefuse(\"dec negation overflow\") }",
+        );
         self.line(1, "return -a");
         self.line(0, "}");
         self.out.push('\n');
@@ -417,13 +429,22 @@ impl Codegen {
         self.line(1, "// trunc(a*b/10000) toward zero");
         self.line(1, "if a == 0 || b == 0 { return 0 }");
         self.line(1, "if a == cuniDec(cuniMinInt64) {");
-        self.line(2, "if b != 1 { cuniDecRefuse(\"dec multiplication overflow\") }");
+        self.line(
+            2,
+            "if b != 1 { cuniDecRefuse(\"dec multiplication overflow\") }",
+        );
         self.line(1, "} else if b == cuniDec(cuniMinInt64) {");
-        self.line(2, "if a != 1 { cuniDecRefuse(\"dec multiplication overflow\") }");
+        self.line(
+            2,
+            "if a != 1 { cuniDecRefuse(\"dec multiplication overflow\") }",
+        );
         self.line(1, "} else {");
         self.line(2, "aa := a; if aa < 0 { aa = -aa }");
         self.line(2, "bb := b; if bb < 0 { bb = -bb }");
-        self.line(2, "if aa > cuniDec(cuniMaxInt64)/bb { cuniDecRefuse(\"dec multiplication overflow\") }");
+        self.line(
+            2,
+            "if aa > cuniDec(cuniMaxInt64)/bb { cuniDecRefuse(\"dec multiplication overflow\") }",
+        );
         self.line(1, "}");
         self.line(1, "return cuniDec(cuniTdiv64(int64(a)*int64(b), 10000))");
         self.line(0, "}");
@@ -432,7 +453,10 @@ impl Codegen {
         self.line(1, "// trunc(a*10000/b) toward zero");
         self.line(1, "if b == 0 { cuniDecRefuse(\"dec division by zero\") }");
         self.line(1, "aa := int64(a)");
-        self.line(1, "if aa == cuniMinInt64 || aa > cuniMaxInt64/10000 || aa < cuniMinInt64/10000 {");
+        self.line(
+            1,
+            "if aa == cuniMinInt64 || aa > cuniMaxInt64/10000 || aa < cuniMinInt64/10000 {",
+        );
         self.line(2, "cuniDecRefuse(\"dec division intermediate overflow\")");
         self.line(1, "}");
         self.line(1, "return cuniDec(cuniTdiv64(aa*10000, int64(b)))");
@@ -440,7 +464,10 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "func cuniDecOfInt(n int) cuniDec {");
         self.line(1, "nn := int64(n)");
-        self.line(1, "if nn == cuniMinInt64 || nn > cuniMaxInt64/10000 || nn < cuniMinInt64/10000 {");
+        self.line(
+            1,
+            "if nn == cuniMinInt64 || nn > cuniMaxInt64/10000 || nn < cuniMinInt64/10000 {",
+        );
         self.line(2, "cuniDecRefuse(\"dec_of_int overflow\")");
         self.line(1, "}");
         self.line(1, "return cuniDec(nn * 10000)");
@@ -462,7 +489,10 @@ impl Codegen {
         self.line(1, "ip := mag / 10000");
         self.line(1, "fp := mag % 10000");
         self.line(1, "fs := fmt.Sprintf(\"%04d\", fp)");
-        self.line(1, "for len(fs) > 1 && fs[len(fs)-1] == '0' { fs = fs[:len(fs)-1] }");
+        self.line(
+            1,
+            "for len(fs) > 1 && fs[len(fs)-1] == '0' { fs = fs[:len(fs)-1] }",
+        );
         self.line(1, "s := \"\"");
         self.line(1, "if neg { s = \"-\" }");
         self.line(1, "return s + fmt.Sprintf(\"%d\", ip) + \".\" + fs");
@@ -470,7 +500,10 @@ impl Codegen {
         self.out.push('\n');
         // fmt's %v/%s route through String(): interpolated decs render
         // canonically too, not as raw scaled integers.
-        self.line(0, "func (v cuniDec) String() string { return cuniDecStr(v) }");
+        self.line(
+            0,
+            "func (v cuniDec) String() string { return cuniDecStr(v) }",
+        );
         self.out.push('\n');
         // ---- CuNi `time`: unix epoch seconds, UTC, exact (docs/TIME.md) ----
         // int64 seat: the distinct cuniTime type keeps time/int separate at
@@ -478,7 +511,10 @@ impl Codegen {
         // overflow int64 panics — a loud refusal, never a wrap.
         self.line(0, "type cuniTime int64");
         self.out.push('\n');
-        self.line(0, "func cuniTimeRefuse(msg string) { panic(\"cuni: \" + msg + \" \\u2014 refused\") }");
+        self.line(
+            0,
+            "func cuniTimeRefuse(msg string) { panic(\"cuni: \" + msg + \" \\u2014 refused\") }",
+        );
         self.out.push('\n');
         self.line(0, "func cuniTimeAdd(a, b cuniTime) cuniTime {");
         self.line(1, "if (b > 0 && a > cuniTime(cuniMaxInt64-int64(b))) || (b < 0 && a < cuniTime(cuniMinInt64-int64(b))) {");
@@ -503,7 +539,10 @@ impl Codegen {
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "func cuniTimeNeg(a cuniTime) cuniTime {");
-        self.line(1, "if a == cuniTime(cuniMinInt64) { cuniTimeRefuse(\"time negation overflow\") }");
+        self.line(
+            1,
+            "if a == cuniTime(cuniMinInt64) { cuniTimeRefuse(\"time negation overflow\") }",
+        );
         self.line(1, "return -a");
         self.line(0, "}");
         self.out.push('\n');
@@ -515,7 +554,10 @@ impl Codegen {
         self.line(1, "if sod < 0 { days--; sod += 86400 }");
         self.line(1, "z := days + 719468");
         self.line(1, "var era int64");
-        self.line(1, "if z >= 0 { era = z / 146097 } else { era = -((-z + 146096) / 146097) }");
+        self.line(
+            1,
+            "if z >= 0 { era = z / 146097 } else { era = -((-z + 146096) / 146097) }",
+        );
         self.line(1, "doe := z - era*146097");
         self.line(1, "yoe := (doe - doe/1460 + doe/36524 - doe/146096) / 365");
         self.line(1, "y := yoe + era*400");
@@ -535,11 +577,20 @@ impl Codegen {
         self.out.push('\n');
         // fmt's %v/%s route through String(): interpolated times render
         // canonically too, not as raw epoch integers.
-        self.line(0, "func (v cuniTime) String() string { return cuniTimeStr(v) }");
+        self.line(
+            0,
+            "func (v cuniTime) String() string { return cuniTimeStr(v) }",
+        );
         self.out.push('\n');
         self.line(0, "func cuniParseTime(s string) cuniTime {");
-        self.line(1, "// Strict ISO-8601 UTC -> time (docs/TIME.md §2, §5): bad input panics loudly.");
-        self.line(1, "bad := func() { cuniTimeRefuse(\"parse_time: bad ISO-8601 UTC timestamp\") }");
+        self.line(
+            1,
+            "// Strict ISO-8601 UTC -> time (docs/TIME.md §2, §5): bad input panics loudly.",
+        );
+        self.line(
+            1,
+            "bad := func() { cuniTimeRefuse(\"parse_time: bad ISO-8601 UTC timestamp\") }",
+        );
         self.line(1, "if len(s) != 20 { bad() }");
         self.line(1, "if s[4] != '-' || s[7] != '-' || s[10] != 'T' || s[13] != ':' || s[16] != ':' || s[19] != 'Z' { bad() }");
         self.line(1, "dig := func(i int) int64 { c := s[i]; if c < '0' || c > '9' { bad() }; return int64(c - '0') }");
@@ -552,7 +603,10 @@ impl Codegen {
         self.line(1, "if y < 1 || y > 9999 || mo < 1 || mo > 12 { bad() }");
         self.line(1, "dim := int64(31)");
         self.line(1, "switch mo { case 4, 6, 9, 11: dim = 30; case 2: dim = 28; if y%4 == 0 && (y%100 != 0 || y%400 == 0) { dim = 29 } }");
-        self.line(1, "if d < 1 || d > dim || h > 23 || mi > 59 || sec > 59 { bad() }");
+        self.line(
+            1,
+            "if d < 1 || d > dim || h > 23 || mi > 59 || sec > 59 { bad() }",
+        );
         self.line(1, "y0 := y");
         self.line(1, "if mo <= 2 { y0 = y - 1 }");
         self.line(1, "era := y0 / 400");
@@ -569,7 +623,10 @@ impl Codegen {
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "func cuniDaysBetween(a, b cuniTime) int {");
-        self.line(1, "// Truncation toward zero (docs/TIME.md §5); Go's / already truncates.");
+        self.line(
+            1,
+            "// Truncation toward zero (docs/TIME.md §5); Go's / already truncates.",
+        );
         self.line(1, "return int(cuniTimeDiff(a, b) / 86400)");
         self.line(0, "}");
         self.out.push('\n');
@@ -693,7 +750,10 @@ impl Codegen {
             self.line(0, "func cuni_json_int(tok string) int {");
             self.line(1, "t := tok");
             self.line(1, "neg := false");
-            self.line(1, "if strings.HasPrefix(t, \"-\") { neg = true; t = t[1:] }");
+            self.line(
+                1,
+                "if strings.HasPrefix(t, \"-\") { neg = true; t = t[1:] }",
+            );
             self.line(1, "mant, exp := t, 0");
             self.line(1, "if i := strings.IndexAny(mant, \"eE\"); i >= 0 {");
             self.line(2, "e, err := strconv.Atoi(mant[i+1:])");
@@ -722,10 +782,16 @@ impl Codegen {
             self.line(3, "v *= 10");
             self.line(2, "}");
             self.line(1, "} else {");
-            self.line(2, "if k > 16 { panic(\"json.parse: number is not an integer in ±(2^53−1)\") }");
+            self.line(
+                2,
+                "if k > 16 { panic(\"json.parse: number is not an integer in ±(2^53−1)\") }",
+            );
             self.line(2, "p10 := 1");
             self.line(2, "for i := 0; i < k; i++ { p10 *= 10 }");
-            self.line(2, "if d%p10 != 0 { panic(\"json.parse: number is not an integer in ±(2^53−1)\") }");
+            self.line(
+                2,
+                "if d%p10 != 0 { panic(\"json.parse: number is not an integer in ±(2^53−1)\") }",
+            );
             self.line(2, "v = d / p10");
             self.line(1, "}");
             self.line(1, "if neg { v = -v }");
@@ -789,7 +855,10 @@ impl Codegen {
             self.line(1, "case string:");
             self.line(2, "cuni_json_write_str(t, sb)");
             self.line(1, "case bool:");
-            self.line(2, "if t { sb.WriteString(\"true\") } else { sb.WriteString(\"false\") }");
+            self.line(
+                2,
+                "if t { sb.WriteString(\"true\") } else { sb.WriteString(\"false\") }",
+            );
             self.line(1, "case int:");
             self.line(2, "sb.WriteString(strconv.Itoa(t))");
             self.line(1, "case int64:");
@@ -807,9 +876,15 @@ impl Codegen {
             self.line(4, "var ks string");
             self.line(4, "if k.Kind() == reflect.String { ks = k.String() } else if k.Kind() == reflect.Interface {");
             self.line(5, "s, ok := k.Interface().(string)");
-            self.line(5, "if !ok { panic(\"json.emit: map keys must be strings\") }");
+            self.line(
+                5,
+                "if !ok { panic(\"json.emit: map keys must be strings\") }",
+            );
             self.line(5, "ks = s");
-            self.line(4, "} else { panic(\"json.emit: map keys must be strings\") }");
+            self.line(
+                4,
+                "} else { panic(\"json.emit: map keys must be strings\") }",
+            );
             self.line(4, "keys = append(keys, ks)");
             self.line(3, "}");
             self.line(3, "sort.Strings(keys)");
@@ -837,7 +912,10 @@ impl Codegen {
             self.line(1, "}");
             self.line(0, "}");
             self.out.push('\n');
-            self.line(0, "func cuni_json_write_str(s string, sb *strings.Builder) {");
+            self.line(
+                0,
+                "func cuni_json_write_str(s string, sb *strings.Builder) {",
+            );
             self.line(1, "sb.WriteByte('\"')");
             self.line(1, "for _, r := range s {");
             self.line(2, "switch r {");
@@ -860,7 +938,10 @@ impl Codegen {
             self.out.push('\n');
         }
         if self.stdlib.time {
-            self.line(0, "// Wave-1 stdlib: unix time conversions (docs/STDLIB.md §2).");
+            self.line(
+                0,
+                "// Wave-1 stdlib: unix time conversions (docs/STDLIB.md §2).",
+            );
             self.line(0, "// Proleptic Gregorian, no leap seconds; years 1..9999.");
             self.line(0, "func cuni_days_from_civil(y, m, d int) int {");
             self.line(1, "y0 := y");
@@ -890,14 +971,32 @@ impl Codegen {
             self.out.push('\n');
             self.line(0, "func cuni_time_epoch(y, mo, d, h, mi, s any) int {");
             self.line(1, "yy, mm, dd, hh, mmi, ss := cuni_as_int(y), cuni_as_int(mo), cuni_as_int(d), cuni_as_int(h), cuni_as_int(mi), cuni_as_int(s)");
-            self.line(1, "if yy < 1 || yy > 9999 { panic(\"time.epoch: year out of range 1..9999\") }");
-            self.line(1, "if mm < 1 || mm > 12 { panic(\"time.epoch: month out of range 1..12\") }");
+            self.line(
+                1,
+                "if yy < 1 || yy > 9999 { panic(\"time.epoch: year out of range 1..9999\") }",
+            );
+            self.line(
+                1,
+                "if mm < 1 || mm > 12 { panic(\"time.epoch: month out of range 1..12\") }",
+            );
             self.line(1, "dim := 31");
             self.line(1, "switch mm { case 4, 6, 9, 11: dim = 30; case 2: dim = 28; if yy%4 == 0 && (yy%100 != 0 || yy%400 == 0) { dim = 29 } }");
-            self.line(1, "if dd < 1 || dd > dim { panic(\"time.epoch: day out of range for month\") }");
-            self.line(1, "if hh < 0 || hh > 23 { panic(\"time.epoch: hour out of range 0..23\") }");
-            self.line(1, "if mmi < 0 || mmi > 59 { panic(\"time.epoch: minute out of range 0..59\") }");
-            self.line(1, "if ss < 0 || ss > 59 { panic(\"time.epoch: second out of range 0..59\") }");
+            self.line(
+                1,
+                "if dd < 1 || dd > dim { panic(\"time.epoch: day out of range for month\") }",
+            );
+            self.line(
+                1,
+                "if hh < 0 || hh > 23 { panic(\"time.epoch: hour out of range 0..23\") }",
+            );
+            self.line(
+                1,
+                "if mmi < 0 || mmi > 59 { panic(\"time.epoch: minute out of range 0..59\") }",
+            );
+            self.line(
+                1,
+                "if ss < 0 || ss > 59 { panic(\"time.epoch: second out of range 0..59\") }",
+            );
             self.line(
                 1,
                 "return cuni_days_from_civil(yy, mm, dd)*86400 + hh*3600 + mmi*60 + ss",
@@ -908,7 +1007,10 @@ impl Codegen {
             self.line(1, "ev := cuni_as_int(e)");
             self.line(1, "lo := cuni_days_from_civil(1, 1, 1) * 86400");
             self.line(1, "hi := cuni_days_from_civil(9999, 12, 31)*86400 + 86399");
-            self.line(1, "if ev < lo || ev > hi { panic(\"time.parts: epoch out of range 1..9999\") }");
+            self.line(
+                1,
+                "if ev < lo || ev > hi { panic(\"time.parts: epoch out of range 1..9999\") }",
+            );
             self.line(1, "days, secs := ev/86400, ev%86400");
             self.line(1, "if secs < 0 { days--; secs += 86400 }");
             self.line(1, "y, mo, d := cuni_civil_from_days(days)");
@@ -917,11 +1019,17 @@ impl Codegen {
             self.out.push('\n');
         }
         if self.stdlib.strings {
-            self.line(0, "// Wave-1 stdlib: string ops (docs/STDLIB.md §3). Byte-oriented.");
+            self.line(
+                0,
+                "// Wave-1 stdlib: string ops (docs/STDLIB.md §3). Byte-oriented.",
+            );
             self.line(0, "func cuni_split(s, sep any) []string {");
             self.line(1, "ss, ok1 := s.(string); pp, ok2 := sep.(string)");
             self.line(1, "if !ok1 || !ok2 { panic(\".split needs strings\") }");
-            self.line(1, "if pp == \"\" { panic(\".split: empty separator; refusing\") }");
+            self.line(
+                1,
+                "if pp == \"\" { panic(\".split: empty separator; refusing\") }",
+            );
             self.line(1, "return strings.Split(ss, pp)");
             self.line(0, "}");
             self.out.push('\n');
@@ -1698,7 +1806,8 @@ impl Codegen {
                         "parse_time" => "cuniParseTime",
                         "add_seconds" => "cuniAddSeconds",
                         "days_between" => "cuniDaysBetween",
-                        "sha256" => "cuni_sha256",                        _ => "",
+                        "sha256" => "cuni_sha256",
+                        _ => "",
                     };
                     if !mapped.is_empty() {
                         return format!(
@@ -1876,12 +1985,7 @@ impl Codegen {
                                 return format!("cuniTimeSub({l}, cuniTime({r}))");
                             }
                         }
-                        BinOp::Eq
-                        | BinOp::Ne
-                        | BinOp::Lt
-                        | BinOp::Gt
-                        | BinOp::Le
-                        | BinOp::Ge => {
+                        BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                             if lt && rt {
                                 return format!("({} {} {})", l, go_binop(*op), r);
                             }
@@ -2023,10 +2127,8 @@ fn is_dec_expr(
             _ => false,
         },
         ExprKind::Binary { op, lhs, .. } => {
-            matches!(
-                op,
-                BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div
-            ) && is_dec_expr(lhs, scope, fn_dec_rets)
+            matches!(op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div)
+                && is_dec_expr(lhs, scope, fn_dec_rets)
         }
         ExprKind::Unary { op, expr } => {
             matches!(op, UnOp::Neg) && is_dec_expr(expr, scope, fn_dec_rets)
@@ -2119,7 +2221,10 @@ fn infer_map_kv_type(pairs: &[(Expr, Expr)]) -> Option<(String, String)> {
             _ => return None,
         }
     }
-    Some((kt.unwrap_or("any").to_string(), vt.unwrap_or("any").to_string()))
+    Some((
+        kt.unwrap_or("any").to_string(),
+        vt.unwrap_or("any").to_string(),
+    ))
 }
 
 /// Capitalizes the first character — Go's `encoding/json` only sees exported

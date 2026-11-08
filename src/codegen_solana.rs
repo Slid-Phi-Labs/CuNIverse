@@ -275,10 +275,7 @@ impl Codegen {
 
         // Region 2: the Anchor program shell.
         self.line(0, SHELL_START);
-        self.line(
-            0,
-            "// Requires: anchor-lang = \"0.31\", solana-program.",
-        );
+        self.line(0, "// Requires: anchor-lang = \"0.31\", solana-program.");
         self.line(
             0,
             "// This shell is NOT compiled by `cuni check` — see docs/SOLANA.md.",
@@ -304,7 +301,10 @@ impl Codegen {
             })
             .collect();
         if defs.is_empty() {
-            self.line(1, "// (no CuNi functions: nothing to expose as instructions)");
+            self.line(
+                1,
+                "// (no CuNi functions: nothing to expose as instructions)",
+            );
         } else {
             for (n, f) in defs.iter().enumerate() {
                 if n > 0 {
@@ -347,7 +347,10 @@ impl Codegen {
                 f.name, f.name
             ),
         );
-        self.line(1, "/// instruction computes it on-chain and logs the result.");
+        self.line(
+            1,
+            "/// instruction computes it on-chain and logs the result.",
+        );
         self.line(
             1,
             &format!(
@@ -430,9 +433,7 @@ impl Codegen {
                     self.line(indent, &format!("panic!(\"{}\");", Self::esc(s)));
                     Ok(())
                 }
-                _ => Err(
-                    "fail with a non-string has no clean Solana-logic abort; refusing".into(),
-                ),
+                _ => Err("fail with a non-string has no clean Solana-logic abort; refusing".into()),
             },
             StmtKind::If {
                 cond,
@@ -610,7 +611,9 @@ impl Codegen {
             ExprKind::Dec(_) => Err("dec literals have no Solana-logic form (v1); refusing".into()),
             // `time` literals (docs/TIME.md): v1 has no time form in the
             // logic core — refuse rather than fake exactness.
-            ExprKind::Time(_) => Err("time literals have no Solana-logic form (v1); refusing".into()),
+            ExprKind::Time(_) => {
+                Err("time literals have no Solana-logic form (v1); refusing".into())
+            }
             ExprKind::Bool(b) => Ok(b.to_string()),
             ExprKind::Str(s) => Ok(format!("\"{}\"", Self::esc(s))),
             ExprKind::InterpStr(parts) => {
@@ -627,21 +630,23 @@ impl Codegen {
                                     fmt.push_str("{}");
                                     args.push(t);
                                 }
-                                SolKind::Other => {
-                                    return Err(
-                                        "interpolating this value has no Solana-logic form; refusing"
-                                            .into(),
-                                    )
-                                }
+                                SolKind::Other => return Err(
+                                    "interpolating this value has no Solana-logic form; refusing"
+                                        .into(),
+                                ),
                             }
                         }
                     }
                 }
-                Ok(format!("format!(\"{}\"{})", fmt, if args.is_empty() {
-                    String::new()
-                } else {
-                    format!(", {}", args.join(", "))
-                }))
+                Ok(format!(
+                    "format!(\"{}\"{})",
+                    fmt,
+                    if args.is_empty() {
+                        String::new()
+                    } else {
+                        format!(", {}", args.join(", "))
+                    }
+                ))
             }
             ExprKind::NoneLit => Err("None has no Solana-logic form; refusing".into()),
             ExprKind::Ident(n) => Ok(n.clone()),
@@ -700,7 +705,9 @@ impl Codegen {
     ) -> Result<String, String> {
         let name = match &callee.kind {
             ExprKind::Ident(n) => n.clone(),
-            _ => return Err("only direct function calls have a Solana-logic form; refusing".into()),
+            _ => {
+                return Err("only direct function calls have a Solana-logic form; refusing".into())
+            }
         };
         if args.iter().any(|a| !matches!(a, CallArg::Pos(_))) {
             return Err("named arguments have no Solana-logic form; refusing".into());
@@ -814,7 +821,8 @@ say(validate_transfer(10000, 5000, 50))
     fn logic_core_has_pub_fns_and_main() {
         let core = logic_core(&parse_src(ESCROW)).expect("logic core");
         assert!(core.contains("pub fn transfer_fee(amount: i64, fee_bps: i64) -> i64"));
-        assert!(core.contains("pub fn validate_transfer(balance: i64, amount: i64, fee_bps: i64) -> i64"));
+        assert!(core
+            .contains("pub fn validate_transfer(balance: i64, amount: i64, fee_bps: i64) -> i64"));
         assert!(core.contains("fn main()"));
         assert!(core.contains("println!"));
         // Truncated division preserved exactly (i64 semantics).
@@ -890,7 +898,10 @@ say(validate_transfer(10000, 5000, 50))
     fn refuses_float_list_typ_unwrap() {
         for (tag, src) in [
             ("float", "def f() -> int do\n ret 1\nend\nsay(1.5)\n"),
-            ("list", "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n"),
+            (
+                "list",
+                "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n",
+            ),
             (
                 "typ",
                 "typ Point do\n x: int\nend\ndef f() -> int do\n ret 1\nend\nsay(1)\n",

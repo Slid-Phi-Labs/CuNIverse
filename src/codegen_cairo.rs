@@ -138,7 +138,9 @@ fn cairo_type(ty: &Type) -> Result<String, String> {
             "bool" => Ok("bool".into()),
             "str" => Ok("ByteArray".into()),
             "float" => Err("Cairo logic core has no float type; refusing float".into()),
-            other => Err(format!("type `{other}` has no Cairo-logic mapping; refusing")),
+            other => Err(format!(
+                "type `{other}` has no Cairo-logic mapping; refusing"
+            )),
         },
         Type::Generic(name, _) => Err(format!(
             "generic type `{name}` has no Cairo-logic mapping; refusing"
@@ -210,15 +212,15 @@ impl Codegen {
             match item {
                 Item::Typ(t) => {
                     return Err(format!(
-                        "typ `{}` has no v1 Cairo-logic form; refusing (integer/decimal/fn core only)",
-                        t.name
-                    ))
+                    "typ `{}` has no v1 Cairo-logic form; refusing (integer/decimal/fn core only)",
+                    t.name
+                ))
                 }
                 Item::Enum(e) => {
                     return Err(format!(
-                        "enum `{}` has no v1 Cairo-logic form; refusing (integer/decimal/fn core only)",
-                        e.name
-                    ))
+                    "enum `{}` has no v1 Cairo-logic form; refusing (integer/decimal/fn core only)",
+                    e.name
+                ))
                 }
                 Item::Use(u) => {
                     return Err(format!(
@@ -289,10 +291,7 @@ impl Codegen {
             "//   stdout; the `say` driver runs only in the Python reference",
         );
         self.line(0, "//   (`--emit-cairo-ref`).");
-        self.line(
-            0,
-            "// - Contract shell (CUNI-CAIRO-SHELL markers): the",
-        );
+        self.line(0, "// - Contract shell (CUNI-CAIRO-SHELL markers): the");
         self.line(
             0,
             "//   `#[starknet::interface]` trait plus the `#[starknet::contract]`",
@@ -315,7 +314,10 @@ impl Codegen {
             0,
             "// HONEST BOUNDARIES: logic gate-proven via the Python reference;",
         );
-        self.line(0, "// shell not compiled here; nothing has executed on-chain.");
+        self.line(
+            0,
+            "// shell not compiled here; nothing has executed on-chain.",
+        );
         self.out.push('\n');
 
         // Region 1: the logic core, embedded verbatim.
@@ -531,13 +533,16 @@ impl Codegen {
                             [_] => (None, vals[0]),
                             [s, e] => (Some(*s), *e),
                             _ => {
-                                return Err("range() with step has no Cairo-logic form; refusing".into())
+                                return Err(
+                                    "range() with step has no Cairo-logic form; refusing".into()
+                                )
                             }
                         }
                     }
                     _ => {
-                        return Err("for over non-range iterables has no Cairo-logic form; refusing"
-                            .into())
+                        return Err(
+                            "for over non-range iterables has no Cairo-logic form; refusing".into(),
+                        )
                     }
                 };
                 let s = match start_s {
@@ -673,12 +678,14 @@ impl Codegen {
                 Ok(format!("{scaled}_u256"))
             }
             ExprKind::Float(_) => Err("float literals have no Cairo-logic form; refusing".into()),
-            ExprKind::Time(_) => Err("time literals have no Cairo-logic form (v1); refusing".into()),
+            ExprKind::Time(_) => {
+                Err("time literals have no Cairo-logic form (v1); refusing".into())
+            }
             ExprKind::Bool(b) => Ok(b.to_string()),
             ExprKind::Str(s) => Ok(format!("\"{}\"", Self::esc(s))),
-            ExprKind::InterpStr(_) => Err(
-                "interpolated (backtick) strings have no v1 Cairo-logic form; refusing".into(),
-            ),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated (backtick) strings have no v1 Cairo-logic form; refusing".into())
+            }
             ExprKind::NoneLit => Err("None has no Cairo-logic form; refusing".into()),
             ExprKind::Ident(n) => Ok(n.clone()),
             ExprKind::List(_) | ExprKind::Map(_) => {
@@ -957,7 +964,10 @@ impl Codegen {
             1,
             "\"\"\"Truncating integer division toward zero (CuNi `int` `/`, and the",
         );
-        self.line(1, "core of `dec` `*` and `/`). Python's `//` floors — it is never");
+        self.line(
+            1,
+            "core of `dec` `*` and `/`). Python's `//` floors — it is never",
+        );
         self.line(1, "used here on a possibly-negative dividend.");
         self.line(1, "\"\"\"");
         self.line(1, "if b == 0:");
@@ -966,11 +976,17 @@ impl Codegen {
         self.line(1, "return -q if (a < 0) != (b < 0) else q");
         self.out.push('\n');
         self.line(0, "def _cuni_tmod(a, b):");
-        self.line(1, "\"\"\"Truncated remainder: sign follows the dividend, like CuNi.\"\"\"");
+        self.line(
+            1,
+            "\"\"\"Truncated remainder: sign follows the dividend, like CuNi.\"\"\"",
+        );
         self.line(1, "return a - _cuni_tdiv(a, b) * b");
         self.out.push('\n');
         self.line(0, "def _cuni_dec_str(v):");
-        self.line(1, "\"\"\"Canonical dec rendering (docs/DECIMAL.md section 6).\"\"\"");
+        self.line(
+            1,
+            "\"\"\"Canonical dec rendering (docs/DECIMAL.md section 6).\"\"\"",
+        );
         self.line(1, "if v < 0:");
         self.line(
             2,
@@ -1106,19 +1122,26 @@ impl Codegen {
                     ExprKind::Call { callee, args } => {
                         let is_range = matches!(&callee.kind, ExprKind::Ident(n) if n == "range");
                         if !is_range {
-                            return Err("for over non-range iterables has no reference form; refusing"
-                                .into());
+                            return Err(
+                                "for over non-range iterables has no reference form; refusing"
+                                    .into(),
+                            );
                         }
                         let vals: Vec<&Expr> = args.iter().map(|a| a.expr()).collect();
                         match vals.as_slice() {
                             [_] => (None, vals[0]),
                             [s, e] => (Some(*s), *e),
-                            _ => return Err("range() with step has no reference form; refusing".into()),
+                            _ => {
+                                return Err(
+                                    "range() with step has no reference form; refusing".into()
+                                )
+                            }
                         }
                     }
                     _ => {
-                        return Err("for over non-range iterables has no reference form; refusing"
-                            .into())
+                        return Err(
+                            "for over non-range iterables has no reference form; refusing".into(),
+                        )
                     }
                 };
                 let s = match start_s {
@@ -1147,7 +1170,9 @@ impl Codegen {
                 self.line(indent, &text);
                 Ok(())
             }
-            StmtKind::Todo => Err("`...` placeholder body cannot become a reference; refusing".into()),
+            StmtKind::Todo => {
+                Err("`...` placeholder body cannot become a reference; refusing".into())
+            }
         }
     }
 
@@ -1296,7 +1321,9 @@ impl Codegen {
                         .into(),
                 ),
             },
-            ExprKind::Unwrap { .. } => Err("`??` has no reference form for internal calls; refusing".into()),
+            ExprKind::Unwrap { .. } => {
+                Err("`??` has no reference form for internal calls; refusing".into())
+            }
         }
     }
 
@@ -1594,10 +1621,7 @@ say(double(21))
                 "neg-expr",
                 "def f(a: int) -> int do\n ret -a\nend\nsay(f(1))\n",
             ),
-            (
-                "fail",
-                "def f() -> int do\n fail \"boom\"\nend\nsay(f())\n",
-            ),
+            ("fail", "def f() -> int do\n fail \"boom\"\nend\nsay(f())\n"),
             (
                 "str-concat",
                 "def f(a: str) -> str do\n ret a + \"x\"\nend\nsay(f(\"y\"))\n",
@@ -1606,7 +1630,10 @@ say(double(21))
                 "say-in-fn",
                 "def f() -> int do\n say(1)\n ret 1\nend\nsay(f())\n",
             ),
-            ("list", "def f() -> int do\n ret 1\nend\nlet xs = [1]\nsay(f())\n"),
+            (
+                "list",
+                "def f() -> int do\n ret 1\nend\nlet xs = [1]\nsay(f())\n",
+            ),
             (
                 "time",
                 "def f() -> int do\n ret 1\nend\nsay(\"2026-01-01T00:00:00Z\"t)\n",

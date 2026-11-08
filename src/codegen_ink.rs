@@ -195,15 +195,15 @@ impl Codegen {
             match item {
                 Item::Typ(t) => {
                     return Err(format!(
-                        "typ `{}` has no v1 ink!-logic form; refusing (integer/decimal/fn core only)",
-                        t.name
-                    ))
+                    "typ `{}` has no v1 ink!-logic form; refusing (integer/decimal/fn core only)",
+                    t.name
+                ))
                 }
                 Item::Enum(e) => {
                     return Err(format!(
-                        "enum `{}` has no v1 ink!-logic form; refusing (integer/decimal/fn core only)",
-                        e.name
-                    ))
+                    "enum `{}` has no v1 ink!-logic form; refusing (integer/decimal/fn core only)",
+                    e.name
+                ))
                 }
                 _ => {}
             }
@@ -240,7 +240,10 @@ impl Codegen {
     /// Emitted once at the top of the logic core so both the standalone
     /// reference and the embedded `mod logic` share one implementation.
     fn gen_dec_prelude(&mut self) {
-        self.line(0, "/// CuNi `dec`: scaled i128, scale 10^4 (docs/DECIMAL.md).");
+        self.line(
+            0,
+            "/// CuNi `dec`: scaled i128, scale 10^4 (docs/DECIMAL.md).",
+        );
         self.line(0, "const CUNI_DEC_SCALE: i128 = 10000;");
         self.out.push('\n');
         self.line(
@@ -299,7 +302,10 @@ impl Codegen {
         );
         self.line(0, "}");
         self.out.push('\n');
-        self.line(0, "/// `dec_of_int`: exact `n * 10000`; refuses on overflow.");
+        self.line(
+            0,
+            "/// `dec_of_int`: exact `n * 10000`; refuses on overflow.",
+        );
         self.line(0, "fn cuni_dec_of_int(n: i64) -> i128 {");
         self.line(
             1,
@@ -314,7 +320,10 @@ impl Codegen {
         self.line(0, "fn cuni_int_of_dec(d: i128) -> i64 {");
         self.line(1, "let q = d / CUNI_DEC_SCALE;");
         self.line(1, "if q < i64::MIN as i128 || q > i64::MAX as i128 {");
-        self.line(2, "panic!(\"cuni: int_of_dec overflow \\u{2014} refused\");");
+        self.line(
+            2,
+            "panic!(\"cuni: int_of_dec overflow \\u{2014} refused\");",
+        );
         self.line(1, "}");
         self.line(1, "q as i64");
         self.line(0, "}");
@@ -387,7 +396,10 @@ impl Codegen {
             0,
             "//!   compiled by `cuni check` (no ink! toolchain on the check",
         );
-        self.line(0, "//!   machine). Full verification recipe: docs/ONCHAIN.md.");
+        self.line(
+            0,
+            "//!   machine). Full verification recipe: docs/ONCHAIN.md.",
+        );
         self.line(0, "//!");
         self.line(
             0,
@@ -436,10 +448,7 @@ impl Codegen {
             0,
             "// messages: each CuNi function is exposed as one message below;",
         );
-        self.line(
-            0,
-            "// invoking them in driver order is the caller's job.",
-        );
+        self.line(0, "// invoking them in driver order is the caller's job.");
         self.out.push('\n');
         self.line(0, "#[ink::contract]");
         self.line(0, &format!("mod {} {{", mod_name));
@@ -448,12 +457,18 @@ impl Codegen {
         self.out.push('\n');
         self.line(1, "#[ink(storage)]");
         self.line(1, "pub struct Contract {");
-        self.line(2, "/// Set once at construction; identifies the deploying account.");
+        self.line(
+            2,
+            "/// Set once at construction; identifies the deploying account.",
+        );
         self.line(2, "owner: AccountId,");
         self.line(1, "}");
         self.out.push('\n');
         self.line(1, "impl Contract {");
-        self.line(2, "/// Deploys the contract and records the caller as owner.");
+        self.line(
+            2,
+            "/// Deploys the contract and records the caller as owner.",
+        );
         self.line(2, "#[ink(constructor)]");
         self.line(2, "pub fn new() -> Self {");
         self.line(3, "Self { owner: Self::env().caller() }");
@@ -516,10 +531,7 @@ impl Codegen {
                 ret
             ),
         );
-        self.line(
-            3,
-            &format!("logic::{}({})", f.name, arg_names.join(", ")),
-        );
+        self.line(3, &format!("logic::{}({})", f.name, arg_names.join(", ")));
         self.line(2, "}");
         Ok(())
     }
@@ -586,9 +598,7 @@ impl Codegen {
                     self.line(indent, &format!("panic!(\"{}\");", Self::esc(s)));
                     Ok(())
                 }
-                _ => Err(
-                    "fail with a non-string has no clean ink!-logic abort; refusing".into(),
-                ),
+                _ => Err("fail with a non-string has no clean ink!-logic abort; refusing".into()),
             },
             StmtKind::If {
                 cond,
@@ -636,8 +646,7 @@ impl Codegen {
                     }
                     _ => {
                         return Err(
-                            "for over non-range iterables has no ink!-logic form; refusing"
-                                .into(),
+                            "for over non-range iterables has no ink!-logic form; refusing".into(),
                         )
                     }
                 };
@@ -814,11 +823,15 @@ impl Codegen {
                         }
                     }
                 }
-                Ok(format!("format!(\"{}\"{})", fmt, if args.is_empty() {
-                    String::new()
-                } else {
-                    format!(", {}", args.join(", "))
-                }))
+                Ok(format!(
+                    "format!(\"{}\"{})",
+                    fmt,
+                    if args.is_empty() {
+                        String::new()
+                    } else {
+                        format!(", {}", args.join(", "))
+                    }
+                ))
             }
             ExprKind::NoneLit => Err("None has no ink!-logic form; refusing".into()),
             ExprKind::Ident(n) => Ok(n.clone()),
@@ -847,15 +860,8 @@ impl Codegen {
                         BinOp::Sub => "cuni_dec_sub",
                         BinOp::Mul => "cuni_dec_mul",
                         BinOp::Div => "cuni_dec_div",
-                        BinOp::Mod => {
-                            return Err("`%` is not defined on `dec` — refusing".into())
-                        }
-                        BinOp::Eq
-                        | BinOp::Ne
-                        | BinOp::Lt
-                        | BinOp::Gt
-                        | BinOp::Le
-                        | BinOp::Ge => {
+                        BinOp::Mod => return Err("`%` is not defined on `dec` — refusing".into()),
+                        BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                             let o = match op {
                                 BinOp::Eq => "==",
                                 BinOp::Ne => "!=",
@@ -886,8 +892,10 @@ impl Codegen {
                         op_name(op)
                     ));
                 }
-                if matches!(*op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod)
-                    && lk != InkKind::Int
+                if matches!(
+                    *op,
+                    BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod
+                ) && lk != InkKind::Int
                 {
                     return Err(format!(
                         "`{}` is not defined on `{}`; refusing",
@@ -918,7 +926,9 @@ impl Codegen {
                 match op {
                     UnOp::Not => {
                         if k != InkKind::Bool {
-                            return Err("`not` on a non-bool has no ink!-logic form; refusing".into());
+                            return Err(
+                                "`not` on a non-bool has no ink!-logic form; refusing".into()
+                            );
                         }
                         Ok(format!("(!{})", t))
                     }
@@ -1132,7 +1142,11 @@ say(fee(1000000.00dec))
         let block = &program_src[start..end];
         let mut lines = block.lines().skip(1).peekable();
         let open = lines.next().expect("empty logic region");
-        assert_eq!(open.trim(), "mod logic {", "logic region must open with `mod logic {{`");
+        assert_eq!(
+            open.trim(),
+            "mod logic {",
+            "logic region must open with `mod logic {{`"
+        );
         let mut extracted = String::new();
         for line in lines {
             if line == "}" {
@@ -1182,7 +1196,10 @@ say(fee(1000000.00dec))
     fn refuses_float_list_typ_unwrap_time() {
         for (tag, src) in [
             ("float", "def f() -> int do\n ret 1\nend\nsay(1.5)\n"),
-            ("list", "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n"),
+            (
+                "list",
+                "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n",
+            ),
             (
                 "typ",
                 "typ Point do\n x: int\nend\ndef f() -> int do\n ret 1\nend\nsay(1)\n",

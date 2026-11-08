@@ -84,10 +84,7 @@ fn escrow_verdicts_are_pinned() {
     // The law itself must not silently change: the interpreter seat prints
     // the six driver verdicts, asserted byte-for-byte.
     let (ok, stdout, stderr) = run_cuni(&["run", FIXTURE]);
-    assert!(
-        ok,
-        "cuni run failed\nstdout:\n{stdout}\nstderr:\n{stderr}"
-    );
+    assert!(ok, "cuni run failed\nstdout:\n{stdout}\nstderr:\n{stderr}");
     assert_eq!(
         stdout, EXPECTED_VERDICTS,
         "validation verdicts drifted — the law changed without the gate catching it"
@@ -101,8 +98,7 @@ fn escrow_sol_compiles_to_deployable_bytecode() {
 
     // 1. The sol seat: emit + real solc 0.8.28 compile inside `cuni check`.
     //    Exit 0 means solc accepted the contract (deployable).
-    let (ok, stdout, stderr) =
-        run_cuni(&["check", FIXTURE, "--only", "sol", "--timeout", "180"]);
+    let (ok, stdout, stderr) = run_cuni(&["check", FIXTURE, "--only", "sol", "--timeout", "180"]);
     assert!(
         ok,
         "sol seat failed — the contract did not compile under real solc\nstdout:\n{stdout}\nstderr:\n{stderr}"
