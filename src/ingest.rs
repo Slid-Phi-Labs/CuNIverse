@@ -1054,7 +1054,7 @@ const GO_PRELUDE: &[&str] = &[
     "cuniDecDiv",
     "cuniDecOfInt",
     "cuniIntOfDec",
-    "cuniDecStr",    // Wave-1 stdlib (docs/STDLIB.md).
+    "cuniDecStr", // Wave-1 stdlib (docs/STDLIB.md).
     // CuNi `time` helpers (docs/TIME.md): exactness machinery, not user
     // code. (The `(v cuniTime) String()` method extracts with an empty
     // name and is harmlessly ignored downstream.)
@@ -1082,7 +1082,8 @@ const GO_PRELUDE: &[&str] = &[
     "cuni_join",
     "cuni_trim",
     "cuni_contains",
-    "cuni_sha256",];
+    "cuni_sha256",
+];
 
 fn go_type_to_cuni(t: &str) -> Result<String, String> {
     match t.trim() {
@@ -1253,19 +1254,50 @@ fn go_stmt(chunk: &str, indent: usize) -> Result<Vec<String>, String> {
 
 /// Helper method names the Java backend emits (see codegen_java.rs).
 const JAVA_PRELUDE: &[&str] = &[
-    "say", "cuni_str", "cuni_range", "cuni_abs", "cuni_min", "cuni_max", "cuni_mod", "cuni_div",
+    "say",
+    "cuni_str",
+    "cuni_range",
+    "cuni_abs",
+    "cuni_min",
+    "cuni_max",
+    "cuni_mod",
+    "cuni_div",
     "cuni_slice",
     // CuNi `dec` helpers (docs/DECIMAL.md): exactness machinery, not user
     // code — BigInteger params are outside the ingest subset.
-    "cuni_dec_str", "cuni_dec_div",    // Wave-1 stdlib (docs/STDLIB.md).
+    "cuni_dec_str",
+    "cuni_dec_div", // Wave-1 stdlib (docs/STDLIB.md).
     // CuNi `time` helpers (docs/TIME.md): exactness machinery, not user
     // code.
-    "cuni_time_str", "cuni_time_days_from_civil", "cuni_time_civil_from_days",
-    "cuni_parse_time", "cuni_add_seconds", "cuni_days_between",
-    "cuniErr", "cuniJsonNum", "cuniJws", "cuniJhex4", "cuniJstr", "cuniJval", "cuniJobj", "cuniJarr",
-    "cuniJsonParse", "cuniJesc", "cuniJwrite", "cuniJsonEmit", "cuniDaysFromCivil", "cuniCivilFromDays",
-    "cuniTimeEpoch", "cuniTimeParts", "cuniSplit", "cuniJoin", "cuniIsTrim", "cuniTrim",
-    "cuniContains", "cuniSha256",];
+    "cuni_time_str",
+    "cuni_time_days_from_civil",
+    "cuni_time_civil_from_days",
+    "cuni_parse_time",
+    "cuni_add_seconds",
+    "cuni_days_between",
+    "cuniErr",
+    "cuniJsonNum",
+    "cuniJws",
+    "cuniJhex4",
+    "cuniJstr",
+    "cuniJval",
+    "cuniJobj",
+    "cuniJarr",
+    "cuniJsonParse",
+    "cuniJesc",
+    "cuniJwrite",
+    "cuniJsonEmit",
+    "cuniDaysFromCivil",
+    "cuniCivilFromDays",
+    "cuniTimeEpoch",
+    "cuniTimeParts",
+    "cuniSplit",
+    "cuniJoin",
+    "cuniIsTrim",
+    "cuniTrim",
+    "cuniContains",
+    "cuniSha256",
+];
 
 fn ingest_java(src: &str) -> Result<String, String> {
     if is_cuni_lowering(src) {
@@ -1395,7 +1427,14 @@ fn java_stmt(chunk: &str, indent: usize) -> Result<Vec<String>, String> {
         v.push(format!("{pad}end"));
         return Ok(v);
     }
-    for bad in ["for ", "while ", "switch ", "throw ", "try ", "synchronized "] {
+    for bad in [
+        "for ",
+        "while ",
+        "switch ",
+        "throw ",
+        "try ",
+        "synchronized ",
+    ] {
         if t.starts_with(bad) {
             return Err(format!("ingest: refuse Java `{bad}` (outside subset)"));
         }
@@ -1419,7 +1458,12 @@ fn java_stmt(chunk: &str, indent: usize) -> Result<Vec<String>, String> {
     // `.add(x);` is the Java backend's shape for CuNi `.push(x)`.
     if let Some(dot) = t.find(".add(") {
         let base = t[..dot].trim();
-        let arg = strip_semi(t[dot + 5..].trim().strip_suffix(')').unwrap_or(t[dot + 5..].trim()));
+        let arg = strip_semi(
+            t[dot + 5..]
+                .trim()
+                .strip_suffix(')')
+                .unwrap_or(t[dot + 5..].trim()),
+        );
         if is_ident(base) {
             let e = XP::new(arg, ELang::Java)?.expr()?.to_cuni();
             return Ok(vec![format!("{pad}{base}.push({e})")]);
@@ -1437,7 +1481,9 @@ fn java_stmt(chunk: &str, indent: usize) -> Result<Vec<String>, String> {
                     return Ok(vec![format!("{pad}let {name} = {e}")]);
                 }
             }
-            return Err(format!("ingest: refuse Java binding `{t}` (outside subset)"));
+            return Err(format!(
+                "ingest: refuse Java binding `{t}` (outside subset)"
+            ));
         }
     }
     if let Some((lhs, rhs)) = split_assign(t, ELang::Java)? {
@@ -2149,7 +2195,7 @@ const JS_PRELUDE: &[&str] = &[
     "_cuni_dec_mul",
     "_cuni_dec_div",
     "_cuni_dec_of_int",
-    "_cuni_int_of_dec",    // Wave-1 stdlib (docs/STDLIB.md).
+    "_cuni_int_of_dec", // Wave-1 stdlib (docs/STDLIB.md).
     // CuNi `time` helpers (docs/TIME.md): exactness machinery, not user
     // code — and uninferrable (BigInt params), so they must be skipped.
     "_cuni_time_str",
@@ -2171,7 +2217,8 @@ const JS_PRELUDE: &[&str] = &[
     "_cuni_join",
     "_cuni_trim",
     "_cuni_contains",
-    "_cuni_sha256",];
+    "_cuni_sha256",
+];
 
 // ---------------------------------------------------------------------------
 // Solidity: the blockchain contract reader
@@ -3193,7 +3240,7 @@ const PY_PRELUDE_SKIP: &[&str] = &[
     "_cuni_tdiv",
     "_cuni_dec_str",
     "_cuni_dec_of_int",
-    "_cuni_int_of_dec",    // Wave-1 stdlib (docs/STDLIB.md).
+    "_cuni_int_of_dec", // Wave-1 stdlib (docs/STDLIB.md).
     // CuNi `time` helpers (docs/TIME.md): exactness machinery, not user
     // code — the class body is skipped by the `class` arm above.
     "CuniTime",
@@ -3211,7 +3258,8 @@ const PY_PRELUDE_SKIP: &[&str] = &[
     "_cuni_civil_from_days",
     "_cuni_time_epoch",
     "_cuni_time_parts",
-    "sha256",];
+    "sha256",
+];
 
 fn py_type_to_cuni(t: &str) -> Option<String> {
     match t.trim() {
@@ -3509,7 +3557,7 @@ const RB_PRELUDE: &[&str] = &[
     // code — and uninferrable, so they must be skipped.
     "_cuni_tdiv",
     "_cuni_dec_of_int",
-    "_cuni_int_of_dec",    // Wave-1 stdlib (docs/STDLIB.md).
+    "_cuni_int_of_dec", // Wave-1 stdlib (docs/STDLIB.md).
     // CuNi `time` helpers (docs/TIME.md): exactness machinery, not user
     // code — and uninferrable, so they must be skipped.
     "CuniTime",
@@ -3531,7 +3579,8 @@ const RB_PRELUDE: &[&str] = &[
     "_cuni_join",
     "_cuni_trim",
     "_cuni_contains",
-    "_cuni_sha256",];
+    "_cuni_sha256",
+];
 
 /// Prelude helpers the Lua backend always emits.
 const LUA_PRELUDE: &[&str] = &[
@@ -3563,7 +3612,7 @@ const LUA_PRELUDE: &[&str] = &[
     "_cuni_dec_neg",
     "_cuni_dec_str",
     "_cuni_dec_of_int",
-    "_cuni_int_of_dec",    // Wave-1 stdlib (docs/STDLIB.md).
+    "_cuni_int_of_dec", // Wave-1 stdlib (docs/STDLIB.md).
     // CuNi `time` helpers (docs/TIME.md): exactness machinery, not user
     // code — and uninferrable, so they must be skipped.
     "CuniTime",
@@ -3591,7 +3640,8 @@ const LUA_PRELUDE: &[&str] = &[
     "_cuni_join",
     "_cuni_trim",
     "_cuni_contains",
-    "_cuni_sha256",];
+    "_cuni_sha256",
+];
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum EndLang {
@@ -5961,21 +6011,17 @@ say(is_big(3))
         const NO_INGEST: &[&str] = &[
             "php", "r", "pl", "ml", "lisp", "f90", "pas",
             // New top-50 native seats without ingest parsers yet
-            "cs", "fs", "kt", "scala", "groovy", "jl", "dart", "hx", "ps1",
-            "tcl", "clj", "ex", "erl", "hs", "pro", "ada", "cob", "m-objc",
-            "zig", "nim", "cr", "d", "v",
+            "cs", "fs", "kt", "scala", "groovy", "jl", "dart", "hx", "ps1", "tcl", "clj", "ex",
+            "erl", "hs", "pro", "ada", "cob", "m-objc", "zig", "nim", "cr", "d", "v",
             // Pre-existing: java ingest parser cannot handle emitter output
-            "java",
-            // Lua _cuni_add helper breaks def type inference (new)
-            "lua",
-            // asm: no ingest parser
+            "java", // Lua _cuni_add helper breaks def type inference (new)
+            "lua",  // asm: no ingest parser
             "asm",
             // Python-lowered (m, vb, swift, hack, st) and onchain profiles
             // (vy, move, cairo): not native seats, no ingest
             "m", "vb", "swift", "st", "hack", "vy", "move", "cairo",
             // sh: emitter output outside ingest subset
-            "sh",
-            // awk: cuni_div helper outside ingest subset
+            "sh", // awk: cuni_div helper outside ingest subset
             "awk",
         ];
         for l in crate::langs::LANGS {
@@ -5993,11 +6039,10 @@ say(is_big(3))
     fn rt2_typed() {
         // Seats without ingest parsers; skip.
         const NO_INGEST: &[&str] = &[
-            "php", "r", "pl", "ml", "lisp", "f90", "pas",
-            "cs", "fs", "kt", "scala", "groovy", "jl", "dart", "hx", "ps1",
-            "tcl", "clj", "ex", "erl", "hs", "pro", "ada", "cob", "m-objc",
-            "zig", "nim", "cr", "d", "v", "java", "lua", "asm", "sh", "awk",
-            "m", "vb", "swift", "st", "hack", "vy", "move", "cairo",
+            "php", "r", "pl", "ml", "lisp", "f90", "pas", "cs", "fs", "kt", "scala", "groovy",
+            "jl", "dart", "hx", "ps1", "tcl", "clj", "ex", "erl", "hs", "pro", "ada", "cob",
+            "m-objc", "zig", "nim", "cr", "d", "v", "java", "lua", "asm", "sh", "awk", "m", "vb",
+            "swift", "st", "hack", "vy", "move", "cairo",
         ];
         for l in crate::langs::LANGS {
             if NO_INGEST.contains(&l.id) {

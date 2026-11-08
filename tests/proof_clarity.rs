@@ -55,7 +55,8 @@ fn toolchain_path() -> String {
 /// Unique-per-test work dir: tests in one binary run on parallel threads
 /// sharing a process id, so the dir name includes the test's tag.
 fn workdir(tag: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("cuni_proof_clarity_{}_{}", tag, std::process::id()));
+    let dir =
+        std::env::temp_dir().join(format!("cuni_proof_clarity_{}_{}", tag, std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("failed to create temp work dir");
     dir
@@ -124,7 +125,9 @@ fn clarity_contract_shape() {
     ];
     let mut prev = 0;
     for m in markers {
-        let at = src.find(m).unwrap_or_else(|| panic!("contract missing `{m}`"));
+        let at = src
+            .find(m)
+            .unwrap_or_else(|| panic!("contract missing `{m}`"));
         assert!(at >= prev, "contract markers out of order at `{m}`");
         prev = at;
     }
@@ -189,11 +192,11 @@ fn reference_gate_python() {
     );
     let stdout = String::from_utf8_lossy(&run.stdout).into_owned();
     let gold = cuni_gold(FIXTURE);
+    assert_eq!(stdout, gold, "reference stdout diverged from the CuNi gold");
     assert_eq!(
-        stdout, gold,
-        "reference stdout diverged from the CuNi gold"
+        stdout, EXPECTED,
+        "reference stdout diverged from the pinned verdicts"
     );
-    assert_eq!(stdout, EXPECTED, "reference stdout diverged from the pinned verdicts");
     std::fs::remove_dir_all(&dir).ok();
 }
 
@@ -203,12 +206,7 @@ fn money_bridge_fee_schedule() {
     // Clarity profile: contract shape + Python reference == CuNi gold.
     let dir = workdir("money");
     let prog_path = dir.join("fee.clar");
-    let (ok, _, stderr) = run_cuni(&[
-        "compile",
-        FEE_FIXTURE,
-        "--emit-clarity",
-        utf8(&prog_path),
-    ]);
+    let (ok, _, stderr) = run_cuni(&["compile", FEE_FIXTURE, "--emit-clarity", utf8(&prog_path)]);
     assert!(ok, "--emit-clarity on fee_schedule failed\n{stderr}");
     let src = std::fs::read_to_string(&prog_path).expect("failed to read fee contract");
     for marker in [
@@ -240,7 +238,10 @@ fn money_bridge_fee_schedule() {
     );
     let stdout = String::from_utf8_lossy(&run.stdout).into_owned();
     let gold = cuni_gold(FEE_FIXTURE);
-    assert_eq!(stdout, gold, "fee reference stdout diverged from the CuNi gold");
+    assert_eq!(
+        stdout, gold,
+        "fee reference stdout diverged from the CuNi gold"
+    );
     assert_eq!(
         stdout, FEE_EXPECTED,
         "fee driver outputs drifted — the money law changed"
@@ -290,8 +291,7 @@ fn refusals_are_honest() {
     for (tag, src) in cases {
         let fixture = write_fixture(&dir, &format!("refuse_{tag}.cuni"), src);
         let out = dir.join(format!("refuse_{tag}.clar"));
-        let (ok, _, stderr) =
-            run_cuni(&["compile", utf8(&fixture), "--emit-clarity", utf8(&out)]);
+        let (ok, _, stderr) = run_cuni(&["compile", utf8(&fixture), "--emit-clarity", utf8(&out)]);
         assert!(!ok, "{tag}: emit should have refused");
         // Two honest refusal layers: CuNi's own typeck (`type error`) runs
         // before emit, and the emitter itself refuses (`refused`). Either is
@@ -327,8 +327,7 @@ fn toolchain_honesty() {
         // A future machine WITH the toolchain should actually check the artifact.
         let dir = workdir("toolchain");
         let prog_path = dir.join("demo.clar");
-        let (ok, _, stderr) =
-            run_cuni(&["compile", FIXTURE, "--emit-clarity", utf8(&prog_path)]);
+        let (ok, _, stderr) = run_cuni(&["compile", FIXTURE, "--emit-clarity", utf8(&prog_path)]);
         assert!(ok, "--emit-clarity failed\n{stderr}");
         let check = Command::new("clarity-cli")
             .args(["check", utf8(&prog_path)])

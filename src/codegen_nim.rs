@@ -301,7 +301,9 @@ impl Emitter {
                     .ok_or_else(|| format!("unknown variable `{}`: refusing", n))?;
                 Ok((n.clone(), t))
             }
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -315,9 +317,11 @@ impl Emitter {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut as_: Vec<String> = Vec::new();
                 for a in args {
                     if a.is_named() {
@@ -405,7 +409,10 @@ impl Emitter {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 }

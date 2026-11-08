@@ -171,7 +171,9 @@ impl<'a> Emitter<'a> {
                     self.fns.insert(f.name.clone());
                 }
                 Item::Stmt(s) => script_stmts.push(s),
-                Item::Use(u) => return Err(format!("use {}: beyond core subset; refusing", u.name)),
+                Item::Use(u) => {
+                    return Err(format!("use {}: beyond core subset; refusing", u.name))
+                }
                 Item::Enum(_) => return Err("enum: beyond core subset; refusing".into()),
                 Item::Typ(_) => return Err("typ: beyond core subset; refusing".into()),
                 Item::Iface(_) => return Err("iface: beyond core subset; refusing".into()),
@@ -206,10 +208,16 @@ impl<'a> Emitter<'a> {
 
     fn check_def(&self, f: &FnDecl) -> Result<(), String> {
         if f.fallible {
-            return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+            return Err(format!(
+                "def {}: fallible functions beyond core subset; refusing",
+                f.name
+            ));
         }
         if !f.generics.is_empty() {
-            return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+            return Err(format!(
+                "def {}: generics beyond core subset; refusing",
+                f.name
+            ));
         }
         if f.is_link {
             return Err(format!("link {}: beyond core subset; refusing", f.name));
@@ -254,8 +262,7 @@ impl<'a> Emitter<'a> {
                     if at != vt {
                         return Err(format!(
                             "let {}: annotated {:?} disagrees with value; refusing",
-                            name,
-                            t
+                            name, t
                         ));
                     }
                 }
@@ -273,8 +280,7 @@ impl<'a> Emitter<'a> {
                     if at != vt {
                         return Err(format!(
                             "mut {}: annotated {:?} disagrees with value; refusing",
-                            name,
-                            t
+                            name, t
                         ));
                     }
                 }
@@ -304,7 +310,11 @@ impl<'a> Emitter<'a> {
                 Ok(())
             }
             StmtKind::Fail(_) => Err("fail: beyond core subset; refusing".into()),
-            StmtKind::If { cond, then_body, else_body } => {
+            StmtKind::If {
+                cond,
+                then_body,
+                else_body,
+            } => {
                 let (c, ct) = self.gen_expr(cond)?;
                 if ct != Ty::Bool {
                     return Err("if condition must be bool; refusing".into());
@@ -348,7 +358,9 @@ impl<'a> Emitter<'a> {
                         if let ExprKind::Ident(n) = &callee.kind {
                             if n == "say" {
                                 if args.len() != 1 {
-                                    return Err("say: exactly one argument in core subset; refusing".into());
+                                    return Err(
+                                        "say: exactly one argument in core subset; refusing".into(),
+                                    );
                                 }
                                 let (v, vt) = self.gen_expr(args[0].expr())?;
                                 let tys = match vt {
@@ -373,7 +385,11 @@ impl<'a> Emitter<'a> {
         match &e.kind {
             ExprKind::Int(n) => Ok((n.to_string(), Ty::Int)),
             ExprKind::Bool(b) => Ok((
-                if *b { self.spec.true_lit.into() } else { self.spec.false_lit.into() },
+                if *b {
+                    self.spec.true_lit.into()
+                } else {
+                    self.spec.false_lit.into()
+                },
                 Ty::Bool,
             )),
             ExprKind::Str(s) => Ok(((self.spec.str_quote)(s), Ty::Str)),
@@ -382,12 +398,16 @@ impl<'a> Emitter<'a> {
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
             ExprKind::Ident(n) => {
-                let t = self.scope.get(n).copied().ok_or_else(|| {
-                    format!("unknown variable `{}`: refusing", n)
-                })?;
+                let t = self
+                    .scope
+                    .get(n)
+                    .copied()
+                    .ok_or_else(|| format!("unknown variable `{}`: refusing", n))?;
                 Ok((self.var(n), t))
             }
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -401,9 +421,11 @@ impl<'a> Emitter<'a> {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut as_: Vec<String> = Vec::new();
                 for a in args {
                     if a.is_named() {
@@ -412,7 +434,10 @@ impl<'a> Emitter<'a> {
                     as_.push(self.gen_expr(a.expr())?.0);
                 }
                 Ok((
-                    sub(self.spec.call_fmt, &[("name", &name), ("args", &as_.join(", "))]),
+                    sub(
+                        self.spec.call_fmt,
+                        &[("name", &name), ("args", &as_.join(", "))],
+                    ),
                     ret,
                 ))
             }
@@ -432,9 +457,7 @@ impl<'a> Emitter<'a> {
                         } else if lt == Ty::Int && rt == Ty::Int {
                             "+".to_string()
                         } else {
-                            return Err(
-                                "mixed-type `+`: beyond core subset; refusing".into()
-                            );
+                            return Err("mixed-type `+`: beyond core subset; refusing".into());
                         }
                     }
                     BinOp::Sub => {
@@ -449,7 +472,12 @@ impl<'a> Emitter<'a> {
                         self.require_ints(lt, rt, "/")?;
                         // Integer division truncates toward zero (CuNi).
                         if let Some(h) = self.spec.int_div_helper {
-                            return Ok((format!("{}( {}, {} )", h, l, r).replace("( ", "(").replace(" )", ")"), Ty::Int));
+                            return Ok((
+                                format!("{}( {}, {} )", h, l, r)
+                                    .replace("( ", "(")
+                                    .replace(" )", ")"),
+                                Ty::Int,
+                            ));
                         }
                         "/".to_string()
                     }
@@ -457,7 +485,12 @@ impl<'a> Emitter<'a> {
                         self.require_ints(lt, rt, "%")?;
                         // Python-floored modulo (CuNi).
                         if let Some(h) = self.spec.int_mod_helper {
-                            return Ok((format!("{}( {}, {} )", h, l, r).replace("( ", "(").replace(" )", ")"), Ty::Int));
+                            return Ok((
+                                format!("{}( {}, {} )", h, l, r)
+                                    .replace("( ", "(")
+                                    .replace(" )", ")"),
+                                Ty::Int,
+                            ));
                         }
                         "%".to_string()
                     }
@@ -551,7 +584,10 @@ impl<'a> Emitter<'a> {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 }

@@ -312,28 +312,28 @@ pub fn parse_dec_scaled(text: &str) -> Result<i128, String> {
     let int_val: i128 = if int_part.is_empty() {
         0
     } else {
-        int_part.parse::<i128>().map_err(|_| {
-            format!("dec literal `{text}dec` is out of range — refusing")
-        })?
+        int_part
+            .parse::<i128>()
+            .map_err(|_| format!("dec literal `{text}dec` is out of range — refusing"))?
     };
     let mut frac_val: i128 = if frac_part.is_empty() {
         0
     } else {
-        frac_part.parse::<i128>().map_err(|_| {
-            format!("dec literal `{text}dec` is out of range — refusing")
-        })?
+        frac_part
+            .parse::<i128>()
+            .map_err(|_| format!("dec literal `{text}dec` is out of range — refusing"))?
     };
     for _ in frac_part.len()..DEC_FRAC_DIGITS {
-        frac_val = frac_val.checked_mul(10).ok_or_else(|| {
-            format!("dec literal `{text}dec` is out of range — refusing")
-        })?;
+        frac_val = frac_val
+            .checked_mul(10)
+            .ok_or_else(|| format!("dec literal `{text}dec` is out of range — refusing"))?;
     }
-    let scaled_int = int_val.checked_mul(DEC_SCALE).ok_or_else(|| {
-        format!("dec literal `{text}dec` is out of range — refusing")
-    })?;
-    scaled_int.checked_add(frac_val).ok_or_else(|| {
-        format!("dec literal `{text}dec` is out of range — refusing")
-    })
+    let scaled_int = int_val
+        .checked_mul(DEC_SCALE)
+        .ok_or_else(|| format!("dec literal `{text}dec` is out of range — refusing"))?;
+    scaled_int
+        .checked_add(frac_val)
+        .ok_or_else(|| format!("dec literal `{text}dec` is out of range — refusing"))
 }
 
 /// Canonical `dec` rendering of a scaled i128 (docs/DECIMAL.md §6):
@@ -385,8 +385,7 @@ pub fn check_dec_literals_in_range(
             }),
             ExprKind::Call { callee, args } => {
                 expr(callee, bad, max_abs);
-                args.iter()
-                    .for_each(|a| expr(a.expr(), bad, max_abs));
+                args.iter().for_each(|a| expr(a.expr(), bad, max_abs));
             }
             ExprKind::Index { base, index } => {
                 expr(base, bad, max_abs);
@@ -415,9 +414,7 @@ pub fn check_dec_literals_in_range(
             return;
         }
         match &s.kind {
-            StmtKind::Let { value, .. } | StmtKind::Mut { value, .. } => {
-                expr(value, bad, max_abs)
-            }
+            StmtKind::Let { value, .. } | StmtKind::Mut { value, .. } => expr(value, bad, max_abs),
             StmtKind::Assign { target, value } => {
                 expr(target, bad, max_abs);
                 expr(value, bad, max_abs);
@@ -731,7 +728,10 @@ mod tests {
     #[test]
     fn time_literal_parses_to_epoch() {
         assert_eq!(parse_time_epoch("1970-01-01T00:00:00Z").unwrap(), 0);
-        assert_eq!(parse_time_epoch("2026-10-01T21:30:25Z").unwrap(), 1790890225);
+        assert_eq!(
+            parse_time_epoch("2026-10-01T21:30:25Z").unwrap(),
+            1790890225
+        );
         assert_eq!(parse_time_epoch("1969-12-31T23:59:59Z").unwrap(), -1);
         assert_eq!(parse_time_epoch("2000-02-29T12:00:00Z").unwrap(), 951825600);
         assert_eq!(

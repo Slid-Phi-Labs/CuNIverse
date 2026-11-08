@@ -5,7 +5,7 @@
  "site": {
   "name": "CuNi Studio",
   "url": "https://cuni-studio.fly.dev",
-  "description": "CuNi Protocol: 144 languages, one program, same stdout or refuse. New in 0.2.0: Solidity seat \u2014 same source compiles to a deployable EVM smart contract. Bank arm: paste N, get X. Studio publishes exact policies into Agent^Rider."
+  "description": "CuNi Protocol: 53 catalog targets, one program, same stdout or refuse. New in 0.2.0: Solidity seat \u2014 same source compiles to a deployable EVM smart contract. Bank arm: paste N, get X. Studio publishes exact policies into Agent^Rider."
  },
  "protocol": "https://cuni-studio.fly.dev/.well-known/cuni-protocol.json",
  "mcp": [

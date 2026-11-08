@@ -313,10 +313,7 @@ impl Emitter {
     fn gen_expr(&mut self, e: &Expr) -> Result<(String, Ty), String> {
         match &e.kind {
             ExprKind::Int(n) => Ok((n.to_string(), Ty::Int)),
-            ExprKind::Bool(b) => Ok((
-                if *b { "true".into() } else { "false".into() },
-                Ty::Bool,
-            )),
+            ExprKind::Bool(b) => Ok((if *b { "true".into() } else { "false".into() }, Ty::Bool)),
             ExprKind::Str(s) => Ok((dart_str(s), Ty::Str)),
             ExprKind::Float(_) => Err("float: beyond core subset; refusing".into()),
             ExprKind::Dec(_) => Err("dec: beyond core subset; refusing".into()),
@@ -346,9 +343,11 @@ impl Emitter {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut as_: Vec<String> = Vec::new();
                 for a in args {
                     if let CallArg::Named { .. } = a {
@@ -375,10 +374,7 @@ impl Emitter {
                             return Ok((format!("({} + {})", l, r), Ty::Str));
                         }
                         _ => {
-                            return Err(format!(
-                                "string `{:?}`: beyond core subset; refusing",
-                                op
-                            ))
+                            return Err(format!("string `{:?}`: beyond core subset; refusing", op))
                         }
                     };
                     return Ok((cmp, Ty::Bool));
@@ -458,7 +454,10 @@ impl Emitter {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 }

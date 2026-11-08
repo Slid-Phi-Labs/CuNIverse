@@ -4,34 +4,34 @@ mod bank;
 mod check;
 mod checks;
 mod codegen_c;
-mod codegen_core;
 mod codegen_cadence;
 mod codegen_cairo;
 mod codegen_clarity;
+mod codegen_core;
+mod codegen_cr;
+mod codegen_d;
+mod codegen_f90;
 mod codegen_go;
 mod codegen_ink;
 mod codegen_java;
 mod codegen_js;
+mod codegen_lisp;
 mod codegen_lua;
+mod codegen_ml;
 mod codegen_move;
+mod codegen_nim;
+mod codegen_pas;
 mod codegen_php;
 mod codegen_pl;
-mod codegen_pas;
-mod codegen_f90;
-mod codegen_lisp;
-mod codegen_ml;
-mod codegen_r;
 mod codegen_py;
+mod codegen_r;
 mod codegen_rb;
 mod codegen_rs;
 mod codegen_sol;
 mod codegen_solana;
 mod codegen_sql;
-mod codegen_vyper;
 mod codegen_v;
-mod codegen_d;
-mod codegen_cr;
-mod codegen_nim;
+mod codegen_vyper;
 mod codegen_zig;
 
 mod codegen_ada;
@@ -497,11 +497,7 @@ fn cmd_run(args: &[String]) -> ExitCode {
 /// Emit one catalog seat to `out_path`, or refuse with a reason.
 /// Shared by `--emit`, `--emit-top50`, and (via --emit-all's own loop) kept
 /// consistent with the ext-collision rule for py/js (see item 5).
-fn emit_seat_to(
-    program: &ast::Program,
-    lang: &langs::Lang,
-    out_path: &str,
-) -> Result<(), String> {
+fn emit_seat_to(program: &ast::Program, lang: &langs::Lang, out_path: &str) -> Result<(), String> {
     let seat_id = lang.id;
     if seat_id == "py" || seat_id == "js" {
         if let Some(name) = checks::find_ext_collision(program, seat_id) {
@@ -874,7 +870,13 @@ fn cmd_compile(args: &[String]) -> ExitCode {
             .unwrap_or("program");
         let snake: String = stem
             .chars()
-            .map(|c| if c.is_alphanumeric() { c.to_ascii_lowercase() } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() {
+                    c.to_ascii_lowercase()
+                } else {
+                    '_'
+                }
+            })
             .collect();
         let snake = snake.trim_matches('_').to_string();
         let prog_mod = if snake.is_empty() {
@@ -901,9 +903,13 @@ fn cmd_compile(args: &[String]) -> ExitCode {
     // pair: the chain artifact plus the standalone runnable logic reference
     // the gate proves byte-identical to CuNi gold.
     if let Some(out_path) = emit_ink {
-        if let Some(code) =
-            emit_profile_artifact(&out_path, &path, &program, "ink!", codegen_ink::generate_program)
-        {
+        if let Some(code) = emit_profile_artifact(
+            &out_path,
+            &path,
+            &program,
+            "ink!",
+            codegen_ink::generate_program,
+        ) {
             return code;
         }
         emitted_any = true;
@@ -917,49 +923,70 @@ fn cmd_compile(args: &[String]) -> ExitCode {
         emitted_any = true;
     }
     if let Some(out_path) = emit_move_ {
-        if let Some(code) =
-            emit_profile_artifact(&out_path, &path, &program, "Move", codegen_move::generate_program)
-        {
+        if let Some(code) = emit_profile_artifact(
+            &out_path,
+            &path,
+            &program,
+            "Move",
+            codegen_move::generate_program,
+        ) {
             return code;
         }
         emitted_any = true;
     }
     if let Some(out_path) = emit_move_ref {
-        if let Some(code) =
-            emit_profile_reference(&out_path, &program, "Move", codegen_move::generate_reference)
-        {
+        if let Some(code) = emit_profile_reference(
+            &out_path,
+            &program,
+            "Move",
+            codegen_move::generate_reference,
+        ) {
             return code;
         }
         emitted_any = true;
     }
     if let Some(out_path) = emit_vyper {
-        if let Some(code) =
-            emit_profile_artifact(&out_path, &path, &program, "Vyper", codegen_vyper::generate_program)
-        {
+        if let Some(code) = emit_profile_artifact(
+            &out_path,
+            &path,
+            &program,
+            "Vyper",
+            codegen_vyper::generate_program,
+        ) {
             return code;
         }
         emitted_any = true;
     }
     if let Some(out_path) = emit_vyper_ref {
-        if let Some(code) =
-            emit_profile_reference(&out_path, &program, "Vyper", codegen_vyper::generate_reference)
-        {
+        if let Some(code) = emit_profile_reference(
+            &out_path,
+            &program,
+            "Vyper",
+            codegen_vyper::generate_reference,
+        ) {
             return code;
         }
         emitted_any = true;
     }
     if let Some(out_path) = emit_cairo {
-        if let Some(code) =
-            emit_profile_artifact(&out_path, &path, &program, "Cairo", codegen_cairo::generate_program)
-        {
+        if let Some(code) = emit_profile_artifact(
+            &out_path,
+            &path,
+            &program,
+            "Cairo",
+            codegen_cairo::generate_program,
+        ) {
             return code;
         }
         emitted_any = true;
     }
     if let Some(out_path) = emit_cairo_ref {
-        if let Some(code) =
-            emit_profile_reference(&out_path, &program, "Cairo", codegen_cairo::generate_reference)
-        {
+        if let Some(code) = emit_profile_reference(
+            &out_path,
+            &program,
+            "Cairo",
+            codegen_cairo::generate_reference,
+        ) {
             return code;
         }
         emitted_any = true;
@@ -1195,7 +1222,10 @@ fn run_gold_gate(cuni_path: &Path, only: &[&str]) -> Result<audit::GoldGate, aud
 fn cmd_audit(args: &[String]) -> ExitCode {
     // Key generation mode: `cuni audit --gen-key [name]`.
     if args.first().map(|s| s.as_str()) == Some("--gen-key") {
-        let name = args.get(1).cloned().unwrap_or_else(|| "auditor".to_string());
+        let name = args
+            .get(1)
+            .cloned()
+            .unwrap_or_else(|| "auditor".to_string());
         if name.starts_with('-') {
             eprintln!("cuni audit: --gen-key takes an optional key name, got `{name}`");
             return ex_usage();

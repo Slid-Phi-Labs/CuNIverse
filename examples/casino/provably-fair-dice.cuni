@@ -6,7 +6,7 @@
 #
 # The outcome derivation below compiles to provably identical behavior on
 # every CuNi target (exactness PASS), or CuNi refuses to compile it at all.
-# Same seeds -> same roll, on py/go/js/ts/c/cpp/rs and all 144 catalog ids.
+# Same seeds -> same roll, on py/go/js/ts/c/cpp/rs and all 53 catalog entries.
 # A house cannot ship one ruleset for the audit and run another in production.
 #
 # Rules: mix server_seed + client_seed + round with a Park-Miller LCG step,
@@ -26,7 +26,7 @@ def roll_hundred(server_seed: int, client_seed: int, round: int) -> int do
 end
 
 # Three audited rolls. Any player re-running this program with the same
-# revealed seeds gets the same numbers — on any of the 144 targets.
+# revealed seeds gets the same numbers — on any of the 53 catalog entries.
 say(roll_dice(987654321, 123456789, 1))
 say(roll_dice(987654321, 123456789, 2))
 say(roll_dice(111111111, 222222222, 1))

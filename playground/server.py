@@ -4,7 +4,7 @@
 Pipeline:
   1. cuni <file> --emit-py/--emit-go/--emit-js (+ --emit-all artifacts)
   2. cuni check <file> --only py,go,js  → exactness: PASS|FAIL
-     (Studio hosted gate = flagship py/go/js. Full 119-lang catalog is CLI/CI.)
+     (Studio hosted gate = flagship py/go/js. Full 53-entry catalog is CLI/CI.)
 
 Books:
   Notelog  — chronological lab notes (auto + manual)
@@ -47,7 +47,7 @@ MAX_CONCURRENT = int(os.environ.get("CUNI_PLAYGROUND_MAX_CONCURRENT", "2"))
 DEFAULT_HOST = os.environ.get("CUNI_PLAYGROUND_HOST", "0.0.0.0")
 HTTP_BASE = os.environ.get("CUNI_AGENT_HTTP_BASE", "https://cuni-studio.fly.dev")
 # Hosted Studio flagship gate = py/go/js (Dockerfile ships those runners only).
-# Full 119-lang catalog remains CLI/CI (`cuni check` with no --only). Missing
+# Full 53-entry catalog remains CLI/CI (`cuni check` with no --only). Missing
 # optional c/cpp/rs toolchains must NOT false-FAIL Publish — that would soften
 # nothing; it aligns the gate with the product promise + publish metadata targets.
 _CHECK_ONLY_RAW = os.environ.get("CUNI_PLAYGROUND_CHECK_ONLY", "py,go,js").strip()
@@ -493,7 +493,7 @@ def compile_and_check(source: str, mode: str = "run") -> dict:
             }
 
         # Exactness via official cuni check path — Studio gate = CHECK_ONLY (default py,go,js).
-        # Do not run the full 119-lang catalog here: the Fly image has no c/cpp/rs runners,
+        # Do not run the full 53-entry catalog here: the Fly image has no c/cpp/rs runners,
         # and the product promise + publish metadata targets are py/go/js.
         check_cmd = [str(cuni), "check", str(main), "--timeout", str(TIMEOUT)]
         if CHECK_ONLY:

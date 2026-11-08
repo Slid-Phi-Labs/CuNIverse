@@ -67,7 +67,7 @@ def frame(t: float) -> Image.Image:
 
     a1 = fade(t, 0.0)
     od.text((64, 48), "CuNi", font=font(54), fill=ink(a1, CY))
-    od.text((250, 62), "119 languages", font=font(32), fill=ink(a1, MG))
+    od.text((250, 62), "53 languages", font=font(32), fill=ink(a1, MG))
     od.text(
         (64, 118),
         "One program. Same stdout. Or the compiler refuses.",
@@ -119,7 +119,7 @@ def frame(t: float) -> Image.Image:
     )
     od.text(
         (64, 530),
-        "6 native seats   ·   119-language gate",
+        "6 native seats   ·   53-entry gate",
         font=font(22),
         fill=ink(a4, FG),
     )

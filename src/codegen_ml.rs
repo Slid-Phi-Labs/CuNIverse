@@ -45,12 +45,7 @@ let cuni_say_str x = Stdlib.print_endline x\n\
 let cuni_say_bool x = Stdlib.print_endline (if x then \"True\" else \"False\")\n";
 
 /// `def` names that would collide with the emitted helpers.
-const RESERVED: &[&str] = &[
-    "cuni_mod",
-    "cuni_say_int",
-    "cuni_say_str",
-    "cuni_say_bool",
-];
+const RESERVED: &[&str] = &["cuni_mod", "cuni_say_int", "cuni_say_str", "cuni_say_bool"];
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Ty {
@@ -131,7 +126,9 @@ impl Emitter {
         if let Some(t) = ann {
             let at = ty_of(t)?;
             if at != vt {
-                return Err(format!("{kw} {name}: annotated type disagrees with value; refusing"));
+                return Err(format!(
+                    "{kw} {name}: annotated type disagrees with value; refusing"
+                ));
             }
         }
         Ok(())
@@ -139,13 +136,22 @@ impl Emitter {
 
     fn check_def(&self, f: &FnDecl) -> Result<(), String> {
         if RESERVED.contains(&f.name.as_str()) {
-            return Err(format!("def {}: name reserved by the OCaml seat; refusing", f.name));
+            return Err(format!(
+                "def {}: name reserved by the OCaml seat; refusing",
+                f.name
+            ));
         }
         if f.fallible {
-            return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+            return Err(format!(
+                "def {}: fallible functions beyond core subset; refusing",
+                f.name
+            ));
         }
         if !f.generics.is_empty() {
-            return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+            return Err(format!(
+                "def {}: generics beyond core subset; refusing",
+                f.name
+            ));
         }
         if f.is_link {
             return Err(format!("link {}: beyond core subset; refusing", f.name));
@@ -183,7 +189,9 @@ impl Emitter {
                     self.fns.insert(f.name.clone());
                 }
                 Item::Stmt(s) => script.push(s),
-                Item::Use(u) => return Err(format!("use {}: beyond core subset; refusing", u.name)),
+                Item::Use(u) => {
+                    return Err(format!("use {}: beyond core subset; refusing", u.name))
+                }
                 Item::Enum(_) => return Err("enum: beyond core subset; refusing".into()),
                 Item::Typ(_) => return Err("typ: beyond core subset; refusing".into()),
                 Item::Iface(_) => return Err("iface: beyond core subset; refusing".into()),
@@ -218,13 +226,21 @@ impl Emitter {
             self.scope.insert(p.name.clone(), (pt, false));
         }
         // A zero-parameter CuNi def becomes `let f () = …`, called as `f ()`.
-        let params = if ps.is_empty() { "()".to_string() } else { ps.join(" ") };
+        let params = if ps.is_empty() {
+            "()".to_string()
+        } else {
+            ps.join(" ")
+        };
         let exn = match rt {
             Ty::Int => "CuniRetInt",
             Ty::Str => "CuniRetStr",
             Ty::Bool => "CuniRetBool",
         };
-        self.line(&format!("let rec {name} {params} =", name = f.name, params = params));
+        self.line(&format!(
+            "let rec {name} {params} =",
+            name = f.name,
+            params = params
+        ));
         self.level += 1;
         self.line("try");
         self.level += 1;
@@ -268,13 +284,22 @@ impl Emitter {
                 StmtKind::Assign { target, value } => {
                     let tname = match &target.kind {
                         ExprKind::Ident(n) => n.clone(),
-                        _ => return Err("complex assignment target: beyond core subset; refusing".into()),
+                        _ => {
+                            return Err(
+                                "complex assignment target: beyond core subset; refusing".into()
+                            )
+                        }
                     };
                     match self.scope.get(&tname) {
                         // Only `mut` bindings are assignable; anything else
                         // is a type error upstream — refuse loudly here.
                         Some((_, true)) => {}
-                        _ => return Err(format!("assign to non-mut `{tname}`: refusing", tname = tname)),
+                        _ => {
+                            return Err(format!(
+                                "assign to non-mut `{tname}`: refusing",
+                                tname = tname
+                            ))
+                        }
                     }
                     let (v, _) = self.gen_expr(value)?;
                     self.line(&format!("({tname} := {v});", tname = tname, v = v));
@@ -282,9 +307,9 @@ impl Emitter {
                 StmtKind::Ret(e) => {
                     match ret {
                         RetCtx::Def(rt) => {
-                            let x = e
-                                .as_ref()
-                                .ok_or_else(|| "bare ret: beyond core subset; refusing".to_string())?;
+                            let x = e.as_ref().ok_or_else(|| {
+                                "bare ret: beyond core subset; refusing".to_string()
+                            })?;
                             let (v, _) = self.gen_expr(x)?;
                             let exn = match rt {
                                 Ty::Int => "CuniRetInt",
@@ -311,7 +336,11 @@ impl Emitter {
                     return Ok(());
                 }
                 StmtKind::Fail(_) => return Err("fail: beyond core subset; refusing".into()),
-                StmtKind::If { cond, then_body, else_body } => {
+                StmtKind::If {
+                    cond,
+                    then_body,
+                    else_body,
+                } => {
                     let (c, ct) = self.gen_expr(cond)?;
                     if ct != Ty::Bool {
                         return Err("if condition must be bool; refusing".into());
@@ -342,7 +371,9 @@ impl Emitter {
                     ExprKind::Call { callee, args } => match &callee.kind {
                         ExprKind::Ident(n) if n == "say" => {
                             if args.len() != 1 {
-                                return Err("say: exactly one argument in core subset; refusing".into());
+                                return Err(
+                                    "say: exactly one argument in core subset; refusing".into()
+                                );
                             }
                             let (v, vt) = self.gen_expr(args[0].expr())?;
                             let f = match vt {
@@ -368,7 +399,11 @@ impl Emitter {
         match &e.kind {
             ExprKind::Int(n) => Ok((format!("({n})", n = n), Ty::Int)),
             ExprKind::Bool(b) => Ok((
-                if *b { "(true)".into() } else { "(false)".into() },
+                if *b {
+                    "(true)".into()
+                } else {
+                    "(false)".into()
+                },
                 Ty::Bool,
             )),
             ExprKind::Str(s) => Ok((ml_str(s), Ty::Str)),
@@ -377,9 +412,11 @@ impl Emitter {
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
             ExprKind::Ident(n) => {
-                let (t, is_mut) = self.scope.get(n).copied().ok_or_else(|| {
-                    format!("unknown variable `{n}`: refusing", n = n)
-                })?;
+                let (t, is_mut) = self
+                    .scope
+                    .get(n)
+                    .copied()
+                    .ok_or_else(|| format!("unknown variable `{n}`: refusing", n = n))?;
                 let r = if is_mut {
                     format!("(!{n})", n = n)
                 } else {
@@ -387,7 +424,9 @@ impl Emitter {
                 };
                 Ok((r, t))
             }
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),

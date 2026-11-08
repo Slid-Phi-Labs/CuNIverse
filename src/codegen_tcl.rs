@@ -104,7 +104,9 @@ impl Gen {
                     .ok_or_else(|| format!("unknown variable `{}`: refusing", n))?;
                 Ok((format!("${}", n), t))
             }
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -118,9 +120,11 @@ impl Gen {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut parts = vec![name];
                 for a in args {
                     if a.is_named() {
@@ -173,12 +177,30 @@ impl Gen {
                         Self::ints(lt, rt, "%")?;
                         (format!("((({})%({})+({}))%({}))", l, r, r, r), Ty::Int)
                     }
-                    BinOp::Eq => (format!("({}{}{})", l, Self::eqop(lt, rt, "==", "eq")?, r), Ty::Bool),
-                    BinOp::Ne => (format!("({}{}{})", l, Self::eqop(lt, rt, "!=", "ne")?, r), Ty::Bool),
-                    BinOp::Lt => (format!("({}{}{})", l, Self::eqop(lt, rt, "<", "<")?, r), Ty::Bool),
-                    BinOp::Gt => (format!("({}{}{})", l, Self::eqop(lt, rt, ">", ">")?, r), Ty::Bool),
-                    BinOp::Le => (format!("({}{}{})", l, Self::eqop(lt, rt, "<=", "<=")?, r), Ty::Bool),
-                    BinOp::Ge => (format!("({}{}{})", l, Self::eqop(lt, rt, ">=", ">=")?, r), Ty::Bool),
+                    BinOp::Eq => (
+                        format!("({}{}{})", l, Self::eqop(lt, rt, "==", "eq")?, r),
+                        Ty::Bool,
+                    ),
+                    BinOp::Ne => (
+                        format!("({}{}{})", l, Self::eqop(lt, rt, "!=", "ne")?, r),
+                        Ty::Bool,
+                    ),
+                    BinOp::Lt => (
+                        format!("({}{}{})", l, Self::eqop(lt, rt, "<", "<")?, r),
+                        Ty::Bool,
+                    ),
+                    BinOp::Gt => (
+                        format!("({}{}{})", l, Self::eqop(lt, rt, ">", ">")?, r),
+                        Ty::Bool,
+                    ),
+                    BinOp::Le => (
+                        format!("({}{}{})", l, Self::eqop(lt, rt, "<=", "<=")?, r),
+                        Ty::Bool,
+                    ),
+                    BinOp::Ge => (
+                        format!("({}{}{})", l, Self::eqop(lt, rt, ">=", ">=")?, r),
+                        Ty::Bool,
+                    ),
                     BinOp::And => {
                         Self::bools(lt, rt, "and")?;
                         (format!("({}&&{})", l, r), Ty::Bool)
@@ -222,7 +244,10 @@ impl Gen {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -275,10 +300,15 @@ impl Gen {
             StmtKind::Assign { target, value } => {
                 let name = match &target.kind {
                     ExprKind::Ident(n) => n.clone(),
-                    _ => return Err("complex assignment target: beyond core subset; refusing".into()),
+                    _ => {
+                        return Err("complex assignment target: beyond core subset; refusing".into())
+                    }
                 };
                 if !self.scope.contains_key(&name) {
-                    return Err(format!("assignment to unknown variable `{}`: refusing", name));
+                    return Err(format!(
+                        "assignment to unknown variable `{}`: refusing",
+                        name
+                    ));
                 }
                 let (v, vt) = self.expr(value)?;
                 self.scope.insert(name.clone(), vt);
@@ -354,13 +384,19 @@ impl Gen {
                     if let ExprKind::Ident(n) = &callee.kind {
                         if n == "say" {
                             if args.len() != 1 {
-                                return Err("say: exactly one argument in core subset; refusing".into());
+                                return Err(
+                                    "say: exactly one argument in core subset; refusing".into()
+                                );
                             }
                             if args[0].is_named() {
                                 return Err("named arguments: beyond core subset; refusing".into());
                             }
                             let (v, vt) = self.expr(args[0].expr())?;
-                            self.line(&format!("cuni_say {} {};", self.value(v, vt), Self::ty_tag(vt)));
+                            self.line(&format!(
+                                "cuni_say {} {};",
+                                self.value(v, vt),
+                                Self::ty_tag(vt)
+                            ));
                             return Ok(());
                         }
                     }
@@ -374,10 +410,16 @@ impl Gen {
 
     fn def(&mut self, f: &FnDecl) -> Result<(), String> {
         if f.fallible {
-            return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+            return Err(format!(
+                "def {}: fallible functions beyond core subset; refusing",
+                f.name
+            ));
         }
         if !f.generics.is_empty() {
-            return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+            return Err(format!(
+                "def {}: generics beyond core subset; refusing",
+                f.name
+            ));
         }
         if f.is_link {
             return Err(format!("link {}: beyond core subset; refusing", f.name));

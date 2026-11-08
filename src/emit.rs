@@ -6,49 +6,49 @@
 //! toolchain), swift, hack, st (blocked — no installable Linux toolchain).
 
 use crate::ast::Program;
-use crate::codegen_c;
-use crate::codegen_go;
-use crate::codegen_java;
-use crate::codegen_js;
-use crate::codegen_lua;
-use crate::codegen_php;
-use crate::codegen_pl;
-use crate::codegen_v;
-use crate::codegen_d;
-use crate::codegen_cr;
-use crate::codegen_nim;
-use crate::codegen_zig;
 use crate::codegen_ada;
 use crate::codegen_asm;
 use crate::codegen_awk;
+use crate::codegen_c;
 use crate::codegen_clj;
 use crate::codegen_cob;
+use crate::codegen_cr;
 use crate::codegen_cs;
+use crate::codegen_d;
 use crate::codegen_dart;
 use crate::codegen_erl;
 use crate::codegen_ex;
+use crate::codegen_f90;
 use crate::codegen_fs;
+use crate::codegen_go;
 use crate::codegen_groovy;
 use crate::codegen_hs;
 use crate::codegen_hx;
+use crate::codegen_java;
 use crate::codegen_jl;
+use crate::codegen_js;
 use crate::codegen_kt;
+use crate::codegen_lisp;
+use crate::codegen_lua;
 use crate::codegen_m_objc;
+use crate::codegen_ml;
+use crate::codegen_nim;
+use crate::codegen_pas;
+use crate::codegen_php;
+use crate::codegen_pl;
 use crate::codegen_pro;
 use crate::codegen_ps1;
-use crate::codegen_scala;
-use crate::codegen_sh;
-use crate::codegen_tcl;
-use crate::codegen_pas;
-use crate::codegen_f90;
-use crate::codegen_lisp;
-use crate::codegen_ml;
-use crate::codegen_r;
 use crate::codegen_py;
+use crate::codegen_r;
 use crate::codegen_rb;
 use crate::codegen_rs;
+use crate::codegen_scala;
+use crate::codegen_sh;
 use crate::codegen_sol;
 use crate::codegen_sql;
+use crate::codegen_tcl;
+use crate::codegen_v;
+use crate::codegen_zig;
 use crate::langs::Lang;
 use std::path::{Path, PathBuf};
 
@@ -60,9 +60,11 @@ pub enum SeatKind {
 
 pub fn seat_kind(lang: &Lang) -> SeatKind {
     match lang.id {
-        "py" | "go" | "js" | "ts" | "c" | "cpp" | "rs" | "rb" | "lua" | "sol" | "java" | "sql" | "php" | "r" | "ml" | "lisp" | "f90" | "pas" | "pl" | "zig" | "nim" | "cr" | "d" | "v" | "ada" | "asm" | "awk" | "clj" | "cob" | "cs" | "dart" | "erl" | "ex" | "fs" | "groovy" | "hs" | "hx" | "jl" | "kt" | "m-objc" | "pro" | "ps1" | "scala" | "sh" | "tcl" => {
-            SeatKind::Native
-        }
+        "py" | "go" | "js" | "ts" | "c" | "cpp" | "rs" | "rb" | "lua" | "sol" | "java" | "sql"
+        | "php" | "r" | "ml" | "lisp" | "f90" | "pas" | "pl" | "zig" | "nim" | "cr" | "d" | "v"
+        | "ada" | "asm" | "awk" | "clj" | "cob" | "cs" | "dart" | "erl" | "ex" | "fs"
+        | "groovy" | "hs" | "hx" | "jl" | "kt" | "m-objc" | "pro" | "ps1" | "scala" | "sh"
+        | "tcl" => SeatKind::Native,
         _ => SeatKind::Lowering,
     }
 }
@@ -106,17 +108,19 @@ pub fn generate_exact(program: &Program, lang: &Lang) -> Result<String, String> 
         "hx" => codegen_hx::generate(program).map_err(|e| format!("Haxe refused: {e}")),
         "jl" => codegen_jl::generate(program).map_err(|e| format!("Julia refused: {e}")),
         "kt" => codegen_kt::generate(program).map_err(|e| format!("Kotlin refused: {e}")),
-        "m-objc" => codegen_m_objc::generate(program).map_err(|e| format!("Objective-C refused: {e}")),
+        "m-objc" => {
+            codegen_m_objc::generate(program).map_err(|e| format!("Objective-C refused: {e}"))
+        }
         "pro" => codegen_pro::generate(program).map_err(|e| format!("Prolog refused: {e}")),
         "ps1" => codegen_ps1::generate(program).map_err(|e| format!("PowerShell refused: {e}")),
         "scala" => codegen_scala::generate(program).map_err(|e| format!("Scala refused: {e}")),
         "sh" => codegen_sh::generate(program).map_err(|e| format!("Bash refused: {e}")),
         "tcl" => codegen_tcl::generate(program).map_err(|e| format!("Tcl refused: {e}")),
-        "zig" => codegen_zig::generate(program).map_err(|e| format!("Zig refused: {e}")), 
-        "nim" => codegen_nim::generate(program).map_err(|e| format!("Nim refused: {e}")), 
-        "cr" => codegen_cr::generate(program).map_err(|e| format!("Crystal refused: {e}")), 
-        "d" => codegen_d::generate(program).map_err(|e| format!("D refused: {e}")), 
-        "v" => codegen_v::generate(program).map_err(|e| format!("V refused: {e}")), 
+        "zig" => codegen_zig::generate(program).map_err(|e| format!("Zig refused: {e}")),
+        "nim" => codegen_nim::generate(program).map_err(|e| format!("Nim refused: {e}")),
+        "cr" => codegen_cr::generate(program).map_err(|e| format!("Crystal refused: {e}")),
+        "d" => codegen_d::generate(program).map_err(|e| format!("D refused: {e}")),
+        "v" => codegen_v::generate(program).map_err(|e| format!("V refused: {e}")),
         _ => {
             let mut s = String::new();
             s.push_str(&format!(

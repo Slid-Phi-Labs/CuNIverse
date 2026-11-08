@@ -423,9 +423,7 @@ impl Emitter {
         self.unit.in_func = true;
         self.unit.frames.push(HashMap::new());
         // Pre-bind the result variable so a user binding named `r` renames.
-        self.unit
-            .frames[0]
-            .insert("r".to_string(), (ret, "r".to_string()));
+        self.unit.frames[0].insert("r".to_string(), (ret, "r".to_string()));
         self.unit.declared.insert("r".to_string());
         self.unit.taken_lower.insert("r".to_string());
         let mut pinfo: Vec<(String, Ty)> = Vec::new();
@@ -485,9 +483,7 @@ impl Emitter {
                 let tname = match &target.kind {
                     ExprKind::Ident(n) => n.clone(),
                     _ => {
-                        return Err(
-                            "complex assignment target: beyond core subset; refusing".into()
-                        )
+                        return Err("complex assignment target: beyond core subset; refusing".into())
                     }
                 };
                 let (_, emitted) = self
@@ -575,7 +571,7 @@ impl Emitter {
                             if n == "say" {
                                 if args.len() != 1 {
                                     return Err(
-                                        "say: exactly one argument in core subset; refusing".into()
+                                        "say: exactly one argument in core subset; refusing".into(),
                                     );
                                 }
                                 let (v, vt) = self.gen_expr(args[0].expr())?;
@@ -720,10 +716,7 @@ fn require_ints(l: Ty, r: Ty, op: &str) -> Result<(), String> {
     if l == Ty::Int && r == Ty::Int {
         Ok(())
     } else {
-        Err(format!(
-            "`{}` on non-int: beyond core subset; refusing",
-            op
-        ))
+        Err(format!("`{}` on non-int: beyond core subset; refusing", op))
     }
 }
 

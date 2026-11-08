@@ -114,8 +114,7 @@ fn fs_post(src: &str) -> String {
             while j < chars.len() && chars[j].is_ascii_digit() {
                 j += 1;
             }
-            let already_suffixed =
-                chars.get(j).map_or(false, |d| d.is_ascii_alphabetic());
+            let already_suffixed = chars.get(j).map_or(false, |d| d.is_ascii_alphabetic());
             out.push_str(&chars[i..j].iter().collect::<String>());
             if is_lead && !already_suffixed {
                 out.push('L');

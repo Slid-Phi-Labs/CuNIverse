@@ -174,7 +174,11 @@ fn conv<'a>(stmts: &[&'a Stmt], in_loop: bool, in_def: bool) -> Result<Vec<S<'a>
             } => items.push(S::If {
                 cond,
                 then_body: norm(conv(&refs(then_body), in_loop, in_def)?),
-                else_body: norm(conv(&refs(else_body.as_deref().unwrap_or(&[])), in_loop, in_def)?),
+                else_body: norm(conv(
+                    &refs(else_body.as_deref().unwrap_or(&[])),
+                    in_loop,
+                    in_def,
+                )?),
             }),
             StmtKind::For { .. } => return Err("for: beyond core subset; refusing".into()),
             StmtKind::Whl { cond, body } => items.push(S::Whl {
@@ -210,7 +214,12 @@ fn refs<'a>(stmts: &'a [Stmt]) -> Vec<&'a Stmt> {
 }
 
 fn assigned_outer(stmts: &[S], outer: &HashSet<String>) -> Vec<String> {
-    fn walk(stmts: &[S], outer: &HashSet<String>, seen: &mut HashSet<String>, out: &mut Vec<String>) {
+    fn walk(
+        stmts: &[S],
+        outer: &HashSet<String>,
+        seen: &mut HashSet<String>,
+        out: &mut Vec<String>,
+    ) {
         for s in stmts {
             match s {
                 S::Let { name, .. } | S::Mut { name, .. } | S::Assign { name, .. } => {
@@ -280,14 +289,20 @@ impl Gen {
     fn expr(&mut self, e: &Expr, env: &Env) -> Result<(Vec<String>, String, Ty), String> {
         match &e.kind {
             ExprKind::Int(n) => Ok((vec![], n.to_string(), Ty::Int)),
-            ExprKind::Bool(b) => Ok((vec![], if *b { "True" } else { "False" }.to_string(), Ty::Bool)),
+            ExprKind::Bool(b) => Ok((
+                vec![],
+                if *b { "True" } else { "False" }.to_string(),
+                Ty::Bool,
+            )),
             ExprKind::Str(s) => Ok((vec![], hs_str(s), Ty::Str)),
             ExprKind::Float(_) => Err("float: beyond core subset; refusing".into()),
             ExprKind::Dec(_) => Err("dec: beyond core subset; refusing".into()),
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
             ExprKind::Ident(n) => lookup(env, n).map(|(v, t)| (vec![], v, t)),
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -301,9 +316,11 @@ impl Gen {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut pre = Vec::new();
                 let mut parts = Vec::new();
                 for a in args {
@@ -425,7 +442,10 @@ impl Gen {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -433,7 +453,10 @@ impl Gen {
         if l == r {
             Ok(())
         } else {
-            Err(format!("`{}` across mismatched types: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` across mismatched types: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -441,14 +464,20 @@ impl Gen {
         if (l == Ty::Int && r == Ty::Int) || (l == Ty::Str && r == Ty::Str) {
             Ok(())
         } else {
-            Err(format!("`{}` across mismatched types: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` across mismatched types: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
     fn check_ann(ty: Option<Ty>, vt: Ty, name: &str, kw: &str) -> Result<(), String> {
         if let Some(at) = ty {
             if at != vt {
-                return Err(format!("{} {}: annotated type disagrees with value; refusing", kw, name));
+                return Err(format!(
+                    "{} {}: annotated type disagrees with value; refusing",
+                    kw, name
+                ));
             }
         }
         Ok(())
@@ -477,7 +506,10 @@ impl Gen {
                 }
                 S::Assign { name, value } => {
                     if !env.contains_key(*name) {
-                        return Err(format!("assignment to unknown variable `{}`: refusing", name));
+                        return Err(format!(
+                            "assignment to unknown variable `{}`: refusing",
+                            name
+                        ));
                     }
                     let (pre, v, vt) = self.expr(value, env)?;
                     let var = self.fresh();
@@ -556,8 +588,10 @@ impl Gen {
                     let (pre_c, c) = self.boolexpr(cond, &env_l)?;
                     let mut eb = env_l;
                     let b = self.lines(body, &mut eb)?;
-                    let news: Result<Vec<String>, String> =
-                        carried.iter().map(|n| lookup(&eb, n).map(|(v, _)| v)).collect();
+                    let news: Result<Vec<String>, String> = carried
+                        .iter()
+                        .map(|n| lookup(&eb, n).map(|(v, _)| v))
+                        .collect();
                     let news = news?;
                     let mut loop_body = pre_c;
                     loop_body.extend(b);
@@ -591,15 +625,19 @@ impl Gen {
                         out.push(format!("({}) <- {}", mvars.join(", "), loop_def));
                     }
                 }
-                S::Ret(_) => return Err("ret not in tail position: internal error; refusing".into()),
+                S::Ret(_) => {
+                    return Err("ret not in tail position: internal error; refusing".into())
+                }
             }
         }
         Ok(out)
     }
 
     fn tuple_of(names: &[String], env: &Env) -> Result<String, String> {
-        let vs: Result<Vec<String>, String> =
-            names.iter().map(|n| lookup(env, n).map(|(v, _)| v)).collect();
+        let vs: Result<Vec<String>, String> = names
+            .iter()
+            .map(|n| lookup(env, n).map(|(v, _)| v))
+            .collect();
         Ok(format!("({})", vs?.join(", ")))
     }
 
@@ -667,10 +705,16 @@ pub fn generate(program: &Program) -> Result<String, String> {
         match item {
             Item::Def(f) => {
                 if f.fallible {
-                    return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: fallible functions beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if !f.generics.is_empty() {
-                    return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: generics beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if f.is_link {
                     return Err(format!("link {}: beyond core subset; refusing", f.name));
@@ -704,7 +748,12 @@ pub fn generate(program: &Program) -> Result<String, String> {
             out.push_str(&format!("{} :: {}\n", f.name, sigs.join(" -> ")));
             let body = conv(&refs(&f.body), false, true)?;
             let lines = g.def_value(&body, &mut env)?;
-            out.push_str(&format!("{} {} = do {{ {} }}\n\n", f.name, params.join(" "), lines.join("; ")));
+            out.push_str(&format!(
+                "{} {} = do {{ {} }}\n\n",
+                f.name,
+                params.join(" "),
+                lines.join("; ")
+            ));
         }
     }
     out.push_str("main :: IO ()\n");

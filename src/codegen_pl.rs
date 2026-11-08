@@ -11,14 +11,19 @@ fn perl_str(s: &str) -> String {
     let mut r = String::from('"');
     for c in s.chars() {
         match c {
-            '"' => r.push_str("\\\""), '\\' => r.push_str("\\\\"),
-            '\n' => r.push_str("\\n"), '\t' => r.push_str("\\t"), '\r' => r.push_str("\\r"),
-            '$' => r.push_str("\\$"), '@' => r.push_str("\\@"),
+            '"' => r.push_str("\\\""),
+            '\\' => r.push_str("\\\\"),
+            '\n' => r.push_str("\\n"),
+            '\t' => r.push_str("\\t"),
+            '\r' => r.push_str("\\r"),
+            '$' => r.push_str("\\$"),
+            '@' => r.push_str("\\@"),
             c if (c as u32) < 0x20 => r.push_str(&format!("\\x{{{:02x}}}", c as u32)),
             c => r.push(c),
         }
     }
-    r.push('"'); r
+    r.push('"');
+    r
 }
 
 const SPEC: LangSpec = LangSpec {

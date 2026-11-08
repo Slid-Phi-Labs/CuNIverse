@@ -26,13 +26,14 @@ You will see the same program emit and run as Python, Go, and JavaScript — or 
 def can_spend(amount: int, cap: int) -> bool do
     ret amount <= cap
 end
-
-link CheckSpend(amount: int, cap: int) -> bool do
-    ret can_spend(amount, cap)
-end
 ```
 
 This is the “law is CuNi” idea in its simplest form: a decision that must be identical no matter which language runtime the agent is using.
+
+The HTTP interop form of the same law — `link CheckSpend(amount, cap)` — is in
+[`examples/agent/spend_control.cuni`](../examples/agent/spend_control.cuni) and
+the [link tutorial](LINK_TUTORIAL.md). It stays separate because `link` needs an
+HTTP runtime, and the default law is meant to pass every catalog seat.
 
 ## Next steps
 

@@ -19,6 +19,22 @@ The refusal is the product. Other tools try to paper over differences. CuNi trea
 
 This is why Agent Rider runs on CuNi. In a world where AI agents write and execute code across systems, "close enough" is how things break. Rider requires CuNi's exactness proof before an agent's policy is allowed to run: same behavior everywhere, or it doesn't run.
 
+## One product, seven arms
+
+CuNi is **one product**: a compiler trunk, one exactness gate, one catalog — delivered through seven named arms.
+
+| Arm | What it is |
+|---|---|
+| **Studio** | Hosted browser workspace: emit, check, Agent mode, Publish |
+| **Bank** | Paste N, get X: ingest, emit, prove, or refuse |
+| **Audit** | Prove a foreign implementation against a money law; file a signed receipt |
+| **Onchain** | Six chain profiles with a proven logic core |
+| **Exactness** | The EXACT-or-REFUSE skill over every local seat |
+| **Transparency** | Append-only Merkle log for signed exactness receipts |
+| **Tap** | The Homebrew tap that installs `cuni` |
+
+Every arm runs the same `cuni check`; no arm gets an approximate mode. The registry is [`ARMS.md`](ARMS.md) with the machine-readable [`arms.json`](arms.json). The private [`ceedot-rock/cuni-exact`](https://github.com/ceedot-rock/cuni-exact) workbench is outside the product boundary.
+
 ## Trust Provable, in all things
 
 CuNi's mission. Everywhere the industry *trusts* two implementations match, CuNi *proves* it — same stdout, or refuse. ("Replace trust with proof" was the 0.4.0-era line; the mission it named now leads the project.)
