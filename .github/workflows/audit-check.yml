@@ -16,6 +16,9 @@ on:
 
 permissions:
   contents: read
+  # audit-check posts its result as a check run, which needs checks: write
+  # (required only when it has findings to annotate, but declare it always).
+  checks: write
 
 concurrency:
   group: audit-check-${{ github.ref }}
