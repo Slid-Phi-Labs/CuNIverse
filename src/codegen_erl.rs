@@ -253,7 +253,11 @@ struct Gen {
 
 impl Gen {
     fn fresh(&mut self) -> String {
-        let v = format!("V{}", self.next);
+        // Underscore prefix: escript merges compile warnings into stdout,
+        // so an unused SSA temp (e.g. a discarded `whl` result) would pollute
+        // the seat output and break the byte-exactness gate. `_V<n>` binds and
+        // reads exactly like `V<n>` but never warns when unused.
+        let v = format!("_V{}", self.next);
         self.next += 1;
         v
     }
