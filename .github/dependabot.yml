@@ -8,3 +8,11 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+  - package-ecosystem: docker
+    directory: /playground
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

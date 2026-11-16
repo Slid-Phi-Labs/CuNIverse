@@ -1,0 +1,47 @@
+name: Volume snapshot
+
+# Weekly: snapshot the cuni_studio_data volume (resolved read-only via
+# `fly volumes list`) and verify the snapshot exists.
+# Storage cost is pennies: snapshots bill at roughly $0.023/GB/month,
+# so a 1GB volume snapshot costs a few cents per month retained.
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: volume-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@98172f70657cb3e15db199af139be99bd3e61200 # master
+      - name: Snapshot cuni_studio_data and verify
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$FLY_API_TOKEN" ]; then
+            echo "::error::FLY_API_TOKEN is not configured. Add it under Repo Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          VOL_ID="$(flyctl volumes list --app spl-cuni-studio --json | jq -r '.[] | select(.name=="cuni_studio_data") | .id' | head -n1)"
+          if [ -z "$VOL_ID" ]; then
+            echo "::error::volume cuni_studio_data not found for app spl-cuni-studio"
+            exit 1
+          fi
+          echo "volume id: $VOL_ID"
+          flyctl volumes snapshots create "$VOL_ID" --app spl-cuni-studio
+          echo "verifying latest snapshot..."
+          flyctl volumes snapshots list "$VOL_ID" --app spl-cuni-studio --json | jq -e '. | length > 0'
+          echo "snapshot verified for $VOL_ID"

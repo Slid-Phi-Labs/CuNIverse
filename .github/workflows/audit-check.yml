@@ -1,0 +1,34 @@
+name: Audit check
+
+# Rust dependency vulnerability gate (cargo audit via RustSec advisory DB).
+# CuNi is Rust, so this replaces CodeQL (unsupported language).
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  pull_request:
+    branches: [master, main]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: RustSec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
