@@ -1,0 +1,66 @@
+name: CI health
+
+# Weekly: exactly one open `ci-health`-labeled issue while the default
+# branch is red, closed when green.
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+concurrency:
+  group: ci-health
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Reconcile ci-health issue with default-branch status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BRANCH="$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)"
+          echo "default branch: $BRANCH"
+          LATEST="$(gh run list --branch "$BRANCH" --status completed --limit 1 --json conclusion --jq '.[0].conclusion // empty')"
+          echo "latest completed conclusion: ${LATEST:-<none>}"
+          if [ -z "$LATEST" ]; then
+            echo "no completed runs on $BRANCH; nothing to reconcile"
+            exit 0
+          fi
+          if [ "$LATEST" = "success" ] || [ "$LATEST" = "skipped" ]; then
+            STATE=green
+          else
+            STATE=red
+          fi
+          echo "state: $STATE"
+          OPEN="$(gh issue list --label ci-health --state open --json number --jq 'map(.number) | sort')"
+          COUNT="$(echo "$OPEN" | jq 'length')"
+          echo "open ci-health issues: $OPEN"
+          if [ "$STATE" = "green" ]; then
+            echo "$OPEN" | jq -r '.[]' | while read -r n; do
+              [ -n "$n" ] && gh issue close "$n" --comment "Default branch \`$BRANCH\` is green again (latest: $LATEST). Closing." || true
+            done
+            exit 0
+          fi
+          if [ "$COUNT" -eq 0 ]; then
+            gh issue create --title "CI health: default branch $BRANCH is red" \
+              --label ci-health \
+              --body "Latest completed run on \`$BRANCH\` concluded \`$LATEST\`. This issue tracks the red state and closes automatically when green."
+          elif [ "$COUNT" -gt 1 ]; then
+            KEEP="$(echo "$OPEN" | jq -r '.[0]')"
+            echo "$OPEN" | jq -r '.[1:][]' | while read -r n; do
+              gh issue close "$n" --comment "Deduplicating: keeping #$KEEP as the single ci-health tracker." || true
+            done
+          else
+            echo "exactly one open ci-health issue; nothing to do"
+          fi
