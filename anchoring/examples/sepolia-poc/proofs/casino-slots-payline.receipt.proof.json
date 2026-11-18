@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "receipt_name": "casino-slots-payline.receipt.json",
+  "receipt_digest": "116695daa1c6f6cff20d1ffec88c2743ecfae80b51daf34fbabca750c3274e7f",
+  "source_hash": "608ed7ac63e478fdfea2e2c835cf92f58c13de97af79685af3e762ab88a7361d",
+  "leaf_index": 12,
+  "leaf_count": 19,
+  "merkle_path": [
+    {
+      "side": "right",
+      "hash": "03d4def33aa507b5a6df5938247a844b450b49753c7f6252d344cafb02a920ba"
+    },
+    {
+      "side": "right",
+      "hash": "70d5a19573570f0b3a23efa91adf3018d6e8ef2505180fed18bdefe519141210"
+    },
+    {
+      "side": "left",
+      "hash": "941274b7bde3e4492ba95bff66af149534f3c1450477b10fc777cc46b443eac6"
+    },
+    {
+      "side": "left",
+      "hash": "0d5882b51281d7926592dcf4f686369d7869ec997e874149a81910c4a6ed3afe"
+    },
+    {
+      "side": "right",
+      "hash": "f655509d0eb6f1c461f34265f8bd58d80f2713612787ca604fd9076fd549ec3a"
+    }
+  ],
+  "batch_id": "2026-10-22-exactodds-receipts-poc",
+  "batch_root": "30cd774cb620fbbebfe2f55f22971e7b4a03dfe39997d839b8e6840f49452a70",
+  "anchor": {
+    "chain_id": 84532,
+    "chain": "base-sepolia",
+    "tx_hash": "0x176fb27b7fb3ec9da3a3b89988398fb22549cca6ea0d012f1f2eafee0dccc9ab",
+    "from": "0x364b7b0864D9564A5f98225b78DefbB78F44b579",
+    "block_number": 48781694,
+    "block_timestamp": 1792678207,
+    "gas_used": 23720
+  }
+}
