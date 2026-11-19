@@ -31,7 +31,7 @@ Project post = one product deep.
 
 | Project | What | Live / repo |
 |---------|------|-------------|
-| **CuNi Studio** | Exact multi-target language playground (py/go/js or refuse) | https://cuni-studio.fly.dev/ · https://github.com/ceedot-rock/cuni |
+| **CuNi Studio** | Exact multi-target language playground (py/go/js or refuse) | https://spl-cuni-studio.fly.dev/ · https://github.com/ceedot-rock/cuni |
 | **$CuNi** | Community token pointing at CuNi (not financial advice) | https://pump.fun/62U1zus7pQfpjsq5xW7DiF6MebtThDeRitaqKBM5jgnd |
 | **Quikgater** | Pay-per-fetch for agents (x402 / USDC on Base) | https://github.com/ceedot-rock/quikgater · worker: https://quikgater-worker.ceedotrock.workers.dev |
 | **Pinata Pools** | Farcaster miniapp (Base pot game) | https://pinata-pools.pages.dev/ |
@@ -59,7 +59,7 @@ is bad — tell me — but I need eyes from people who actually build.
 contract: one source → identical Python, Go, and JavaScript behavior, or the
 compiler refuses.
 
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 https://github.com/ceedot-rock/cuni
 
 No install. Pick example `full` → Run exactness. Notelog + Critic Book on the side.
@@ -68,7 +68,7 @@ No install. Pick example `full` → Run exactness. Notelog + Critic Book on the 
 
 | Project | One line | Link |
 |--------|----------|------|
-| CuNi | Exact multi-target compile | https://cuni-studio.fly.dev/ |
+| CuNi | Exact multi-target compile | https://spl-cuni-studio.fly.dev/ |
 | $CuNi | Community signal token for the language | https://pump.fun/62U1zus7pQfpjsq5xW7DiF6MebtThDeRitaqKBM5jgnd |
 | Quikgater | Pay-per-fact web fetch for agents (x402) | https://github.com/ceedot-rock/quikgater |
 | Pinata Pools | Farcaster miniapp on Base | https://pinata-pools.pages.dev/ |
@@ -102,7 +102,7 @@ CuNi: small surface, multi-target, **exactness** gate — portable programs must
 match on Python, Go, and JavaScript or emit fails.
 
 Free Studio (real emit + `cuni check` in browser):
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 Repo: https://github.com/ceedot-rock/cuni
 
@@ -119,7 +119,7 @@ Outside-coming-in builder. Cold outreach got silence. Shipping anyway.
 
 Free playground first:
 CuNi Studio — one source → exact Python/Go/JS or refuse
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 Full table of live experiments below 👇
 
@@ -130,7 +130,7 @@ Full table of live experiments below 👇
 ```
 1/ CuNi (Code:uNiTY)
 Exact multi-target language + Studio
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 https://github.com/ceedot-rock/cuni
 $CuNi: https://pump.fun/62U1zus7pQfpjsq5xW7DiF6MebtThDeRitaqKBM5jgnd
 
@@ -193,7 +193,7 @@ I’m not in the cool room. That’s the point.
 If something is useful: try CuNi Studio and reply what broke.
 If something is noise: say which project to kill.
 
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 #indiehackers #solobuilder #feedback
 ```
@@ -205,7 +205,7 @@ https://cuni-studio.fly.dev/
 ```
 Builder on the outside. Portfolio of live experiments — please try the free one first:
 
-CuNi Studio (exact py/go/js or refuse): https://cuni-studio.fly.dev/
+CuNi Studio (exact py/go/js or refuse): https://spl-cuni-studio.fly.dev/
 $CuNi: https://pump.fun/62U1zus7pQfpjsq5xW7DiF6MebtThDeRitaqKBM5jgnd
 Quikgater: https://github.com/ceedot-rock/quikgater
 Pinata Pools: https://pinata-pools.pages.dev/

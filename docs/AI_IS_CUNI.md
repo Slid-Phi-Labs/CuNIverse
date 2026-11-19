@@ -3,7 +3,7 @@
 **Status:** design (not shipped).  
 **One line:** The agent is not a chat wrapper around Python. **The agent’s portable mind is CuNi** — exact across runtimes, or it refuses to exist.
 
-**Related:** Studio https://cuni-studio.fly.dev/ · `cuni check` · `link` · `docs/REGISTRY.md` · freeze: Studio first, this after convert path is warm.
+**Related:** Studio https://spl-cuni-studio.fly.dev/ · `cuni check` · `link` · `docs/REGISTRY.md` · freeze: Studio first, this after convert path is warm.
 
 ---
 
@@ -222,7 +222,7 @@ The LLM never *is* the policy. The LLM *chooses among* exact CuNi laws.
 > I talk to machines in **CuNi** — exact across Python, Go, and JavaScript, or refuse.  
 > **The AI isn’t the chat. The AI is the CuNi that passed exactness.**
 
-Try: https://cuni-studio.fly.dev/
+Try: https://spl-cuni-studio.fly.dev/
 
 ---
 

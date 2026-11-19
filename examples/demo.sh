@@ -42,6 +42,6 @@ if [[ -f examples/agent/host/run_agent.py ]]; then
 fi
 
 echo "=== Done ==="
-echo "Studio (no install): https://cuni-studio.fly.dev/"
+echo "Studio (no install): https://spl-cuni-studio.fly.dev/"
 echo "  → Run exactness on spend-control · optional Publish · Agent: spend 4 cap 5"
 echo "Docs: docs/DEMO.md"

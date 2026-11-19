@@ -8,7 +8,7 @@ Write one program. Print many coding languages. Python, Go, and JavaScript must 
 cargo install --git https://github.com/ceedot-rock/cuni --tag v0.1.8
 ```
 
-Studio (no install): https://cuni-studio.fly.dev/
+Studio (no install): https://spl-cuni-studio.fly.dev/
 
 ## What this release does
 

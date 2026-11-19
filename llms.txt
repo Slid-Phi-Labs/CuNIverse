@@ -14,7 +14,7 @@ Every arm runs the same `cuni check`; none has an approximate mode.
 ## Docs
 
 - [README](https://github.com/ceedot-rock/cuni): install, quick start, the exactness contract
-- [CuNi Studio](https://cuni-studio.fly.dev/): hosted playground — run the exactness gate in the browser
+- [CuNi Studio](https://spl-cuni-studio.fly.dev/): hosted playground — run the exactness gate in the browser
 - [SPEC](https://github.com/ceedot-rock/cuni/blob/master/SPEC.md): the language specification
 - [GRAMMAR](https://github.com/ceedot-rock/cuni/blob/master/GRAMMAR.md): formal EBNF grammar
 - [Agent-Rider](https://github.com/ceedot-rock/Agent-Rider): the agent coordination layer (CuNi exactness is optional protection there)

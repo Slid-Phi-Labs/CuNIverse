@@ -8,13 +8,13 @@ Agent-Rider is the coordination layer (identity, messaging, multi-agent workflow
 
 They fit together like this:
 
-1. **Write** critical agent policies and skills in CuNi (inside the free [Studio](https://cuni-studio.fly.dev/)).
+1. **Write** critical agent policies and skills in CuNi (inside the free [Studio](https://spl-cuni-studio.fly.dev/)).
 2. **Verify** them with the exactness checker — the same logic produces the same results on every supported runtime.
 3. **Deploy** into Agent-Rider. Rider uses CuNi `link` contracts as the standard interop mechanism and requires exactness before a policy can run.
 
 ## Try it in 90 seconds
 
-1. Open [CuNi Studio](https://cuni-studio.fly.dev/)
+1. Open [CuNi Studio](https://spl-cuni-studio.fly.dev/)
 2. Load an example (or try `spend-control`)
 3. Hit **Run exactness**
 

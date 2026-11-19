@@ -1,7 +1,7 @@
 # Reply targets — 5 places + exact replies (2026-07-26)
 
 **Rule:** answer *their* problem first; Studio link second; ask one question.  
-**CTA:** https://cuni-studio.fly.dev/
+**CTA:** https://spl-cuni-studio.fly.dev/
 
 ---
 
@@ -18,7 +18,7 @@ Working on CuNi (Code:uNiTY) — small multi-target language with an
 and JavaScript, or the compiler refuses (no approximate transpile mode).
 
 Free browser Studio (emit + real `cuni check` + Agent mode):
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 Curious what this community would change about the exactness boundary
 (what should count as “identical,” how large the surface can grow).
@@ -40,7 +40,7 @@ Different angle from “best JS target language”: I’m more interested in
 CuNi’s gate is: emit + run all three, require identical stdout, or refuse.
 Not a TS competitor — deliberately small surface so exactness is checkable.
 
-If useful to poke at: https://cuni-studio.fly.dev/ (no install)
+If useful to poke at: https://spl-cuni-studio.fly.dev/ (no install)
 Would love critique on whether “byte-identical stdout” is the right metric.
 ```
 
@@ -58,7 +58,7 @@ One niche I keep hitting: agent + polyglot stacks where the *same* policy
 has to run in Python and also in Go/JS, and ports silently diverge.
 
 I’m trying a hard gate rather than a richer language: CuNi refuses unless
-py/go/js agree (exactness). Free try: https://cuni-studio.fly.dev/
+py/go/js agree (exactness). Free try: https://spl-cuni-studio.fly.dev/
 
 Do you see that as a real gap, or is “just pick one language” always enough?
 ```
@@ -77,7 +77,7 @@ Using both is the point for a lot of stacks — the failure mode is policy
 drifting between them.
 
 I’ve been experimenting with “law in one source, exact on py/go/js or refuse”
-(CuNi Studio free): https://cuni-studio.fly.dev/
+(CuNi Studio free): https://spl-cuni-studio.fly.dev/
 
 Curious if you’d want a hard exactness gate, or just pick the faster runtime.
 ```
@@ -95,7 +95,7 @@ Curious if you’d want a hard exactness gate, or just pick the faster runtime.
 Agree that “prove it runs as advertised” matters more than JSON tools.
 
 Different cut: not “escape Python,” but “same law on py *and* go/js or refuse.”
-That’s the CuNi exactness gate (try free): https://cuni-studio.fly.dev/
+That’s the CuNi exactness gate (try free): https://spl-cuni-studio.fly.dev/
 
 Would you take multi-runtime exactness as a proof layer, or only full formal methods?
 ```
@@ -113,7 +113,7 @@ Go is great for agents that stay in one runtime. The messy case is still
 same business rules.
 
 I’ve been playing with a small language that refuses unless py/go/js match
-(exactness): https://cuni-studio.fly.dev/
+(exactness): https://spl-cuni-studio.fly.dev/
 
 Is multi-runtime identity a real problem for people here, or edge-case?
 ```

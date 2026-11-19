@@ -28,7 +28,7 @@ Project post = one product deep. **Never** lead with $CuNi.
 
 | Project | What | Live / repo |
 |---------|------|-------------|
-| **CuNi Studio** | Exact multi-target playground + **Agent** (law is CuNi) · Notelog · Critic | https://cuni-studio.fly.dev/ · https://github.com/ceedot-rock/cuni |
+| **CuNi Studio** | Exact multi-target playground + **Agent** (law is CuNi) · Notelog · Critic | https://spl-cuni-studio.fly.dev/ · https://github.com/ceedot-rock/cuni |
 | **CuNi** | Language: one source → exact py/go/js or refuse · v0.1.6 | https://github.com/ceedot-rock/cuni |
 | **$CuNi** | Optional community signal only (thin liquidity; not financial advice) | https://pump.fun/62U1zus7pQfpjsq5xW7DiF6MebtThDeRitaqKBM5jgnd |
 | **Quikgater** | Pay-per-fetch for agents (x402 / USDC on Base) | https://github.com/ceedot-rock/quikgater · https://quikgater-worker.ceedotrock.workers.dev |
@@ -58,7 +58,7 @@ contract: one source → identical Python, Go, and JavaScript behavior, or the
 compiler refuses. Also has **Agent** mode: speech can route; law is CuNi and must
 pass exactness before it runs on py/go/js.
 
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 https://github.com/ceedot-rock/cuni
 
 No install. Pick example `full` → Run exactness. Try Agent. Notelog + Critic Book on the side.
@@ -67,7 +67,7 @@ No install. Pick example `full` → Run exactness. Try Agent. Notelog + Critic B
 
 | Project | One line | Link |
 |--------|----------|------|
-| CuNi | Exact multi-target compile + Studio | https://cuni-studio.fly.dev/ |
+| CuNi | Exact multi-target compile + Studio | https://spl-cuni-studio.fly.dev/ |
 | Quikgater | Pay-per-fact web fetch for agents (x402) | https://github.com/ceedot-rock/quikgater |
 | Pinata Pools | Farcaster miniapp on Base | https://pinata-pools.pages.dev/ |
 | Agent Rider | Agent rider protocol | https://agentrider.fly.dev |
@@ -100,7 +100,7 @@ CuNi: small surface, multi-target, **exactness** gate — portable programs must
 match on Python, Go, and JavaScript or emit fails.
 
 Free Studio (real emit + `cuni check` in browser + Agent mode):
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 Repo: https://github.com/ceedot-rock/cuni
 
@@ -118,7 +118,7 @@ Outside-coming-in builder. Cold outreach got silence. Shipping anyway.
 Free playground first:
 CuNi Studio — one source → exact Python/Go/JS or refuse
 + Agent mode (law is CuNi)
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 Full table of live experiments below 👇
 
@@ -129,7 +129,7 @@ Full table of live experiments below 👇
 ```
 1/ CuNi (Code:uNiTY)
 Exact multi-target language + Studio + Agent
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 https://github.com/ceedot-rock/cuni
 
 #CuNi #Python #Golang #JavaScript #compilers
@@ -191,7 +191,7 @@ I’m not in the cool room. That’s the point.
 If something is useful: try CuNi Studio and reply what broke.
 If something is noise: say which project to kill.
 
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 #indiehackers #solobuilder #feedback
 ```
@@ -203,7 +203,7 @@ https://cuni-studio.fly.dev/
 ```
 Builder on the outside. Portfolio of live experiments — please try the free one first:
 
-CuNi Studio (exact py/go/js or refuse + Agent): https://cuni-studio.fly.dev/
+CuNi Studio (exact py/go/js or refuse + Agent): https://spl-cuni-studio.fly.dev/
 Quikgater: https://github.com/ceedot-rock/quikgater
 Pinata Pools: https://pinata-pools.pages.dev/
 Agent Rider: https://agentrider.fly.dev
@@ -228,7 +228,7 @@ CuNi is a small language with an exactness contract: portable programs must
 produce identical behavior on Python, Go, and JavaScript, or emit fails.
 
 Free hosted Studio (no install): emit + cuni check + Agent mode
-https://cuni-studio.fly.dev/
+https://spl-cuni-studio.fly.dev/
 
 Repo (MIT, v0.1.6): https://github.com/ceedot-rock/cuni
 

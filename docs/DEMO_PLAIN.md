@@ -2,7 +2,7 @@
 
 This is a short tour of CuNi Studio. No install. No terminal required.
 
-Open: **https://cuni-studio.fly.dev/**
+Open: **https://spl-cuni-studio.fly.dev/**
 
 ---
 

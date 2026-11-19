@@ -34,5 +34,5 @@ echo "cuni check --only py,go,js,c,cpp,rs"
 echo
 "$CUNI" check "$SRC" --only py,go,js,c,cpp,rs --timeout 90
 echo
-echo "Studio: https://cuni-studio.fly.dev/"
+echo "Studio: https://spl-cuni-studio.fly.dev/"
 echo

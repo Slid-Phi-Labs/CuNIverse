@@ -6,5 +6,5 @@
 
 - [README](https://github.com/ceedot-rock/cuni-transparency): the honest boundary, quickstart, submission rules
 - [CuNi](https://github.com/ceedot-rock/cuni): the language whose signed exactness receipts this log records
-- [CuNi Studio](https://cuni-studio.fly.dev/): hosted playground — run the exactness gate in the browser
+- [CuNi Studio](https://spl-cuni-studio.fly.dev/): hosted playground — run the exactness gate in the browser
 - [Agent-Rider](https://github.com/ceedot-rock/Agent-Rider): the agent network (Rider identity binding is Phase 2)

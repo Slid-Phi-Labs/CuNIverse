@@ -45,7 +45,7 @@ MAX_SOURCE = int(os.environ.get("CUNI_PLAYGROUND_MAX_SOURCE", "200000"))
 MAX_CONCURRENT = int(os.environ.get("CUNI_PLAYGROUND_MAX_CONCURRENT", "2"))
 # Hosted default: bind all interfaces. Local-only: set CUNI_PLAYGROUND_HOST=127.0.0.1
 DEFAULT_HOST = os.environ.get("CUNI_PLAYGROUND_HOST", "0.0.0.0")
-HTTP_BASE = os.environ.get("CUNI_AGENT_HTTP_BASE", "https://cuni-studio.fly.dev")
+HTTP_BASE = os.environ.get("CUNI_AGENT_HTTP_BASE", "https://spl-cuni-studio.fly.dev")
 # Hosted Studio flagship gate = py/go/js (Dockerfile ships those runners only).
 # Full 53-entry catalog remains CLI/CI (`cuni check` with no --only). Missing
 # optional c/cpp/rs toolchains must NOT false-FAIL Publish — that would soften
@@ -693,8 +693,8 @@ class Handler(SimpleHTTPRequestHandler):
                     },
                     "agent": bool(agent_lib and agent_lib.agent_available()),
                     "bank": True,
-                    "studio": "https://cuni-studio.fly.dev/",
-                    "bank_url": "https://cuni-studio.fly.dev/bank",
+                    "studio": "https://spl-cuni-studio.fly.dev/",
+                    "bank_url": "https://spl-cuni-studio.fly.dev/bank",
                     "rider": {
                         "register": bool(handle_register),
                         "list": bool(handle_list_registered),

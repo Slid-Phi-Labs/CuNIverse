@@ -10,4 +10,4 @@ Allow: /api/
 
 # Agent discovery: /llms.txt · /PROTOCOL.md · /.well-known/cuni-protocol.json · Agent^Rider https://agentrider.fly.dev/.well-known/agent.json
 # Lab commerce: https://www.slidphilabs.com/api/agent
-Sitemap: https://cuni-studio.fly.dev/sitemap.xml
+Sitemap: https://spl-cuni-studio.fly.dev/sitemap.xml

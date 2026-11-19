@@ -11,7 +11,7 @@ Exact multi-runtime agents, coordinated.
 3. Shared authoring + progressive deployment (Studio → Rider)
 
 ## Live today
-- **Studio**: https://cuni-studio.fly.dev/ — Playground + Agent mode; spend-control default; Progress + Publish; free to try  
+- **Studio**: https://spl-cuni-studio.fly.dev/ — Playground + Agent mode; spend-control default; Progress + Publish; free to try  
 - **Agent-Rider (live face)**: https://agentrider.fly.dev — Fly-only. The old Vercel edge (`*.vercel.app`) returning HTTP 402 is a **historical dead door**, not the current live path.  
 - **Exactness CI**: green on every push (examples + cargo test)  
 - **v0.10.0 gate**: `cuni check` emit+runs the **money-seat set** (py, rs, go, java, sql, js — seats a normal install can run); `--all` runs the **53-entry catalog** (45 native + 5 Python lowerings + 3 onchain profiles; lowerings never flip the verdict); `--receipt` records `source_hash` (SHA-256 of `.cuni` bytes), `cuni_version`, and `stdout_hash` so Rider can refuse a mismatched or stale claim. Exit codes: 0 pass / 1 refusal or divergence / 2 usage error or missing toolchain  

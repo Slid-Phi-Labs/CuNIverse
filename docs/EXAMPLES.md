@@ -43,6 +43,6 @@ cargo build --release
 python3 examples/agent/host/run_agent.py --check-all
 ```
 
-Studio loads `spend-control.cuni` by default: https://cuni-studio.fly.dev/
+Studio loads `spend-control.cuni` by default: https://spl-cuni-studio.fly.dev/
 
 See also: [`LINK_TUTORIAL.md`](LINK_TUTORIAL.md) · [`EXACTNESS_REFUSAL_EXAMPLES.md`](EXACTNESS_REFUSAL_EXAMPLES.md)

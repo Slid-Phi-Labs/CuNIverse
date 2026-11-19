@@ -2,7 +2,7 @@
 
 **Goal:** show the product promise in under a minute, then optional deeper paths.
 
-**Live Studio:** https://cuni-studio.fly.dev/  
+**Live Studio:** https://spl-cuni-studio.fly.dev/  
 **Release:** [v0.1.7](https://github.com/ceedot-rock/cuni/releases/tag/v0.1.7)  
 **Plain English (non-technical):** [DEMO_PLAIN.md](DEMO_PLAIN.md)
 
@@ -25,7 +25,7 @@ Shows `examples/few.cuni`, then `cuni check --only py,go,js,c,cpp,rs`. Expect **
 
 ### Studio (same promise)
 
-1. Open **[CuNi Studio](https://cuni-studio.fly.dev/)**  
+1. Open **[CuNi Studio](https://spl-cuni-studio.fly.dev/)**  
    → `spend-control.cuni` loads by default (flagship law).
 
 2. Click **Run exactness**.  

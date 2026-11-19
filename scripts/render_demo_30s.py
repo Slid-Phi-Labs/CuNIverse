@@ -127,7 +127,7 @@ def frame(t: float) -> Image.Image:
     a5 = fade(t, 25.0)
     od.text(
         (64, 640),
-        "cuni-studio.fly.dev",
+        "spl-cuni-studio.fly.dev",
         font=font(22),
         fill=ink(a5, CY),
     )
