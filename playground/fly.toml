@@ -1,3 +1,5 @@
+# Studio deploys only from github.com/Slid-Phi-Labs/cuni (deploy-studio.yml there).
+# Don't run flyctl deploy from this repo; it would overwrite Studio with this tree.
 # Prefer repo-root fly.toml. This file is a pointer for docs only.
 # From repo root:
 #   flyctl volumes create cuni_studio_data --region iad --size 1

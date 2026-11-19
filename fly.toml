@@ -1,3 +1,5 @@
+# Studio deploys only from github.com/Slid-Phi-Labs/cuni (deploy-studio.yml there).
+# Don't run flyctl deploy from this repo; it would overwrite Studio with this tree.
 # Deploy from repo root:
 #   flyctl deploy --config fly.toml --remote-only
 app = "spl-cuni-studio"
