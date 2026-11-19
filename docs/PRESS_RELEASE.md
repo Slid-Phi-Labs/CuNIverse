@@ -19,7 +19,7 @@ On the measured gate, `examples/bank/add.py` passed **ten** catalog seats: py, g
 
 Bank v1 ingest is a **Python subset** (or existing `.cuni`). It is not “any GitHub repo in, any language out.” Fifty-three catalog entries remain `cuni check` on the ingested deposit — not 53 ingest parsers.
 
-**CuNi Studio** (free exactness in the browser): https://cuni-studio.fly.dev/  
+**CuNi Studio** (free exactness in the browser): https://spl-cuni-studio.fly.dev/  
 **Source and release:** https://github.com/ceedot-rock/cuni/releases/tag/cuni-bank-0.1.0  
 **Agent catalog (check / translate / squeeze):** https://spl-lab-agent.fly.dev/
 

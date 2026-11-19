@@ -3,14 +3,14 @@
 > CuNi Protocol: 53 catalog targets, one program, same stdout or refuse. New in 0.2.0: Solidity seat — same source compiles to a deployable EVM smart contract (solc).
 
 ## Protocol
-- JSON: https://cuni-studio.fly.dev/.well-known/cuni-protocol.json
-- Text: https://cuni-studio.fly.dev/PROTOCOL.md
+- JSON: https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json
+- Text: https://spl-cuni-studio.fly.dev/PROTOCOL.md
 - GitHub: https://github.com/ceedot-rock/cuni/blob/master/PROTOCOL.md
 
 ## Agent discovery
-- Studio: https://cuni-studio.fly.dev/
-- agents.txt: https://cuni-studio.fly.dev/agents.txt
-- agents.json: https://cuni-studio.fly.dev/agents.json
+- Studio: https://spl-cuni-studio.fly.dev/
+- agents.txt: https://spl-cuni-studio.fly.dev/agents.txt
+- agents.json: https://spl-cuni-studio.fly.dev/agents.json
 - GitHub: https://github.com/ceedot-rock/cuni
 - Agent^Rider: https://agentrider.fly.dev/.well-known/agent.json
 - Agent^Rider MCP: https://agentrider.fly.dev/api/mcp
@@ -18,8 +18,8 @@
 
 ## Bank
 - Arm: paste N, get X. Exactness or refuse. v1 from Python.
-- UI: https://cuni-studio.fly.dev/bank
-- API: POST https://cuni-studio.fly.dev/api/bank  {source, from:"py", to:"js"}
+- UI: https://spl-cuni-studio.fly.dev/bank
+- API: POST https://spl-cuni-studio.fly.dev/api/bank  {source, from:"py", to:"js"}
 - CLI: cuni bank paste IN --from py --to js
 - Law: https://github.com/ceedot-rock/cuni/blob/master/docs/BANK.md
 - Tag: cuni-bank-0.1.0
@@ -33,16 +33,16 @@
 
 
 ## Citizen PASS gate (Agent-Rider)
-- Verify-by-source: POST https://cuni-studio.fly.dev/api/pass  {"source":"..."}
-- Alias: POST https://cuni-studio.fly.dev/api/citizen/pass
+- Verify-by-source: POST https://spl-cuni-studio.fly.dev/api/pass  {"source":"..."}
+- Alias: POST https://spl-cuni-studio.fly.dev/api/citizen/pass
 - Publish push: POST /api/publish → Rider /api/v0/contracts with citizen_receipt (when CUNI_RIDER_URL set)
 - Exactness or refuse (py/go/js). Fund = Rider settle/XPay — not PCC.
 - Docs: https://github.com/ceedot-rock/cuni/blob/master/docs/PASS_GATE.md
 
 ## Humans
-- Studio: https://cuni-studio.fly.dev/
+- Studio: https://spl-cuni-studio.fly.dev/
 - Spec: https://github.com/ceedot-rock/cuni/blob/master/SPEC.md
-- Protocol: https://cuni-studio.fly.dev/PROTOCOL.md
+- Protocol: https://spl-cuni-studio.fly.dev/PROTOCOL.md
 
 
 ## Parent lab (Slid Phi Labs)

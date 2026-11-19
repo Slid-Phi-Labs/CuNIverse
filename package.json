@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "private": true,
   "description": "CuNi (Code:uNiTY) — emit every coding language; exactness gate on Python, Go, JavaScript",
-  "homepage": "https://cuni-studio.fly.dev/",
+  "homepage": "https://spl-cuni-studio.fly.dev/",
   "repository": {
     "type": "git",
     "url": "https://github.com/ceedot-rock/cuni"
@@ -27,11 +27,11 @@
     "url": "https://www.slidphilabs.com/api/agent"
   },
   "agentic": {
-    "discovery": "https://cuni-studio.fly.dev/agents.json",
-    "studio": "https://cuni-studio.fly.dev/",
-    "agents_txt": "https://cuni-studio.fly.dev/agents.txt",
-    "llms_txt": "https://cuni-studio.fly.dev/llms.txt",
-    "protocol": "https://cuni-studio.fly.dev/.well-known/cuni-protocol.json",
+    "discovery": "https://spl-cuni-studio.fly.dev/agents.json",
+    "studio": "https://spl-cuni-studio.fly.dev/",
+    "agents_txt": "https://spl-cuni-studio.fly.dev/agents.txt",
+    "llms_txt": "https://spl-cuni-studio.fly.dev/llms.txt",
+    "protocol": "https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json",
     "agent_rider": "https://agentrider.fly.dev/.well-known/agent.json",
     "mcp": "https://agentrider.fly.dev/api/mcp",
     "lab_commerce": "https://www.slidphilabs.com/api/agent",
@@ -40,8 +40,8 @@
       "eip155:8453"
     ],
     "payment_header": "X-PAYMENT",
-    "one_liner": "CuNi Protocol https://cuni-studio.fly.dev/.well-known/cuni-protocol.json · Studio https://cuni-studio.fly.dev/ · Rider https://agentrider.fly.dev/.well-known/agent.json",
-    "site": "https://cuni-studio.fly.dev/"
+    "one_liner": "CuNi Protocol https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json · Studio https://spl-cuni-studio.fly.dev/ · Rider https://agentrider.fly.dev/.well-known/agent.json",
+    "site": "https://spl-cuni-studio.fly.dev/"
   },
   "x402": {
     "discovery": "https://www.slidphilabs.com/api/agent",

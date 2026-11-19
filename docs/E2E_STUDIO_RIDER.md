@@ -1,7 +1,7 @@
 # E2E: Studio exactness → Publish → Agent^Rider
 
 **Status:** cutover live; Studio contracts UI shipped 2026-09-11 (v0.1.9)  
-**Apps:** https://cuni-studio.fly.dev/ · https://agentrider.fly.dev/ (Fly-only; Vercel 402 is a historical dead door)
+**Apps:** https://spl-cuni-studio.fly.dev/ · https://agentrider.fly.dev/ (Fly-only; Vercel 402 is a historical dead door)
 
 ## Flow
 
@@ -17,10 +17,10 @@
 
 ```bash
 # Local stub (always available)
-curl -s https://cuni-studio.fly.dev/api/rider/registered | jq .
+curl -s https://spl-cuni-studio.fly.dev/api/rider/registered | jq .
 
 # Health (shows remote status)
-curl -s https://cuni-studio.fly.dev/api/health | jq .rider
+curl -s https://spl-cuni-studio.fly.dev/api/health | jq .rider
 
 # Remote Rider (Fly-only live face; re-verify pending GRANT/service_role)
 curl -s https://agentrider.fly.dev/api/v0/contracts | jq .
@@ -44,13 +44,13 @@ Implementation notes:
 
 ```bash
 # Health should show remote=true
-curl -s https://cuni-studio.fly.dev/api/health | jq '.rider'
+curl -s https://spl-cuni-studio.fly.dev/api/health | jq '.rider'
 
 # Local registered list
-curl -s https://cuni-studio.fly.dev/api/rider/registered | jq '{ok, count}'
+curl -s https://spl-cuni-studio.fly.dev/api/rider/registered | jq '{ok, count}'
 
 # Publish a known-good example (from repo root)
-curl -s -X POST https://cuni-studio.fly.dev/api/publish \
+curl -s -X POST https://spl-cuni-studio.fly.dev/api/publish \
   -H 'Content-Type: application/json' \
   -d "{\"source\": $(python3 -c 'import json;print(json.dumps(open("examples/agent/spend_control.cuni").read()))')}" \
   | jq '{ok, rider}'

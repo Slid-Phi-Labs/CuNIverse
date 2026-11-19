@@ -1,7 +1,7 @@
 # Agent mind = CuNi
 
 **Thesis:** AI *runs off* CuNi. Models are **speech**. CuNi is **law**.  
-Design: [`docs/AI_IS_CUNI.md`](../../docs/AI_IS_CUNI.md) · Studio: https://cuni-studio.fly.dev/
+Design: [`docs/AI_IS_CUNI.md`](../../docs/AI_IS_CUNI.md) · Studio: https://spl-cuni-studio.fly.dev/
 
 ```
 speech (stub | LLM)  →  skill id + params
@@ -44,7 +44,7 @@ python3 examples/agent/host/run_agent.py --llm --message "cap my spend at 5"
 Optional real HTTP after `tool_plan_get`:
 
 ```bash
-export CUNI_AGENT_HTTP_BASE=https://cuni-studio.fly.dev
+export CUNI_AGENT_HTTP_BASE=https://spl-cuni-studio.fly.dev
 python3 examples/agent/host/run_agent.py --message "get /api/health" --host py
 ```
 

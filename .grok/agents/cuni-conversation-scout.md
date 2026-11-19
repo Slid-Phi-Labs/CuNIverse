@@ -22,7 +22,7 @@ Deliver a **ranked opportunity list** the growth exec or human can act on.
 ## Product one-liner (for relevance scoring)
 
 CuNi: small OSS language → **exact** Python + Go + JS from one source (or refuse).  
-`cuni check` · Studio https://cuni-studio.fly.dev/ · `link` interop · MIT · https://github.com/ceedot-rock/cuni
+`cuni check` · Studio https://spl-cuni-studio.fly.dev/ · `link` interop · MIT · https://github.com/ceedot-rock/cuni
 
 ## Where to scrape / search
 

@@ -2,7 +2,7 @@
 
 All notable changes to CuNi are documented here.
 
-Protocol v1.1.1 · Install: `cargo install cuni` · Studio: https://cuni-studio.fly.dev
+Protocol v1.1.1 · Install: `cargo install cuni` · Studio: https://spl-cuni-studio.fly.dev
 
 ---
 
