@@ -33,6 +33,7 @@ from urllib.parse import parse_qs, urlparse
 import urllib.request
 
 from phi_rest import PhiRest
+import sandbox
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAY = Path(__file__).resolve().parent
@@ -54,6 +55,21 @@ _CHECK_ONLY_RAW = os.environ.get("CUNI_PLAYGROUND_CHECK_ONLY", "py,go,js").strip
 CHECK_ONLY = [x.strip() for x in _CHECK_ONLY_RAW.split(",") if x.strip()] or ["py", "go", "js"]
 
 _run_sem = threading.Semaphore(MAX_CONCURRENT)
+
+# Security fix 2026-11-22: hosted Studio never runs `ext` (raw target code).
+if not sandbox.ext_allowed():
+    os.environ["CUNI_DENY_EXT"] = "1"
+
+
+def _admin_ok(headers) -> bool:
+    """Constant-time check of X-Studio-Admin-Token against the configured token."""
+    import hmac
+
+    want = os.environ.get("CUNI_PLAYGROUND_ADMIN_TOKEN", "").strip()
+    if len(want) < 32:
+        return False
+    got = (headers.get("X-Studio-Admin-Token") or "").strip()
+    return hmac.compare_digest(got.encode(), want.encode())
 _store_lock = threading.Lock()
 
 PHI_REST = PhiRest(
@@ -192,12 +208,13 @@ def bank_paste(source: str, from_lang: str, to_lang: str) -> dict:
         }
     cuni = find_cuni()
     with tempfile.TemporaryDirectory(prefix="cuni-bank-") as td:
+        sandbox.own_workdir(td)
         td_path = Path(td)
         ext = "cuni" if from_lang == "cuni" else "py"
         src_path = td_path / f"n.{ext}"
         src_path.write_text(source, encoding="utf-8")
         out_path = td_path / "emit.out"
-        p = subprocess.run(
+        p = sandbox.run(
             [
                 str(cuni),
                 "bank",
@@ -210,9 +227,8 @@ def bank_paste(source: str, from_lang: str, to_lang: str) -> dict:
                 "-o",
                 str(out_path),
             ],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT,
+            td_path,
+            TIMEOUT,
         )
         artifact = ""
         if out_path.is_file():
@@ -271,13 +287,9 @@ def stage_source(workdir: Path, source: str) -> Path:
 
 
 def run_cmd(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        args,
-        cwd=str(cwd) if cwd else None,
-        capture_output=True,
-        text=True,
-        timeout=TIMEOUT,
-    )
+    # Security fix 2026-11-22: every child runs unprivileged, rlimited and
+    # with CUNI_DENY_EXT=1 (see sandbox.py).
+    return sandbox.run(args, cwd, TIMEOUT)
 
 
 def _emit_only(cuni: Path, work: Path, main: Path) -> dict:
@@ -428,6 +440,7 @@ def compile_and_check(source: str, mode: str = "run") -> dict:
     cuni = find_cuni()
     src_hash = source_hash(source)
     with tempfile.TemporaryDirectory(prefix="cuni_play_") as td:
+        sandbox.own_workdir(td)
         work = Path(td)
         main = stage_source(work, source)
 
@@ -1033,12 +1046,12 @@ class Handler(SimpleHTTPRequestHandler):
             )
             return self._json(200, {"ok": True, "entry": entry})
 
-        if path == "/api/notelog/clear":
-            _save_book("notelog.json", {"entries": []})
-            return self._json(200, {"ok": True})
-
-        if path == "/api/criticbook/clear":
-            _save_book("criticbook.json", {"entries": []})
+        if path in ("/api/notelog/clear", "/api/criticbook/clear"):
+            # Security fix 2026-11-22: wiping shared books needs the admin token.
+            if not _admin_ok(self.headers):
+                return self._json(403, {"ok": False, "error": "admin token required"})
+            name = "notelog.json" if path == "/api/notelog/clear" else "criticbook.json"
+            _save_book(name, {"entries": []})
             return self._json(200, {"ok": True})
 
 
