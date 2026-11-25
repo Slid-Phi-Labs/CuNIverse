@@ -24,7 +24,7 @@ SRC=examples/few.cuni
 export PATH="/usr/bin:/usr/lib/go/bin:${HOME}/.cargo/bin:${PATH}"
 
 echo
-echo "CuNi — 144 languages. One program. Same stdout, or refuse."
+echo "CuNi — 53 catalog entries. One program. Same stdout, or refuse."
 echo
 echo "── source ──────────────────────────────────────────"
 cat "$SRC"
@@ -34,5 +34,5 @@ echo "cuni check --only py,go,js,c,cpp,rs"
 echo
 "$CUNI" check "$SRC" --only py,go,js,c,cpp,rs --timeout 90
 echo
-echo "Studio: https://cuni-studio.fly.dev/"
+echo "Studio: https://spl-cuni-studio.fly.dev/"
 echo

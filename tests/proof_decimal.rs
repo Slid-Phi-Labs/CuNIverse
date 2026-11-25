@@ -126,10 +126,7 @@ fn money_verdicts_are_pinned() {
     // The money law itself must not silently change: the interpreter seat
     // prints the 23 driver outputs, asserted byte-for-byte.
     let (ok, stdout, stderr) = run_cuni(&["run", FIXTURE]);
-    assert!(
-        ok,
-        "cuni run failed\nstdout:\n{stdout}\nstderr:\n{stderr}"
-    );
+    assert!(ok, "cuni run failed\nstdout:\n{stdout}\nstderr:\n{stderr}");
     assert_eq!(
         stdout, EXPECTED_VERDICTS,
         "money verdicts drifted — the law changed without the gate catching it"
@@ -177,10 +174,18 @@ fn decimal_mixed_arithmetic_is_a_type_error() {
     // with a fix-it, on every seat (the typeck runs before any emit).
     let (ok, stdout, stderr) = run_scratch(
         "say(1.5dec + 1)\n",
-        &["--only", "py,go,js,ts,c,cpp,rs,rb,lua,java,sql", "--timeout", "120"],
+        &[
+            "--only",
+            "py,go,js,ts,c,cpp,rs,rb,lua,java,sql",
+            "--timeout",
+            "120",
+        ],
     );
     let both = format!("{stdout}\n{stderr}");
-    assert!(!ok, "mixed dec/int arithmetic was accepted — it must be refused");
+    assert!(
+        !ok,
+        "mixed dec/int arithmetic was accepted — it must be refused"
+    );
     assert!(
         both.contains("dec_of_int") || both.contains("cannot mix"),
         "mixed dec/int refusal lost its fix-it\n{both}"
@@ -210,7 +215,10 @@ fn decimal_division_by_zero_is_loud() {
         &["--only", "py,go,js,rs,rb,lua,java,sql", "--timeout", "180"],
     );
     let both = format!("{stdout}\n{stderr}");
-    assert!(!ok, "dec division by zero was accepted — it must fail loudly");
+    assert!(
+        !ok,
+        "dec division by zero was accepted — it must fail loudly"
+    );
     assert!(
         both.to_lowercase().contains("zero") || both.contains("refus"),
         "division-by-zero failure has no clear message\n{both}"
@@ -220,9 +228,13 @@ fn decimal_division_by_zero_is_loud() {
 #[test]
 fn decimal_five_fraction_digits_are_refused_at_lex() {
     // >4 fractional digits never silently round: the literal is refused.
-    let (ok, stdout, stderr) = run_scratch("say(1.00001dec)\n", &["--only", "py", "--timeout", "60"]);
+    let (ok, stdout, stderr) =
+        run_scratch("say(1.00001dec)\n", &["--only", "py", "--timeout", "60"]);
     let both = format!("{stdout}\n{stderr}");
-    assert!(!ok, "a 5-fraction-digit dec literal was accepted — it must be refused");
+    assert!(
+        !ok,
+        "a 5-fraction-digit dec literal was accepted — it must be refused"
+    );
     assert!(
         both.contains("refus") || both.contains('4'),
         "over-precision refusal message is unclear\n{both}"

@@ -768,7 +768,11 @@ fn bin(op: BinOp, l: Val, r: Val) -> Result<Val, String> {
             // CuNi `%` is Python-floored (not Rust-truncated).
             (Val::Int(a), Val::Int(b)) if b != 0 => {
                 let r = a % b;
-                let floored = if r != 0 && ((r < 0) != (b < 0)) { r + b } else { r };
+                let floored = if r != 0 && ((r < 0) != (b < 0)) {
+                    r + b
+                } else {
+                    r
+                };
                 Ok(Val::Int(floored))
             }
             _ => Err("% needs ints".into()),
@@ -852,9 +856,9 @@ fn time_bin(op: BinOp, l: Val, r: Val) -> Result<Val, String> {
             )),
             _ => Err(mix_err()),
         },
-        BinOp::Mul | BinOp::Div | BinOp::Mod => {
-            Err("arithmetic `*`/`/`/`%` is not defined on `time` — refusing (docs/TIME.md §3)".into())
-        }
+        BinOp::Mul | BinOp::Div | BinOp::Mod => Err(
+            "arithmetic `*`/`/`/`%` is not defined on `time` — refusing (docs/TIME.md §3)".into(),
+        ),
         BinOp::Eq => match (l, r) {
             (Val::Time(a), Val::Time(b)) => Ok(Val::Bool(a == b)),
             _ => Err(mix_err()),
@@ -1099,9 +1103,7 @@ impl<'a> JParser<'a> {
             // Copy a maximal run of plain characters (input &str is valid
             // UTF-8, so slicing at the next '"' or '\\' is safe).
             let rest = &self.s[self.pos..];
-            let run = rest
-                .find(|c| c == '"' || c == '\\')
-                .unwrap_or(rest.len());
+            let run = rest.find(|c| c == '"' || c == '\\').unwrap_or(rest.len());
             let chunk = &rest[..run];
             if chunk.bytes().any(|b| b < 0x20) {
                 return Err("json.parse: unescaped control character in string".into());
@@ -1144,16 +1146,11 @@ impl<'a> JParser<'a> {
                                     return Err("json.parse: lone surrogate".into());
                                 }
                                 let cp = 0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00);
-                                out.push(
-                                    char::from_u32(cp)
-                                        .ok_or("json.parse: bad code point")?,
-                                );
+                                out.push(char::from_u32(cp).ok_or("json.parse: bad code point")?);
                             } else if (0xDC00..0xE000).contains(&hi) {
                                 return Err("json.parse: lone surrogate".into());
                             } else {
-                                out.push(
-                                    char::from_u32(hi).ok_or("json.parse: bad code point")?,
-                                );
+                                out.push(char::from_u32(hi).ok_or("json.parse: bad code point")?);
                             }
                         }
                         _ => return Err("json.parse: bad escape".into()),
@@ -1494,12 +1491,20 @@ fn sha256_hex(s: &str) -> String {
     for chunk in msg.chunks_exact(64) {
         let mut w = [0u32; 64];
         for i in 0..16 {
-            w[i] = u32::from_be_bytes([chunk[4 * i], chunk[4 * i + 1], chunk[4 * i + 2], chunk[4 * i + 3]]);
+            w[i] = u32::from_be_bytes([
+                chunk[4 * i],
+                chunk[4 * i + 1],
+                chunk[4 * i + 2],
+                chunk[4 * i + 3],
+            ]);
         }
         for i in 16..64 {
             let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
             let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
-            w[i] = w[i - 16].wrapping_add(s0).wrapping_add(w[i - 7]).wrapping_add(s1);
+            w[i] = w[i - 16]
+                .wrapping_add(s0)
+                .wrapping_add(w[i - 7])
+                .wrapping_add(s1);
         }
         let (mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh) =
             (h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7]);

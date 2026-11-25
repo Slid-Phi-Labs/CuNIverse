@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "receipt_name": "provably-fair-crash.receipt.json",
+  "receipt_digest": "d7bc4c0aebaa135558f7c90fd87b559a8eb2a0b060da2707a8d5a175f0a8c554",
+  "source_hash": "50e534572ffb9001af10c5badd7bca2690ad6c461861f597479e869c42861411",
+  "leaf_index": 16,
+  "leaf_count": 19,
+  "merkle_path": [
+    {
+      "side": "right",
+      "hash": "5bf718f6363057d8c296dbecffe51a59674dd7e0b9b45839eab2565da7f575f9"
+    },
+    {
+      "side": "right",
+      "hash": "364a2488db5d3a9deb75ec67041f8634c9e8706b0077d5a3595f3f02e1da7b0d"
+    },
+    {
+      "side": "right",
+      "hash": "17986f1ddcce529e0e6e1dc6edd9a71135ddf75a0ab6848254a2bcc99820c622"
+    },
+    {
+      "side": "right",
+      "hash": "4894e7ca673f5e860a72efcf0ca42b7ed79e49e10ef62a62f6b70703c72d2b95"
+    },
+    {
+      "side": "left",
+      "hash": "cb72f59f55dd7968c7797f3e3f35b779fb77f6e761f6aa6a712f053e465803ae"
+    }
+  ],
+  "batch_id": "2026-10-22-exactodds-receipts-poc",
+  "batch_root": "30cd774cb620fbbebfe2f55f22971e7b4a03dfe39997d839b8e6840f49452a70",
+  "anchor": {
+    "chain_id": 84532,
+    "chain": "base-sepolia",
+    "tx_hash": "0x176fb27b7fb3ec9da3a3b89988398fb22549cca6ea0d012f1f2eafee0dccc9ab",
+    "from": "0x364b7b0864D9564A5f98225b78DefbB78F44b579",
+    "block_number": 48781694,
+    "block_timestamp": 1792678207,
+    "gas_used": 23720
+  }
+}

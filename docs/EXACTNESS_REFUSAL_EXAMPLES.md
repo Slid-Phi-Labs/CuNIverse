@@ -2,7 +2,7 @@
 
 **Purpose**: Let a first-time visitor experience *refuse* as clearly as PASS.
 
-Open [CuNi Studio](https://cuni-studio.fly.dev/), clear the editor, paste one of the snippets below, then hit **Run exactness**.
+Open [CuNi Studio](https://spl-cuni-studio.fly.dev/), clear the editor, paste one of the snippets below, then hit **Run exactness**.
 
 ## 1. Platform-specific output (classic refuse)
 

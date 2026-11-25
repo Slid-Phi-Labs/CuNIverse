@@ -19,6 +19,22 @@ The refusal is the product. Other tools try to paper over differences. CuNi trea
 
 This is why Agent Rider runs on CuNi. In a world where AI agents write and execute code across systems, "close enough" is how things break. Rider requires CuNi's exactness proof before an agent's policy is allowed to run: same behavior everywhere, or it doesn't run.
 
+## One product, seven arms
+
+CuNi is **one product**: a compiler trunk, one exactness gate, one catalog — delivered through seven named arms.
+
+| Arm | What it is |
+|---|---|
+| **Studio** | Hosted browser workspace: emit, check, Agent mode, Publish |
+| **Bank** | Paste N, get X: ingest, emit, prove, or refuse |
+| **Audit** | Prove a foreign implementation against a money law; file a signed receipt |
+| **Onchain** | Six chain profiles with a proven logic core |
+| **Exactness** | The EXACT-or-REFUSE skill over every local seat |
+| **Transparency** | Append-only Merkle log for signed exactness receipts |
+| **Tap** | The Homebrew tap that installs `cuni` |
+
+Every arm runs the same `cuni check`; no arm gets an approximate mode. The registry is [`ARMS.md`](ARMS.md) with the machine-readable [`arms.json`](arms.json). The private [`ceedot-rock/cuni-exact`](https://github.com/ceedot-rock/cuni-exact) workbench is outside the product boundary.
+
 ## Trust Provable, in all things
 
 CuNi's mission. Everywhere the industry *trusts* two implementations match, CuNi *proves* it — same stdout, or refuse. ("Replace trust with proof" was the 0.4.0-era line; the mission it named now leads the project.)
@@ -45,11 +61,11 @@ That turns exactness into working infrastructure:
 </p>
 
 <p align="center">
-  <a href="https://cuni-studio.fly.dev/"><img src="https://img.shields.io/badge/Studio-try%20in%20browser-5b9dff?style=for-the-badge" alt="Open CuNi Studio" /></a>
+  <a href="https://spl-cuni-studio.fly.dev/"><img src="https://img.shields.io/badge/Studio-try%20in%20browser-5b9dff?style=for-the-badge" alt="Open CuNi Studio" /></a>
 </p>
 
 <p align="center">
-  <a href="https://cuni-studio.fly.dev/"><img src="https://img.shields.io/badge/playground-live-3dd68c.svg" alt="Playground live" /></a>
+  <a href="https://spl-cuni-studio.fly.dev/"><img src="https://img.shields.io/badge/playground-live-3dd68c.svg" alt="Playground live" /></a>
   <a href="https://github.com/ceedot-rock/cuni/actions/workflows/exactness.yml"><img src="https://github.com/ceedot-rock/cuni/actions/workflows/exactness.yml/badge.svg" alt="Exactness" /></a>
   <a href="https://github.com/ceedot-rock/cuni/actions/workflows/ci.yml"><img src="https://github.com/ceedot-rock/cuni/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="https://github.com/ceedot-rock/cuni/releases/tag/v0.10.0"><img src="https://img.shields.io/badge/version-0.10.0-cyan.svg" alt="v0.10.0" /></a>
@@ -58,7 +74,7 @@ That turns exactness into working infrastructure:
 
 **One source. Emit every coding language. Exactness still runs Python, JavaScript, and Go — or the compiler refuses.** Receipts name the program by `source_hash`, not by path.
 
-CuNi is a small language with a hard exactness contract: a program either produces the same behavior on every supported target, or it does not compile. No approximate mode. `--emit-all` writes the catalog of coding languages. CuNi compiles one source into all 53 catalog entries. Forty-five of the top 50 — Python, Go, JavaScript, TypeScript, C, C++, C#, Java, Kotlin, Scala, Rust, Ruby, PHP, Lua, Perl, R, Julia, Elixir, Erlang, Haskell, OCaml, F#, Lisp, Clojure, Dart, Zig, Nim, Crystal, D, V, Ada, Pascal, Fortran, COBOL, Prolog, SQL, Assembly, Solidity, Groovy, Objective-C, Bash, PowerShell, Awk, Tcl, and Haxe — build through their real toolchains (Solidity compiles to a deployable EVM contract via solc); the other 5 (MATLAB and Visual Basic, which have no free Linux toolchain, plus Swift, Hack, and Smalltalk, which have no installable Linux toolchain) emit Python under a language-specific file extension and run under python3, so every target's output can actually be compared. **`cuni check` runs the money-seat gate (py, rs, go, java, sql, js): byte-identical stdout everywhere, or the program refuses to compile. `cuni check --all` runs the full 53-entry catalog.** Free hosted **[CuNi Studio](https://cuni-studio.fly.dev/)** (Playground + Agent mode). Open source under AGPL-3.0-or-later, or a paid commercial grant ([LICENSE](LICENSE)), v0.10.0.
+CuNi is a small language with a hard exactness contract: a program either produces the same behavior on every supported target, or it does not compile. No approximate mode. `--emit-all` writes the catalog of coding languages. CuNi compiles one source into all 53 catalog entries. Forty-five of the top 50 — Python, Go, JavaScript, TypeScript, C, C++, C#, Java, Kotlin, Scala, Rust, Ruby, PHP, Lua, Perl, R, Julia, Elixir, Erlang, Haskell, OCaml, F#, Lisp, Clojure, Dart, Zig, Nim, Crystal, D, V, Ada, Pascal, Fortran, COBOL, Prolog, SQL, Assembly, Solidity, Groovy, Objective-C, Bash, PowerShell, Awk, Tcl, and Haxe — build through their real toolchains (Solidity compiles to a deployable EVM contract via solc); the other 5 (MATLAB and Visual Basic, which have no free Linux toolchain, plus Swift, Hack, and Smalltalk, which have no installable Linux toolchain) emit Python under a language-specific file extension and run under python3, so every target's output can actually be compared. **`cuni check` runs the money-seat gate (py, rs, go, java, sql, js): byte-identical stdout everywhere, or the program refuses to compile. `cuni check --all` runs the full 53-entry catalog.** Free hosted **[CuNi Studio](https://spl-cuni-studio.fly.dev/)** (Playground + Agent mode). Open source under AGPL-3.0-or-later, or a paid commercial grant ([LICENSE](LICENSE)), v0.10.0.
 
 > **Exactness contract:** a CuNi program with no `ext` blocks compiles to identical behavior on every supported target — or it **refuses to compile**.
 
@@ -66,7 +82,7 @@ CuNi is a small language with a hard exactness contract: a program either produc
 
 ### Try the flagship example (no install)
 
-1. Open **[CuNi Studio](https://cuni-studio.fly.dev/)** — it loads `spend-control.cuni` by default
+1. Open **[CuNi Studio](https://spl-cuni-studio.fly.dev/)** — it loads `spend-control.cuni` by default
 2. Hit **Run exactness**
 3. See identical Python / Go / JavaScript output (or a clear refusal)
 4. Optional: **Publish** — exactness PASS → metadata + Studio-side Rider registration
@@ -109,7 +125,7 @@ Packaging: tap [`ceedot-rock/homebrew-cuni`](https://github.com/ceedot-rock/home
 
 **End-to-end path (live today):**
 
-1. Write a policy in [CuNi Studio](https://cuni-studio.fly.dev/) (default: spend-control).
+1. Write a policy in [CuNi Studio](https://spl-cuni-studio.fly.dev/) (default: spend-control).
 2. **Run exactness** — refuse unless every catalog language matches.
 3. **Publish** — metadata is stored and auto-registered into the Studio-side Rider stub.
 4. Inspect: `GET /api/rider/registered` · design for real Rider: [`docs/RIDER_V0_CONTRACTS.md`](docs/RIDER_V0_CONTRACTS.md)
@@ -126,7 +142,7 @@ Result: agents can be implemented in the language that is most convenient, while
 
 | Proof | How | What it shows |
 |-------|-----|----------------|
-| **Exactness** | [Studio](https://cuni-studio.fly.dev/) or `cuni check examples/full.cuni` | One program → every catalog language → **same stdout** |
+| **Exactness** | [Studio](https://spl-cuni-studio.fly.dev/) or `cuni check examples/full.cuni` | One program → every catalog language → **same stdout** |
 | **Interop (`link`)** | `./examples/link/demo.sh` | One contract → **Go server** + **Python + JS + Go clients** over HTTP |
 | **Decimal (`dec`)** | `cuni check examples/proof-decimal/money.cuni` | Exact fixed-point money math (scale 10⁴, truncation toward zero) → **same stdout** on the 11 `dec` seats (py, go, js, ts, c, cpp, rs, rb, lua, java, sql) + solc-compiled Solidity |
 | **Time (`time`)** | `cuni check examples/proof-time/time.cuni` | Exact int64 unix epochs, UTC only, strict ISO-8601 → **same stdout** on the 11 `time` seats (py, go, js, ts, c, cpp, rs, rb, lua, java, sql) + solc-compiled Solidity |
@@ -267,7 +283,7 @@ python3 playground/server.py
 # open http://127.0.0.1:8787  (binds 0.0.0.0 by default)
 ```
 
-**Live:** https://cuni-studio.fly.dev/  
+**Live:** https://spl-cuni-studio.fly.dev/  
 
 **Emit** · **Check/Run** · **Publish** (exactness → Rider stub) · **Notelog** · **Critic Book**.  
 Details: [`playground/README.md`](playground/README.md) · freeze: [`docs/FREEZE.md`](docs/FREEZE.md).  
@@ -316,7 +332,7 @@ assets/logo.png                        # brand mark
 
 ## Status (v0.10.0)
 
-**Shipped:** lexer/parser, native seats Python/Go/JS/TS/C/C++/Rust/Ruby/Lua/Java/SQL, **Solidity seat** (`--emit-sol`: same source → solc-compiled EVM contract; `.sol` ingests back to CuNi), **Java seat** (`--emit-java`: `javac`-compiled; audit-finance story — the bank's Java and the auditor's Python gate-proven to agree), **SQL seat** (`--emit-sql`: SQLite/PostgreSQL/MySQL dialects, verified against real `sqlite3`), `--emit-all` language catalog (53: 45 native seats of the top 50 + 5 Python lowerings + 3 onchain profiles), bounded type checker with **line:col** errors, **named typ constructors**, call-site generic binding checks, `use`, `link` interop, enums, fail/`??`, stdlib (`say`, `.push`, `.len`, `range`, `abs`, `min`, `max`, `slice`), `cuni run` (in-process seat; `cuni check` must match catalog gold), `cuni check`, **hosted Studio** ([cuni-studio.fly.dev](https://cuni-studio.fly.dev/)) with a language picker, Exactness **CI + badge**, flagship **link demo**, gold algorithms in `examples/compute/`, provably-fair dice contract in `examples/casino/`.
+**Shipped:** lexer/parser, native seats Python/Go/JS/TS/C/C++/Rust/Ruby/Lua/Java/SQL, **Solidity seat** (`--emit-sol`: same source → solc-compiled EVM contract; `.sol` ingests back to CuNi), **Java seat** (`--emit-java`: `javac`-compiled; audit-finance story — the bank's Java and the auditor's Python gate-proven to agree), **SQL seat** (`--emit-sql`: SQLite/PostgreSQL/MySQL dialects, verified against real `sqlite3`), `--emit-all` language catalog (53: 45 native seats of the top 50 + 5 Python lowerings + 3 onchain profiles), bounded type checker with **line:col** errors, **named typ constructors**, call-site generic binding checks, `use`, `link` interop, enums, fail/`??`, stdlib (`say`, `.push`, `.len`, `range`, `abs`, `min`, `max`, `slice`), `cuni run` (in-process seat; `cuni check` must match catalog gold), `cuni check`, **hosted Studio** ([spl-cuni-studio.fly.dev](https://spl-cuni-studio.fly.dev/)) with a language picker, Exactness **CI + badge**, flagship **link demo**, gold algorithms in `examples/compute/`, provably-fair dice contract in `examples/casino/`.
 
 **New in v0.10.0:** the CLI is the frozen product surface — `cuni emit` promoted to a real subcommand, `cuni version`, `cuni check --json` (machine-readable receipt only) and `--sign <keyfile>` (Ed25519-signed receipts a stranger can verify), `--all` for the full 53-entry catalog. **Default `cuni check` runs the money-seat gate** (py, rs, go, java, sql, js — seats a normal install can run); exit codes are a contract: 0 exactness pass, 1 refusal or divergence, 2 usage error or missing toolchain. Receipts are pinned with `cuni_version` + `stdout_hash` — a pass from one version is never read as a pass from another.
 
@@ -333,22 +349,22 @@ assets/logo.png                        # brand mark
 
 ## License
 
-**Dual license.** Public tree is **AGPL-3.0-or-later** — see [`LICENSE`](LICENSE). To ship CuNi inside a **closed-source** product, buy a written commercial exception: [COMMERCIAL.md](COMMERCIAL.md) · corey@slidphilabs.com. Hosted [Studio](https://cuni-studio.fly.dev/) is $0 exactness, not a grant of Rider or PCC. SoT: https://www.slidphilabs.com/licensing.json
+**Dual license.** Public tree is **AGPL-3.0-or-later** — see [`LICENSE`](LICENSE). To ship CuNi inside a **closed-source** product, buy a written commercial exception: [COMMERCIAL.md](COMMERCIAL.md) · corey@slidphilabs.com. Hosted [Studio](https://spl-cuni-studio.fly.dev/) is $0 exactness, not a grant of Rider or PCC. SoT: https://www.slidphilabs.com/licensing.json
 
 ## Agentic discovery
 
 ```
-CuNi Studio: https://cuni-studio.fly.dev/ · Protocol https://cuni-studio.fly.dev/.well-known/cuni-protocol.json · Agent^Rider https://agentrider.fly.dev/.well-known/agent.json · Lab commerce https://www.slidphilabs.com/api/agent · Lab llms.txt https://www.slidphilabs.com/llms.txt
+CuNi Studio: https://spl-cuni-studio.fly.dev/ · Protocol https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json · Agent^Rider https://agentrider.fly.dev/.well-known/agent.json · Lab commerce https://www.slidphilabs.com/api/agent · Lab llms.txt https://www.slidphilabs.com/llms.txt
 ```
 
 | Surface | URL |
 |---------|-----|
-| **CuNi Protocol** | https://cuni-studio.fly.dev/.well-known/cuni-protocol.json |
-| Protocol (text) | https://cuni-studio.fly.dev/PROTOCOL.md |
-| Studio | https://cuni-studio.fly.dev/ |
-| agents.txt | https://cuni-studio.fly.dev/agents.txt |
-| agents.json | https://cuni-studio.fly.dev/agents.json |
-| llms.txt | https://cuni-studio.fly.dev/llms.txt |
+| **CuNi Protocol** | https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json |
+| Protocol (text) | https://spl-cuni-studio.fly.dev/PROTOCOL.md |
+| Studio | https://spl-cuni-studio.fly.dev/ |
+| agents.txt | https://spl-cuni-studio.fly.dev/agents.txt |
+| agents.json | https://spl-cuni-studio.fly.dev/agents.json |
+| llms.txt | https://spl-cuni-studio.fly.dev/llms.txt |
 | Lab llms.txt | https://www.slidphilabs.com/llms.txt |
 | Agent^Rider manifest | https://agentrider.fly.dev/.well-known/agent.json |
 | Agent^Rider MCP | https://agentrider.fly.dev/api/mcp |

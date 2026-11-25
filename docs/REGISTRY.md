@@ -73,5 +73,5 @@ cuni check .                    # exactness over project + deps
 
 ## Relation to Studio
 
-**Hosted Studio:** https://cuni-studio.fly.dev/ — loads **local** `examples/*.cuni` only.  
+**Hosted Studio:** https://spl-cuni-studio.fly.dev/ — loads **local** `examples/*.cuni` only.  
 A later mode can “Open from registry” once publish exists.

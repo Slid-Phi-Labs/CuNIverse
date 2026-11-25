@@ -25,7 +25,7 @@ If exactness passes, it writes `examples/spend-control.publish.json` containing:
 
 ## Studio UI
 
-In [CuNi Studio](https://cuni-studio.fly.dev/) (Play mode):
+In [CuNi Studio](https://spl-cuni-studio.fly.dev/) (Play mode):
 
 1. Load or write a program (e.g. example **spend-control**).
 2. Click **Publish**.

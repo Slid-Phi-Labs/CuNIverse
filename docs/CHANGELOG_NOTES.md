@@ -16,7 +16,7 @@ Accumulate here; fold into formal release notes when tagging.
 
 ### Rider path
 - `playground/rider_stub.py` — `POST /api/rider/register`, `GET /api/rider/registered`
-- Mounted in `server.py` and live on https://cuni-studio.fly.dev/
+- Mounted in `server.py` and live on https://spl-cuni-studio.fly.dev/
 - Design sketch for real Rider: `docs/RIDER_V0_CONTRACTS.md`
 
 ### Docs

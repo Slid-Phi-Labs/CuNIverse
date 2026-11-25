@@ -13,7 +13,7 @@
 
 class Cuni < Formula
   desc "CuNi — write once, print many languages; Python/Go/JS must match"
-  homepage "https://cuni-studio.fly.dev/"
+  homepage "https://spl-cuni-studio.fly.dev/"
   version "0.10.0"
   license "AGPL-3.0-or-later"
 

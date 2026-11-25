@@ -124,10 +124,18 @@ fn vyper_contract_shape() {
     let src = std::fs::read_to_string(&prog_path).expect("failed to read emitted contract");
 
     // Both delimited regions, in order.
-    let logic_start = src.find("# CUNI-LOGIC-CORE-START").expect("missing LOGIC_START");
-    let logic_end = src.find("# CUNI-LOGIC-CORE-END").expect("missing LOGIC_END");
-    let shell_start = src.find("# CUNI-VYPER-SHELL-START").expect("missing SHELL_START");
-    let shell_end = src.find("# CUNI-VYPER-SHELL-END").expect("missing SHELL_END");
+    let logic_start = src
+        .find("# CUNI-LOGIC-CORE-START")
+        .expect("missing LOGIC_START");
+    let logic_end = src
+        .find("# CUNI-LOGIC-CORE-END")
+        .expect("missing LOGIC_END");
+    let shell_start = src
+        .find("# CUNI-VYPER-SHELL-START")
+        .expect("missing SHELL_START");
+    let shell_end = src
+        .find("# CUNI-VYPER-SHELL-END")
+        .expect("missing SHELL_END");
     assert!(
         logic_start < logic_end && logic_end < shell_start && shell_start < shell_end,
         "delimited regions out of order"
@@ -279,10 +287,7 @@ fn vyper_refusals_are_honest() {
     let dir = workdir();
     // (tag, source): every one of these must make --emit-vyper refuse.
     let cases: &[(&str, &str)] = &[
-        (
-            "float",
-            "def f() -> int do\n ret 1\nend\nsay(1.5)\n",
-        ),
+        ("float", "def f() -> int do\n ret 1\nend\nsay(1.5)\n"),
         (
             "list",
             "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(f())\n",
@@ -322,10 +327,7 @@ fn vyper_refusals_are_honest() {
             "--emit-vyper",
             out_path.to_str().expect("non-utf8 temp path"),
         ]);
-        assert!(
-            !ok,
-            "{tag}: --emit-vyper should have refused but succeeded"
-        );
+        assert!(!ok, "{tag}: --emit-vyper should have refused but succeeded");
         assert!(
             stderr.contains("refus"),
             "{tag}: refusal must say so clearly\nstderr:\n{stderr}"

@@ -14,7 +14,7 @@ stated inside the receipt.
 
 Produce receipts with the [CuNi compiler](https://github.com/ceedot-rock/cuni)
 (`cuni check --json --sign <keyfile>`), or try exactness with no install
-in [CuNi Studio](https://cuni-studio.fly.dev/).
+in [CuNi Studio](https://spl-cuni-studio.fly.dev/).
 
 ## What the log proves — and what it does NOT
 
@@ -197,7 +197,7 @@ question, tied to Rider identity.
 
 - [CuNi](https://github.com/ceedot-rock/cuni) — the exact multi-target
   language whose signed exactness receipts this log records.
-- [CuNi Studio](https://cuni-studio.fly.dev/) — hosted playground;
+- [CuNi Studio](https://spl-cuni-studio.fly.dev/) — hosted playground;
   run the exactness gate in the browser.
 - [Agent-Rider](https://github.com/ceedot-rock/Agent-Rider) — the agent
   network; binding logged receipts to Rider signed-agent identities is

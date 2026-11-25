@@ -198,8 +198,14 @@ impl Codegen {
         self.line(1, "return a / b");
         self.line(0, "end");
         self.line(0, "function _cuni_add(a, b)");
-        self.line(1, "-- CuNi `+` is string concat if both are strings, else int add.");
-        self.line(1, "if type(a) == \"string\" and type(b) == \"string\" then return a .. b end");
+        self.line(
+            1,
+            "-- CuNi `+` is string concat if both are strings, else int add.",
+        );
+        self.line(
+            1,
+            "if type(a) == \"string\" and type(b) == \"string\" then return a .. b end",
+        );
         self.line(1, "return a + b");
         self.line(0, "end");
         self.out.push('\n');
@@ -216,8 +222,14 @@ impl Codegen {
         self.line(0, "local DEC_MINI = math.mininteger");
         self.line(0, "local function _cuni_dec_refuse(msg) error(\"cuni: \" .. msg .. \" — refused\", 0) end");
         self.line(0, "local function _cuni_dec_tdiv(a, b)");
-        self.line(1, "-- Truncation toward zero (docs/DECIMAL.md §3); Lua's // floors. b ~= 0.");
-        self.line(1, "if b == -1 and a == DEC_MINI then _cuni_dec_refuse(\"dec division overflow\") end");
+        self.line(
+            1,
+            "-- Truncation toward zero (docs/DECIMAL.md §3); Lua's // floors. b ~= 0.",
+        );
+        self.line(
+            1,
+            "if b == -1 and a == DEC_MINI then _cuni_dec_refuse(\"dec division overflow\") end",
+        );
         self.line(1, "local q = a // b");
         self.line(1, "local r = a - q * b");
         self.line(1, "if r ~= 0 and ((a < 0) ~= (b < 0)) then q = q + 1 end");
@@ -230,13 +242,19 @@ impl Codegen {
         self.line(1, "return aa > lim");
         self.line(0, "end");
         self.line(0, "local function _cuni_dec_add(a, b)");
-        self.line(1, "if (b > 0 and a > DEC_MAXI - b) or (b < 0 and a < DEC_MINI - b) then");
+        self.line(
+            1,
+            "if (b > 0 and a > DEC_MAXI - b) or (b < 0 and a < DEC_MINI - b) then",
+        );
         self.line(2, "_cuni_dec_refuse(\"dec addition overflow\")");
         self.line(1, "end");
         self.line(1, "return a + b");
         self.line(0, "end");
         self.line(0, "local function _cuni_dec_sub(a, b)");
-        self.line(1, "if (b < 0 and a > DEC_MAXI + b) or (b > 0 and a < DEC_MINI + b) then");
+        self.line(
+            1,
+            "if (b < 0 and a > DEC_MAXI + b) or (b > 0 and a < DEC_MINI + b) then",
+        );
         self.line(2, "_cuni_dec_refuse(\"dec subtraction overflow\")");
         self.line(1, "end");
         self.line(1, "return a - b");
@@ -244,56 +262,116 @@ impl Codegen {
         self.line(0, "local function _cuni_dec_mul(a, b)");
         self.line(1, "if a == 0 or b == 0 then return 0 end");
         self.line(1, "if a == DEC_MINI then");
-        self.line(2, "if b ~= 1 then _cuni_dec_refuse(\"dec multiplication overflow\") end");
+        self.line(
+            2,
+            "if b ~= 1 then _cuni_dec_refuse(\"dec multiplication overflow\") end",
+        );
         self.line(1, "elseif b == DEC_MINI then");
-        self.line(2, "if a ~= 1 then _cuni_dec_refuse(\"dec multiplication overflow\") end");
+        self.line(
+            2,
+            "if a ~= 1 then _cuni_dec_refuse(\"dec multiplication overflow\") end",
+        );
         self.line(1, "else");
         self.line(2, "local aa = a < 0 and -a or a");
         self.line(2, "local bb = b < 0 and -b or b");
-        self.line(2, "if aa > DEC_MAXI // bb then _cuni_dec_refuse(\"dec multiplication overflow\") end");
+        self.line(
+            2,
+            "if aa > DEC_MAXI // bb then _cuni_dec_refuse(\"dec multiplication overflow\") end",
+        );
         self.line(1, "end");
         self.line(1, "return _cuni_dec_tdiv(a * b, CuniDec.SCALE)");
         self.line(0, "end");
         self.line(0, "local function _cuni_dec_div(a, b)");
-        self.line(1, "if b == 0 then _cuni_dec_refuse(\"dec division by zero\") end");
-        self.line(1, "if _cuni_dec_abs_over(DEC_MAXI // CuniDec.SCALE, a) then");
-        self.line(2, "_cuni_dec_refuse(\"dec division intermediate overflow\")");
+        self.line(
+            1,
+            "if b == 0 then _cuni_dec_refuse(\"dec division by zero\") end",
+        );
+        self.line(
+            1,
+            "if _cuni_dec_abs_over(DEC_MAXI // CuniDec.SCALE, a) then",
+        );
+        self.line(
+            2,
+            "_cuni_dec_refuse(\"dec division intermediate overflow\")",
+        );
         self.line(1, "end");
         self.line(1, "return _cuni_dec_tdiv(a * CuniDec.SCALE, b)");
         self.line(0, "end");
         self.line(0, "local function _cuni_dec_neg(a)");
-        self.line(1, "if a == DEC_MINI then _cuni_dec_refuse(\"dec negation overflow\") end");
+        self.line(
+            1,
+            "if a == DEC_MINI then _cuni_dec_refuse(\"dec negation overflow\") end",
+        );
         self.line(1, "return -a");
         self.line(0, "end");
         self.line(0, "function _cuni_dec_str(v)");
-        self.line(1, "-- Canonical dec rendering of a scaled integer (docs/DECIMAL.md §6).");
+        self.line(
+            1,
+            "-- Canonical dec rendering of a scaled integer (docs/DECIMAL.md §6).",
+        );
         self.line(1, "local neg = v < 0");
         self.line(1, "local mag = neg and -v or v");
         self.line(1, "local ip = mag // CuniDec.SCALE");
-        self.line(1, "local fp = string.format(\"%04d\", mag % CuniDec.SCALE):gsub(\"0+$\", \"\")");
+        self.line(
+            1,
+            "local fp = string.format(\"%04d\", mag % CuniDec.SCALE):gsub(\"0+$\", \"\")",
+        );
         self.line(1, "if fp == \"\" then fp = \"0\" end");
-        self.line(1, "return (neg and \"-\" or \"\") .. tostring(ip) .. \".\" .. fp");
+        self.line(
+            1,
+            "return (neg and \"-\" or \"\") .. tostring(ip) .. \".\" .. fp",
+        );
         self.line(0, "end");
         self.line(0, "function CuniDec.new(v)");
-        self.line(1, "return setmetatable({_cuni_kind = \"dec\", v = v}, CuniDec)");
+        self.line(
+            1,
+            "return setmetatable({_cuni_kind = \"dec\", v = v}, CuniDec)",
+        );
         self.line(0, "end");
         self.line(0, "function _cuni_dec_of_int(n)");
-        self.line(1, "if _cuni_dec_abs_over(DEC_MAXI // CuniDec.SCALE, n) then");
+        self.line(
+            1,
+            "if _cuni_dec_abs_over(DEC_MAXI // CuniDec.SCALE, n) then",
+        );
         self.line(2, "_cuni_dec_refuse(\"dec_of_int overflow\")");
         self.line(1, "end");
         self.line(1, "return CuniDec.new(n * CuniDec.SCALE)");
         self.line(0, "end");
-        self.line(0, "function _cuni_int_of_dec(d) return _cuni_dec_tdiv(d.v, CuniDec.SCALE) end");
-        self.line(0, "CuniDec.__add = function(a, b) return CuniDec.new(_cuni_dec_add(a.v, b.v)) end");
-        self.line(0, "CuniDec.__sub = function(a, b) return CuniDec.new(_cuni_dec_sub(a.v, b.v)) end");
-        self.line(0, "CuniDec.__mul = function(a, b) return CuniDec.new(_cuni_dec_mul(a.v, b.v)) end");
-        self.line(0, "CuniDec.__div = function(a, b) return CuniDec.new(_cuni_dec_div(a.v, b.v)) end");
-        self.line(0, "CuniDec.__unm = function(a) return CuniDec.new(_cuni_dec_neg(a.v)) end");
+        self.line(
+            0,
+            "function _cuni_int_of_dec(d) return _cuni_dec_tdiv(d.v, CuniDec.SCALE) end",
+        );
+        self.line(
+            0,
+            "CuniDec.__add = function(a, b) return CuniDec.new(_cuni_dec_add(a.v, b.v)) end",
+        );
+        self.line(
+            0,
+            "CuniDec.__sub = function(a, b) return CuniDec.new(_cuni_dec_sub(a.v, b.v)) end",
+        );
+        self.line(
+            0,
+            "CuniDec.__mul = function(a, b) return CuniDec.new(_cuni_dec_mul(a.v, b.v)) end",
+        );
+        self.line(
+            0,
+            "CuniDec.__div = function(a, b) return CuniDec.new(_cuni_dec_div(a.v, b.v)) end",
+        );
+        self.line(
+            0,
+            "CuniDec.__unm = function(a) return CuniDec.new(_cuni_dec_neg(a.v)) end",
+        );
         self.line(0, "CuniDec.__eq = function(a, b) return a.v == b.v end");
         self.line(0, "CuniDec.__lt = function(a, b) return a.v < b.v end");
         self.line(0, "CuniDec.__le = function(a, b) return a.v <= b.v end");
-        self.line(0, "CuniDec.__concat = function(a, b) return tostring(a) .. tostring(b) end");
-        self.line(0, "CuniDec.__tostring = function(a) return _cuni_dec_str(a.v) end");
+        self.line(
+            0,
+            "CuniDec.__concat = function(a, b) return tostring(a) .. tostring(b) end",
+        );
+        self.line(
+            0,
+            "CuniDec.__tostring = function(a) return _cuni_dec_str(a.v) end",
+        );
         self.out.push('\n');
         // ---- CuNi `time`: int64 unix epoch seconds, UTC (docs/TIME.md) ----
         // int64 seat (docs/TIME.md §7): time values are boxed tables so
@@ -306,31 +384,49 @@ impl Codegen {
         self.line(0, "local TIME_MINI = math.mininteger");
         self.line(0, "local function _cuni_time_refuse(msg) error(\"cuni: \" .. msg .. \" — refused\", 0) end");
         self.line(0, "local function _cuni_time_add(a, b)");
-        self.line(1, "if (b > 0 and a > TIME_MAXI - b) or (b < 0 and a < TIME_MINI - b) then");
+        self.line(
+            1,
+            "if (b > 0 and a > TIME_MAXI - b) or (b < 0 and a < TIME_MINI - b) then",
+        );
         self.line(2, "_cuni_time_refuse(\"time addition overflow\")");
         self.line(1, "end");
         self.line(1, "return a + b");
         self.line(0, "end");
         self.line(0, "local function _cuni_time_sub(a, b)");
-        self.line(1, "if (b < 0 and a > TIME_MAXI + b) or (b > 0 and a < TIME_MINI + b) then");
+        self.line(
+            1,
+            "if (b < 0 and a > TIME_MAXI + b) or (b > 0 and a < TIME_MINI + b) then",
+        );
         self.line(2, "_cuni_time_refuse(\"time subtraction overflow\")");
         self.line(1, "end");
         self.line(1, "return a - b");
         self.line(0, "end");
         self.line(0, "local function _cuni_time_diff(a, b)");
         self.line(1, "-- time - time -> int seconds (docs/TIME.md §3).");
-        self.line(1, "if (b < 0 and a > TIME_MAXI + b) or (b > 0 and a < TIME_MINI + b) then");
+        self.line(
+            1,
+            "if (b < 0 and a > TIME_MAXI + b) or (b > 0 and a < TIME_MINI + b) then",
+        );
         self.line(2, "_cuni_time_refuse(\"time difference overflow\")");
         self.line(1, "end");
         self.line(1, "return a - b");
         self.line(0, "end");
         self.line(0, "local function _cuni_time_neg(a)");
-        self.line(1, "if a == TIME_MINI then _cuni_time_refuse(\"time negation overflow\") end");
+        self.line(
+            1,
+            "if a == TIME_MINI then _cuni_time_refuse(\"time negation overflow\") end",
+        );
         self.line(1, "return -a");
         self.line(0, "end");
         self.line(0, "local function _cuni_time_tdiv(a, b)");
-        self.line(1, "-- Truncation toward zero (docs/TIME.md §5); Lua's // floors. b ~= 0.");
-        self.line(1, "if b == -1 and a == TIME_MINI then _cuni_time_refuse(\"time division overflow\") end");
+        self.line(
+            1,
+            "-- Truncation toward zero (docs/TIME.md §5); Lua's // floors. b ~= 0.",
+        );
+        self.line(
+            1,
+            "if b == -1 and a == TIME_MINI then _cuni_time_refuse(\"time division overflow\") end",
+        );
         self.line(1, "local q = a // b");
         self.line(1, "local r = a - q * b");
         self.line(1, "if r ~= 0 and ((a < 0) ~= (b < 0)) then q = q + 1 end");
@@ -348,12 +444,18 @@ impl Codegen {
         self.line(0, "end");
         self.line(0, "function _cuni_time_str(v)");
         self.line(1, "-- Canonical ISO-8601 UTC rendering (docs/TIME.md §4).");
-        self.line(1, "local days = v // 86400  -- floors: correct for negatives");
+        self.line(
+            1,
+            "local days = v // 86400  -- floors: correct for negatives",
+        );
         self.line(1, "local sod = v - days * 86400");
         self.line(1, "local z = days + 719468");
         self.line(1, "local era = z // 146097");
         self.line(1, "local doe = z - era * 146097");
-        self.line(1, "local yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365");
+        self.line(
+            1,
+            "local yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365",
+        );
         self.line(1, "local y = yoe + era * 400");
         self.line(1, "local doy = doe - (365 * yoe + yoe // 4 - yoe // 100)");
         self.line(1, "local mp = (5 * doy + 2) // 153");
@@ -369,18 +471,30 @@ impl Codegen {
         self.line(1, "return ys .. \"-\" .. string.format(\"%02d\", m) .. \"-\" .. string.format(\"%02d\", d) .. \"T\" .. string.format(\"%02d\", hh) .. \":\" .. string.format(\"%02d\", mi) .. \":\" .. string.format(\"%02d\", ss) .. \"Z\"");
         self.line(0, "end");
         self.line(0, "function CuniTime.new(v)");
-        self.line(1, "return setmetatable({_cuni_kind = \"time\", v = v}, CuniTime)");
+        self.line(
+            1,
+            "return setmetatable({_cuni_kind = \"time\", v = v}, CuniTime)",
+        );
         self.line(0, "end");
         self.line(0, "local function _cuni_time_unbox(x)");
-        self.line(1, "if type(x) == \"table\" and x._cuni_kind == \"time\" then return x.v, true end");
+        self.line(
+            1,
+            "if type(x) == \"table\" and x._cuni_kind == \"time\" then return x.v, true end",
+        );
         self.line(1, "return x, false");
         self.line(0, "end");
         self.line(0, "function _cuni_parse_time(s)");
-        self.line(1, "-- Strict ISO-8601 UTC -> CuniTime (docs/TIME.md §2, §5): bad input");
+        self.line(
+            1,
+            "-- Strict ISO-8601 UTC -> CuniTime (docs/TIME.md §2, §5): bad input",
+        );
         self.line(1, "-- raises loudly, never a silent value.");
         self.line(1, "if type(s) ~= \"string\" or #s ~= 20 then _cuni_time_refuse(\"parse_time: bad ISO-8601 UTC timestamp\") end");
         self.line(1, "if s:sub(5, 5) ~= \"-\" or s:sub(8, 8) ~= \"-\" or s:sub(11, 11) ~= \"T\" or s:sub(14, 14) ~= \":\" or s:sub(17, 17) ~= \":\" or s:sub(20, 20) ~= \"Z\" then");
-        self.line(2, "_cuni_time_refuse(\"parse_time: bad ISO-8601 UTC timestamp\")");
+        self.line(
+            2,
+            "_cuni_time_refuse(\"parse_time: bad ISO-8601 UTC timestamp\")",
+        );
         self.line(1, "end");
         self.line(1, "local function dg(lo, hi)");
         self.line(2, "local t = s:sub(lo, hi)");
@@ -391,16 +505,28 @@ impl Codegen {
         self.line(1, "local h, mi, sec = dg(12, 13), dg(15, 16), dg(18, 19)");
         self.line(1, "if y < 1 or y > 9999 or mo < 1 or mo > 12 then _cuni_time_refuse(\"parse_time: bad ISO-8601 UTC timestamp\") end");
         self.line(1, "local dim = 31");
-        self.line(1, "if mo == 4 or mo == 6 or mo == 9 or mo == 11 then dim = 30");
+        self.line(
+            1,
+            "if mo == 4 or mo == 6 or mo == 9 or mo == 11 then dim = 30",
+        );
         self.line(1, "elseif mo == 2 then dim = (y % 4 == 0 and (y % 100 ~= 0 or y % 400 == 0)) and 29 or 28 end");
-        self.line(1, "if d < 1 or d > dim or h > 23 or mi > 59 or sec > 59 then");
-        self.line(2, "_cuni_time_refuse(\"parse_time: bad ISO-8601 UTC timestamp\")");
+        self.line(
+            1,
+            "if d < 1 or d > dim or h > 23 or mi > 59 or sec > 59 then",
+        );
+        self.line(
+            2,
+            "_cuni_time_refuse(\"parse_time: bad ISO-8601 UTC timestamp\")",
+        );
         self.line(1, "end");
         self.line(1, "return CuniTime.new(_cuni_time_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + sec)");
         self.line(0, "end");
         self.line(0, "function _cuni_add_seconds(t, s)");
         self.line(1, "local tv, is_t = _cuni_time_unbox(t)");
-        self.line(1, "if not is_t then _cuni_time_refuse(\"add_seconds needs (time, int)\") end");
+        self.line(
+            1,
+            "if not is_t then _cuni_time_refuse(\"add_seconds needs (time, int)\") end",
+        );
         self.line(1, "return CuniTime.new(_cuni_time_add(tv, s))");
         self.line(0, "end");
         self.line(0, "function _cuni_days_between(a, b)");
@@ -416,10 +542,22 @@ impl Codegen {
         self.line(0, "CuniTime.__sub = function(a, b) local av, a_is = _cuni_time_unbox(a); local bv, b_is = _cuni_time_unbox(b); if a_is and b_is then return _cuni_time_diff(av, bv) end; if a_is and not b_is then return CuniTime.new(_cuni_time_sub(av, bv)) end; _cuni_time_refuse(\"cannot subtract this from/to a time\") end");
         self.line(0, "CuniTime.__unm = function(a) return CuniTime.new(_cuni_time_neg(_cuni_time_unbox(a))) end");
         self.line(0, "CuniTime.__eq = function(a, b) local av, a_is = _cuni_time_unbox(a); local bv, b_is = _cuni_time_unbox(b); if not (a_is and b_is) then return false end; return av == bv end");
-        self.line(0, "CuniTime.__lt = function(a, b) return _cuni_time_unbox(a) < _cuni_time_unbox(b) end");
-        self.line(0, "CuniTime.__le = function(a, b) return _cuni_time_unbox(a) <= _cuni_time_unbox(b) end");
-        self.line(0, "CuniTime.__concat = function(a, b) return tostring(a) .. tostring(b) end");
-        self.line(0, "CuniTime.__tostring = function(a) return _cuni_time_str(_cuni_time_unbox(a)) end");
+        self.line(
+            0,
+            "CuniTime.__lt = function(a, b) return _cuni_time_unbox(a) < _cuni_time_unbox(b) end",
+        );
+        self.line(
+            0,
+            "CuniTime.__le = function(a, b) return _cuni_time_unbox(a) <= _cuni_time_unbox(b) end",
+        );
+        self.line(
+            0,
+            "CuniTime.__concat = function(a, b) return tostring(a) .. tostring(b) end",
+        );
+        self.line(
+            0,
+            "CuniTime.__tostring = function(a) return _cuni_time_str(_cuni_time_unbox(a)) end",
+        );
         self.out.push('\n');
         self.line(0, "function _cuni_len(x)");
         self.line(1, "if type(x) == \"string\" then return #x end");
@@ -430,22 +568,40 @@ impl Codegen {
         self.out.push('\n');
         // ---- Wave-1 stdlib (docs/STDLIB.md). Pure Lua 5.3+ (bitwise ops,
         // integer division); no external modules.
-        self.line(0, "local function _cuni_panic(msg) error(\"cuni: \" .. msg, 0) end");
+        self.line(
+            0,
+            "local function _cuni_panic(msg) error(\"cuni: \" .. msg, 0) end",
+        );
         self.line(0, "local CUNI_INT_MAX = 9007199254740991");
-        self.line(0, "-- JSON null sentinel: Lua tables cannot hold nil, so a parsed null is a");
-        self.line(0, "-- private sentinel that _cuni_json_emit maps back to `null`.");
+        self.line(
+            0,
+            "-- JSON null sentinel: Lua tables cannot hold nil, so a parsed null is a",
+        );
+        self.line(
+            0,
+            "-- private sentinel that _cuni_json_emit maps back to `null`.",
+        );
         self.line(0, "local _CUNI_JSON_NULL = {}");
         self.out.push('\n');
-        self.line(0, "-- Value-based integer rule (docs/STDLIB.md §1.1). tok is the raw token.");
+        self.line(
+            0,
+            "-- Value-based integer rule (docs/STDLIB.md §1.1). tok is the raw token.",
+        );
         self.line(0, "local function _cuni_json_num(tok)");
         self.line(1, "local neg = false");
-        self.line(1, "if tok:sub(1, 1) == \"-\" then neg = true; tok = tok:sub(2) end");
+        self.line(
+            1,
+            "if tok:sub(1, 1) == \"-\" then neg = true; tok = tok:sub(2) end",
+        );
         self.line(
             1,
             "-- No (group)? optionals: this seat's Lua fails them before `$`; parse in pieces.",
         );
         self.line(1, "local int = tok:match(\"^%d+\")");
-        self.line(1, "if not int then _cuni_panic(\"json.parse: bad number\") end");
+        self.line(
+            1,
+            "if not int then _cuni_panic(\"json.parse: bad number\") end",
+        );
         self.line(
             1,
             "if #int > 1 and int:sub(1, 1) == \"0\" then _cuni_panic(\"json.parse: bad number\") end",
@@ -454,13 +610,22 @@ impl Codegen {
         self.line(1, "local frac = \"\"");
         self.line(1, "if rest:sub(1, 1) == \".\" then");
         self.line(2, "frac = rest:match(\"^%.(%d+)\")");
-        self.line(2, "if not frac then _cuni_panic(\"json.parse: bad number\") end");
+        self.line(
+            2,
+            "if not frac then _cuni_panic(\"json.parse: bad number\") end",
+        );
         self.line(2, "rest = rest:sub(#frac + 2)");
         self.line(1, "end");
         self.line(1, "local e = 0");
-        self.line(1, "if rest:sub(1, 1) == \"e\" or rest:sub(1, 1) == \"E\" then");
+        self.line(
+            1,
+            "if rest:sub(1, 1) == \"e\" or rest:sub(1, 1) == \"E\" then",
+        );
         self.line(2, "local es = rest:match(\"^[eE]([%+%-]?%d+)$\")");
-        self.line(2, "if not es then _cuni_panic(\"json.parse: bad number\") end");
+        self.line(
+            2,
+            "if not es then _cuni_panic(\"json.parse: bad number\") end",
+        );
         self.line(
             2,
             "if #es > 19 then _cuni_panic(\"json.parse: number is not an integer in ±(2^53−1)\") end",
@@ -468,7 +633,10 @@ impl Codegen {
         self.line(2, "e = tonumber(es)");
         self.line(2, "rest = \"\"");
         self.line(1, "end");
-        self.line(1, "if rest ~= \"\" then _cuni_panic(\"json.parse: bad number\") end");
+        self.line(
+            1,
+            "if rest ~= \"\" then _cuni_panic(\"json.parse: bad number\") end",
+        );
         self.line(1, "local dig = int .. frac");
         self.line(1, "local nz = dig:match(\"^0*(.-)$\")");
         self.line(1, "if nz == \"\" then return 0 end");
@@ -491,7 +659,10 @@ impl Codegen {
         self.line(3, "v = v * 10");
         self.line(2, "end");
         self.line(1, "else");
-        self.line(2, "if k > 16 then _cuni_panic(\"json.parse: number is not an integer in ±(2^53−1)\") end");
+        self.line(
+            2,
+            "if k > 16 then _cuni_panic(\"json.parse: number is not an integer in ±(2^53−1)\") end",
+        );
         self.line(2, "local p10 = 1");
         self.line(2, "for _ = 1, k do p10 = p10 * 10 end");
         self.line(2, "if d % p10 ~= 0 then _cuni_panic(\"json.parse: number is not an integer in ±(2^53−1)\") end");
@@ -506,13 +677,22 @@ impl Codegen {
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "function _cuni_json_parse(s)");
-        self.line(1, "if type(s) ~= \"string\" then _cuni_panic(\"json.parse needs a str\") end");
+        self.line(
+            1,
+            "if type(s) ~= \"string\" then _cuni_panic(\"json.parse needs a str\") end",
+        );
         self.line(1, "local pos, n = 1, #s");
-        self.line(1, "local function err(m) _cuni_panic(\"json.parse: \" .. m) end");
+        self.line(
+            1,
+            "local function err(m) _cuni_panic(\"json.parse: \" .. m) end",
+        );
         self.line(1, "local function ws()");
         self.line(2, "while pos <= n do");
         self.line(3, "local b = s:byte(pos)");
-        self.line(3, "if b == 32 or b == 9 or b == 10 or b == 13 then pos = pos + 1 else break end");
+        self.line(
+            3,
+            "if b == 32 or b == 9 or b == 10 or b == 13 then pos = pos + 1 else break end",
+        );
         self.line(2, "end");
         self.line(1, "end");
         self.line(1, "local function utf8(cp, out)");
@@ -548,13 +728,19 @@ impl Codegen {
         self.line(3, "while pos <= n do");
         self.line(4, "local b = s:byte(pos)");
         self.line(4, "if b == 34 or b == 92 then break end");
-        self.line(4, "if b < 0x20 then err(\"unescaped control character in string\") end");
+        self.line(
+            4,
+            "if b < 0x20 then err(\"unescaped control character in string\") end",
+        );
         self.line(4, "pos = pos + 1");
         self.line(3, "end");
         self.line(3, "out[#out + 1] = s:sub(start, pos - 1)");
         self.line(3, "if pos > n then err(\"unterminated string\") end");
         self.line(3, "local b = s:byte(pos)");
-        self.line(3, "if b == 34 then pos = pos + 1; return table.concat(out) end");
+        self.line(
+            3,
+            "if b == 34 then pos = pos + 1; return table.concat(out) end",
+        );
         self.line(3, "pos = pos + 1");
         self.line(3, "if pos > n then err(\"unterminated string\") end");
         self.line(3, "local e = s:sub(pos, pos); pos = pos + 1");
@@ -569,12 +755,24 @@ impl Codegen {
         self.line(3, "elseif e == \"u\" then");
         self.line(4, "local hi = hex4()");
         self.line(4, "if hi >= 0xD800 and hi < 0xDC00 then");
-        self.line(5, "if s:sub(pos, pos + 1) ~= \"\\\\u\" then err(\"lone surrogate\") end");
+        self.line(
+            5,
+            "if s:sub(pos, pos + 1) ~= \"\\\\u\" then err(\"lone surrogate\") end",
+        );
         self.line(5, "pos = pos + 2");
         self.line(5, "local lo = hex4()");
-        self.line(5, "if lo < 0xDC00 or lo >= 0xE000 then err(\"lone surrogate\") end");
-        self.line(5, "utf8(0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00), out)");
-        self.line(4, "elseif hi >= 0xDC00 and hi < 0xE000 then err(\"lone surrogate\")");
+        self.line(
+            5,
+            "if lo < 0xDC00 or lo >= 0xE000 then err(\"lone surrogate\") end",
+        );
+        self.line(
+            5,
+            "utf8(0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00), out)",
+        );
+        self.line(
+            4,
+            "elseif hi >= 0xDC00 and hi < 0xE000 then err(\"lone surrogate\")",
+        );
         self.line(4, "else utf8(hi, out) end");
         self.line(3, "else err(\"bad escape\") end");
         self.line(2, "end");
@@ -591,13 +789,22 @@ impl Codegen {
         self.line(2, "local m = { _cuni_kind = \"map\", _cuni_map = {} }");
         self.line(2, "local inner = m._cuni_map");
         self.line(2, "ws()");
-        self.line(2, "if s:sub(pos, pos) == \"}\" then pos = pos + 1; return m end");
+        self.line(
+            2,
+            "if s:sub(pos, pos) == \"}\" then pos = pos + 1; return m end",
+        );
         self.line(2, "while true do");
         self.line(3, "ws()");
-        self.line(3, "if s:sub(pos, pos) ~= '\"' then err(\"object keys must be strings\") end");
+        self.line(
+            3,
+            "if s:sub(pos, pos) ~= '\"' then err(\"object keys must be strings\") end",
+        );
         self.line(3, "local key = jstr()");
         self.line(3, "ws()");
-        self.line(3, "if s:sub(pos, pos) ~= \":\" then err(\"expected ':'\") end");
+        self.line(
+            3,
+            "if s:sub(pos, pos) ~= \":\" then err(\"expected ':'\") end",
+        );
         self.line(3, "pos = pos + 1; ws()");
         self.line(3, "local vv = jval()");
         self.line(3, "inner[key] = (vv == nil) and _CUNI_JSON_NULL or vv");
@@ -612,7 +819,10 @@ impl Codegen {
         self.line(2, "pos = pos + 1");
         self.line(2, "local t = { _cuni_kind = \"list\" }");
         self.line(2, "ws()");
-        self.line(2, "if s:sub(pos, pos) == \"]\" then pos = pos + 1; return t end");
+        self.line(
+            2,
+            "if s:sub(pos, pos) == \"]\" then pos = pos + 1; return t end",
+        );
         self.line(2, "while true do");
         self.line(3, "ws()");
         self.line(3, "local vv = jval()");
@@ -641,7 +851,10 @@ impl Codegen {
             2,
             "elseif c == \"n\" then if s:sub(pos, pos + 3) == \"null\" then pos = pos + 4; return nil end",
         );
-        self.line(2, "elseif c == \"-\" or (c >= \"0\" and c <= \"9\") then return jnum()");
+        self.line(
+            2,
+            "elseif c == \"-\" or (c >= \"0\" and c <= \"9\") then return jnum()",
+        );
         self.line(2, "end");
         self.line(2, "err(\"unexpected character\")");
         self.line(1, "end");
@@ -688,7 +901,10 @@ impl Codegen {
         self.line(3, "elseif cp == 10 then out[#out + 1] = \"\\\\n\"");
         self.line(3, "elseif cp == 13 then out[#out + 1] = \"\\\\r\"");
         self.line(3, "elseif cp == 9 then out[#out + 1] = \"\\\\t\"");
-        self.line(3, "elseif cp < 0x20 then out[#out + 1] = string.format(\"\\\\u%04x\", cp)");
+        self.line(
+            3,
+            "elseif cp < 0x20 then out[#out + 1] = string.format(\"\\\\u%04x\", cp)",
+        );
         self.line(3, "else out[#out + 1] = s:sub(i, i + len - 1) end");
         self.line(3, "i = i + len");
         self.line(2, "end");
@@ -698,7 +914,10 @@ impl Codegen {
         self.line(2, "local t = type(v)");
         self.line(2, "if v == _CUNI_JSON_NULL then out[#out + 1] = \"null\"");
         self.line(2, "elseif t == \"string\" then esc(v, out)");
-        self.line(2, "elseif t == \"boolean\" then out[#out + 1] = v and \"true\" or \"false\"");
+        self.line(
+            2,
+            "elseif t == \"boolean\" then out[#out + 1] = v and \"true\" or \"false\"",
+        );
         self.line(2, "elseif t == \"number\" then");
         self.line(
             3,
@@ -707,7 +926,10 @@ impl Codegen {
         self.line(3, "out[#out + 1] = tostring(v)");
         self.line(2, "elseif t == \"table\" and v._cuni_kind == \"list\" then");
         self.line(3, "out[#out + 1] = \"[\"");
-        self.line(3, "for i = 1, #v do if i > 1 then out[#out + 1] = \",\" end; w(v[i], out) end");
+        self.line(
+            3,
+            "for i = 1, #v do if i > 1 then out[#out + 1] = \",\" end; w(v[i], out) end",
+        );
         self.line(3, "out[#out + 1] = \"]\"");
         self.line(2, "elseif t == \"table\" and v._cuni_kind == \"map\" then");
         self.line(3, "local ks = {}");
@@ -725,14 +947,20 @@ impl Codegen {
             "for i, k in ipairs(ks) do if i > 1 then out[#out + 1] = \",\" end; esc(k, out); out[#out + 1] = \":\"; w(v._cuni_map[k], out) end",
         );
         self.line(3, "out[#out + 1] = \"}\"");
-        self.line(2, "else _cuni_panic(\"json.emit: value has no JSON form\") end");
+        self.line(
+            2,
+            "else _cuni_panic(\"json.emit: value has no JSON form\") end",
+        );
         self.line(1, "end");
         self.line(1, "local out = {}");
         self.line(1, "w(m, out)");
         self.line(1, "return table.concat(out)");
         self.line(0, "end");
         self.out.push('\n');
-        self.line(0, "-- Proleptic Gregorian, Howard Hinnant's algorithms (docs/STDLIB.md §2).");
+        self.line(
+            0,
+            "-- Proleptic Gregorian, Howard Hinnant's algorithms (docs/STDLIB.md §2).",
+        );
         self.line(0, "local function _cuni_days_from_civil(y, m, d)");
         self.line(1, "local y0 = m <= 2 and y - 1 or y");
         self.line(1, "local era = y0 // 400");
@@ -747,7 +975,10 @@ impl Codegen {
         self.line(1, "z = z + 719468");
         self.line(1, "local era = z // 146097");
         self.line(1, "local doe = z - era * 146097");
-        self.line(1, "local yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365");
+        self.line(
+            1,
+            "local yoe = (doe - doe // 1460 + doe // 36524 - doe // 146096) // 365",
+        );
         self.line(1, "local y = yoe + era * 400");
         self.line(1, "local doy = doe - (365 * yoe + yoe // 4 - yoe // 100)");
         self.line(1, "local mp = (5 * doy + 2) // 153");
@@ -778,7 +1009,10 @@ impl Codegen {
             1,
             "if s < 0 or s > 59 then _cuni_panic(\"time.epoch: second out of range 0..59\") end",
         );
-        self.line(1, "local leap = y % 4 == 0 and (y % 100 ~= 0 or y % 400 == 0)");
+        self.line(
+            1,
+            "local leap = y % 4 == 0 and (y % 100 ~= 0 or y % 400 == 0)",
+        );
         self.line(
             1,
             "local dim = ({ 31, leap and 29 or 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 })[mo]",
@@ -795,7 +1029,10 @@ impl Codegen {
         self.out.push('\n');
         self.line(0, "function _cuni_time_parts(e)");
         self.line(1, "local lo = _cuni_days_from_civil(1, 1, 1) * 86400");
-        self.line(1, "local hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399");
+        self.line(
+            1,
+            "local hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399",
+        );
         self.line(
             1,
             "if e < lo or e > hi then _cuni_panic(\"time.parts: epoch out of range 1..9999\") end",
@@ -814,7 +1051,10 @@ impl Codegen {
             1,
             "if type(s) ~= \"string\" or type(sep) ~= \"string\" then _cuni_panic(\".split needs strings\") end",
         );
-        self.line(1, "if #sep == 0 then _cuni_panic(\".split: empty separator; refusing\") end");
+        self.line(
+            1,
+            "if #sep == 0 then _cuni_panic(\".split: empty separator; refusing\") end",
+        );
         self.line(1, "local t = { _cuni_kind = \"list\" }");
         self.line(1, "if #s == 0 then t[1] = \"\"; return t end");
         self.line(1, "local start = 1");
@@ -828,7 +1068,10 @@ impl Codegen {
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "function _cuni_join(sep, parts)");
-        self.line(1, "if type(sep) ~= \"string\" then _cuni_panic(\".join needs a str separator\") end");
+        self.line(
+            1,
+            "if type(sep) ~= \"string\" then _cuni_panic(\".join needs a str separator\") end",
+        );
         self.line(
             1,
             "if type(parts) ~= \"table\" or parts._cuni_kind ~= \"list\" then _cuni_panic(\".join needs a list<str>\") end",
@@ -842,7 +1085,10 @@ impl Codegen {
         self.line(0, "end");
         self.out.push('\n');
         self.line(0, "function _cuni_trim(s)");
-        self.line(1, "if type(s) ~= \"string\" then _cuni_panic(\".trim needs a str\") end");
+        self.line(
+            1,
+            "if type(s) ~= \"string\" then _cuni_panic(\".trim needs a str\") end",
+        );
         self.line(
             1,
             "-- ASCII whitespace only (docs/STDLIB.md §3.3): tab LF VT FF CR space.",
@@ -861,10 +1107,19 @@ impl Codegen {
         self.line(1, "return s:find(sub, 1, true) ~= nil");
         self.line(0, "end");
         self.out.push('\n');
-        self.line(0, "-- SHA-256 (FIPS 180-4; docs/STDLIB.md §4). Lua 5.3+ bitwise ops;");
-        self.line(0, "-- all state stays in 32 bits, so >> is a logical shift.");
+        self.line(
+            0,
+            "-- SHA-256 (FIPS 180-4; docs/STDLIB.md §4). Lua 5.3+ bitwise ops;",
+        );
+        self.line(
+            0,
+            "-- all state stays in 32 bits, so >> is a logical shift.",
+        );
         self.line(0, "function _cuni_sha256(s)");
-        self.line(1, "if type(s) ~= \"string\" then _cuni_panic(\"sha256 needs a str\") end");
+        self.line(
+            1,
+            "if type(s) ~= \"string\" then _cuni_panic(\"sha256 needs a str\") end",
+        );
         self.line(1, "local len = #s");
         self.line(1, "local nblocks = math.ceil((len + 9) / 64)");
         self.line(1, "local n = nblocks * 64");
@@ -873,7 +1128,10 @@ impl Codegen {
         self.line(1, "msg[len + 1] = 0x80");
         self.line(1, "for i = len + 2, n - 8 do msg[i] = 0 end");
         self.line(1, "local bitlen = len * 8");
-        self.line(1, "for i = 0, 7 do msg[n - 7 + i] = (bitlen >> (8 * (7 - i))) & 0xFF end");
+        self.line(
+            1,
+            "for i = 0, 7 do msg[n - 7 + i] = (bitlen >> (8 * (7 - i))) & 0xFF end",
+        );
         self.line(
             1,
             "local h = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 }",
@@ -912,7 +1170,10 @@ impl Codegen {
             "0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,",
         );
         self.line(1, "}");
-        self.line(1, "local function ror(x, r) return ((x >> r) | (x << (32 - r))) & 0xFFFFFFFF end");
+        self.line(
+            1,
+            "local function ror(x, r) return ((x >> r) | (x << (32 - r))) & 0xFFFFFFFF end",
+        );
         self.line(1, "for b = 0, nblocks - 1 do");
         self.line(2, "local w = {}");
         self.line(2, "for i = 0, 15 do");
@@ -932,24 +1193,45 @@ impl Codegen {
         );
         self.line(3, "w[i] = (w[i - 16] + s0 + w[i - 7] + s1) & 0xFFFFFFFF");
         self.line(2, "end");
-        self.line(2, "local a, bb, c, d, e, f, g, hh = h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8]");
+        self.line(
+            2,
+            "local a, bb, c, d, e, f, g, hh = h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8]",
+        );
         self.line(2, "for i = 0, 63 do");
         self.line(3, "local s1 = ror(e, 6) ~ ror(e, 11) ~ ror(e, 25)");
         self.line(3, "local ch = (e & f) ~ ((~e) & g)");
-        self.line(3, "local t1 = (hh + s1 + ch + kk[i + 1] + w[i]) & 0xFFFFFFFF");
+        self.line(
+            3,
+            "local t1 = (hh + s1 + ch + kk[i + 1] + w[i]) & 0xFFFFFFFF",
+        );
         self.line(3, "local s0 = ror(a, 2) ~ ror(a, 13) ~ ror(a, 22)");
         self.line(3, "local maj = (a & bb) ~ (a & c) ~ (bb & c)");
         self.line(3, "local t2 = (s0 + maj) & 0xFFFFFFFF");
         self.line(3, "hh = g; g = f; f = e; e = (d + t1) & 0xFFFFFFFF");
         self.line(3, "d = c; c = bb; bb = a; a = (t1 + t2) & 0xFFFFFFFF");
         self.line(2, "end");
-        self.line(2, "h[1] = (h[1] + a) & 0xFFFFFFFF; h[2] = (h[2] + bb) & 0xFFFFFFFF");
-        self.line(2, "h[3] = (h[3] + c) & 0xFFFFFFFF; h[4] = (h[4] + d) & 0xFFFFFFFF");
-        self.line(2, "h[5] = (h[5] + e) & 0xFFFFFFFF; h[6] = (h[6] + f) & 0xFFFFFFFF");
-        self.line(2, "h[7] = (h[7] + g) & 0xFFFFFFFF; h[8] = (h[8] + hh) & 0xFFFFFFFF");
+        self.line(
+            2,
+            "h[1] = (h[1] + a) & 0xFFFFFFFF; h[2] = (h[2] + bb) & 0xFFFFFFFF",
+        );
+        self.line(
+            2,
+            "h[3] = (h[3] + c) & 0xFFFFFFFF; h[4] = (h[4] + d) & 0xFFFFFFFF",
+        );
+        self.line(
+            2,
+            "h[5] = (h[5] + e) & 0xFFFFFFFF; h[6] = (h[6] + f) & 0xFFFFFFFF",
+        );
+        self.line(
+            2,
+            "h[7] = (h[7] + g) & 0xFFFFFFFF; h[8] = (h[8] + hh) & 0xFFFFFFFF",
+        );
         self.line(1, "end");
         self.line(1, "local out = {}");
-        self.line(1, "for i = 1, 8 do out[i] = string.format(\"%08x\", h[i]) end");
+        self.line(
+            1,
+            "for i = 1, 8 do out[i] = string.format(\"%08x\", h[i]) end",
+        );
         self.line(1, "return table.concat(out)");
         self.line(0, "end");
         self.out.push('\n');
@@ -1313,13 +1595,25 @@ impl Codegen {
                         // `time` builtins (docs/TIME.md §5).
                         "parse_time" => return format!("_cuni_parse_time({})", one()),
                         "add_seconds" => {
-                            let a = args.first().map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
-                            let b = args.get(1).map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
+                            let a = args
+                                .first()
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
+                            let b = args
+                                .get(1)
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
                             return format!("_cuni_add_seconds({a}, {b})");
                         }
                         "days_between" => {
-                            let a = args.first().map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
-                            let b = args.get(1).map(|a| self.gen_expr(a.expr(), scope)).unwrap_or_else(|| "nil".to_string());
+                            let a = args
+                                .first()
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
+                            let b = args
+                                .get(1)
+                                .map(|a| self.gen_expr(a.expr(), scope))
+                                .unwrap_or_else(|| "nil".to_string());
                             return format!("_cuni_days_between({a}, {b})");
                         }
                         _ => {}

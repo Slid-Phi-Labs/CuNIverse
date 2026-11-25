@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "receipt_name": "provably-fair-roulette.receipt.json",
+  "receipt_digest": "a032546fe94eb8079554d6fe0feaa6c0e0e6ff54bc88fff3fc90c192f2894c9b",
+  "source_hash": "1eaac333fa3d25c23224a0d649a52471e3e38077c406d4913212271d79c9cc9c",
+  "leaf_index": 18,
+  "leaf_count": 19,
+  "merkle_path": [
+    {
+      "side": "right",
+      "hash": "a032546fe94eb8079554d6fe0feaa6c0e0e6ff54bc88fff3fc90c192f2894c9b"
+    },
+    {
+      "side": "left",
+      "hash": "b3ef7d2ab36f76c8a827d0bf961a377017b0bb7036e1b8a906d4a7983392b0d1"
+    },
+    {
+      "side": "right",
+      "hash": "17986f1ddcce529e0e6e1dc6edd9a71135ddf75a0ab6848254a2bcc99820c622"
+    },
+    {
+      "side": "right",
+      "hash": "4894e7ca673f5e860a72efcf0ca42b7ed79e49e10ef62a62f6b70703c72d2b95"
+    },
+    {
+      "side": "left",
+      "hash": "cb72f59f55dd7968c7797f3e3f35b779fb77f6e761f6aa6a712f053e465803ae"
+    }
+  ],
+  "batch_id": "2026-10-22-exactodds-receipts-poc",
+  "batch_root": "30cd774cb620fbbebfe2f55f22971e7b4a03dfe39997d839b8e6840f49452a70",
+  "anchor": {
+    "chain_id": 84532,
+    "chain": "base-sepolia",
+    "tx_hash": "0x176fb27b7fb3ec9da3a3b89988398fb22549cca6ea0d012f1f2eafee0dccc9ab",
+    "from": "0x364b7b0864D9564A5f98225b78DefbB78F44b579",
+    "block_number": 48781694,
+    "block_timestamp": 1792678207,
+    "gas_used": 23720
+  }
+}

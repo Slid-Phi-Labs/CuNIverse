@@ -2,7 +2,7 @@
 
 **Focus freeze:** this is the only product surface we’re building right now.
 
-**Live:** https://cuni-studio.fly.dev/
+**Live:** https://spl-cuni-studio.fly.dev/
 
 Hosted Studio:
 

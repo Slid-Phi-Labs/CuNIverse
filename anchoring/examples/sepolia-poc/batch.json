@@ -1,0 +1,131 @@
+{
+  "batch_id": "2026-10-22-exactodds-receipts-poc",
+  "created_at": "2026-10-22T12:39:33Z",
+  "leaf_count": 19,
+  "merkle_root": "30cd774cb620fbbebfe2f55f22971e7b4a03dfe39997d839b8e6840f49452a70",
+  "leaves": [
+    {
+      "index": 0,
+      "receipt_name": "casino-affiliate-revshare.receipt.json",
+      "receipt_digest": "91d05c91336eeca018a4634d73fb8465d29ca4626be589496aff9c0eff20e953",
+      "source_hash": "9c71a8b01ac01dfccd2bc04b21399c9b9cd326a85397a69739c48a0cb7c86c82"
+    },
+    {
+      "index": 1,
+      "receipt_name": "casino-aml-structuring.receipt.json",
+      "receipt_digest": "a0caa2d198867225f1bbe3fee2e19e05385a55947b13415a416e0c2c8dcfc711",
+      "source_hash": "384fcf00a5c8e0e130adc514edbc5f3c0991ac7ed6c5c366a5161ec6367caa20"
+    },
+    {
+      "index": 2,
+      "receipt_name": "casino-baccarat-settle.receipt.json",
+      "receipt_digest": "f13342857f73adb59852829df31e975bcb7e8c96026c0ea11ce48a4204cbf944",
+      "source_hash": "44bf488f09610fad0e535330dddc4dc066fee4e4ea5ff591c201c187c8f1d004"
+    },
+    {
+      "index": 3,
+      "receipt_name": "casino-bonus-wagering.receipt.json",
+      "receipt_digest": "a077c569d63850240ac4ed2cc4cd91af3773c38c082e6100664b393d5709da3e",
+      "source_hash": "48fdd87f2146172f458a58a18663cd299d07d5a5d555631358573c03dfdd93a3"
+    },
+    {
+      "index": 4,
+      "receipt_name": "casino-cashback.receipt.json",
+      "receipt_digest": "a630f115f7eac8c892554fb80557400254ac3614f0674b7365088a60a907f6b6",
+      "source_hash": "c193f4cdfbe7da2438f7a788fceb7c5d4579b2e1521eeb6499eb9a019920ab47"
+    },
+    {
+      "index": 5,
+      "receipt_name": "casino-comp-points.receipt.json",
+      "receipt_digest": "6333615a58e687ae46a51edd194872a8d8654c137c8b7d7077af12f6cb03ec93",
+      "source_hash": "c4f40db460e92402b4b87c0ebbaee5b4f351d5b5204df1f0ee8763c8bffe179f"
+    },
+    {
+      "index": 6,
+      "receipt_name": "casino-poker-rake.receipt.json",
+      "receipt_digest": "3e7b7cb2b1326d231b112af5d41f778c845457a4ad525c8ce50a2431b098c2da",
+      "source_hash": "59d3f42751e98a0a42ffb1f0499a690eb863dbf6b804d8b8b67e51f6ffac0eb5"
+    },
+    {
+      "index": 7,
+      "receipt_name": "casino-progressive-jackpot.receipt.json",
+      "receipt_digest": "674ca13de3d9d9634ebe53307fd5fb3589aa8d34aa42a74d86254d61eae468a5",
+      "source_hash": "5177fabbd1f946997df878500207f8dc9e81fcd72ac13f12b19cde2c9bedf019"
+    },
+    {
+      "index": 8,
+      "receipt_name": "casino-raffle-draw.receipt.json",
+      "receipt_digest": "c9cc643e39e68dc08e4a3526b8ef2757a98da7b9f944273165101a36429c54e5",
+      "source_hash": "ba9c92a34c279e76003d1eb5c65a8fbd9743b0a14134b6b9b8ba627e0330e031"
+    },
+    {
+      "index": 9,
+      "receipt_name": "casino-referral-bonus.receipt.json",
+      "receipt_digest": "9b065c161455759dadf9f339a8985890e04419c52fc6b59c844f148b2f915deb",
+      "source_hash": "c430a24cbc3237efeb2dd578eb9a083c4143afab7d079db633394cfd7432661d"
+    },
+    {
+      "index": 10,
+      "receipt_name": "casino-responsible-limits.receipt.json",
+      "receipt_digest": "f141fc3f3a61710d8b842723acfd191aa1dee53c12f24345ba8814a6a098d4cf",
+      "source_hash": "7e2c64a7b2824bacbd5ee598c5ab5792fabf6815caa0bde9d05afd47b78d7f50"
+    },
+    {
+      "index": 11,
+      "receipt_name": "casino-rtp-audit.receipt.json",
+      "receipt_digest": "4de9d0ca9842662a72afacd451041171c0bc9d0e36398143fecb209ba51d3a25",
+      "source_hash": "5b25525b0ccd5960ff05b31d31477f9b8accf0b0d166f17fda9bc149e983cc57"
+    },
+    {
+      "index": 12,
+      "receipt_name": "casino-slots-payline.receipt.json",
+      "receipt_digest": "116695daa1c6f6cff20d1ffec88c2743ecfae80b51daf34fbabca750c3274e7f",
+      "source_hash": "608ed7ac63e478fdfea2e2c835cf92f58c13de97af79685af3e762ab88a7361d"
+    },
+    {
+      "index": 13,
+      "receipt_name": "casino-sportsbook-settlement.receipt.json",
+      "receipt_digest": "03d4def33aa507b5a6df5938247a844b450b49753c7f6252d344cafb02a920ba",
+      "source_hash": "c006d146447596921541e22c96855130a8cc1bde57bbcbbda8d2d4e3482bbc43"
+    },
+    {
+      "index": 14,
+      "receipt_name": "casino-tourney-points.receipt.json",
+      "receipt_digest": "e8ff61e4362526609a7a4fcfe2eef3d59493ad7f032e9ac1bdc2be556bc68188",
+      "source_hash": "be59fa0d6c1847b9e5ba0e7c3a9495fd14fded625516e4c6404201ef002ce66d"
+    },
+    {
+      "index": 15,
+      "receipt_name": "provably-fair-coin-flip.receipt.json",
+      "receipt_digest": "c3ebd4ff380d7693fff0680827ebc8fa088a622bb38a20020600547f4ed886db",
+      "source_hash": "04783043adaf23b7880977bfaacc4324eb02d8d77bf41991f7dfd6037510c3d0"
+    },
+    {
+      "index": 16,
+      "receipt_name": "provably-fair-crash.receipt.json",
+      "receipt_digest": "d7bc4c0aebaa135558f7c90fd87b559a8eb2a0b060da2707a8d5a175f0a8c554",
+      "source_hash": "50e534572ffb9001af10c5badd7bca2690ad6c461861f597479e869c42861411"
+    },
+    {
+      "index": 17,
+      "receipt_name": "provably-fair-dice.receipt.json",
+      "receipt_digest": "5bf718f6363057d8c296dbecffe51a59674dd7e0b9b45839eab2565da7f575f9",
+      "source_hash": "795a43fa1864c30565d436e302ac0011662b01a45dc4c023c5af37f76ccdbb44"
+    },
+    {
+      "index": 18,
+      "receipt_name": "provably-fair-roulette.receipt.json",
+      "receipt_digest": "a032546fe94eb8079554d6fe0feaa6c0e0e6ff54bc88fff3fc90c192f2894c9b",
+      "source_hash": "1eaac333fa3d25c23224a0d649a52471e3e38077c406d4913212271d79c9cc9c"
+    }
+  ],
+  "anchor": {
+    "chain_id": 84532,
+    "chain": "base-sepolia",
+    "tx_hash": "0x176fb27b7fb3ec9da3a3b89988398fb22549cca6ea0d012f1f2eafee0dccc9ab",
+    "from": "0x364b7b0864D9564A5f98225b78DefbB78F44b579",
+    "block_number": 48781694,
+    "block_timestamp": 1792678207,
+    "gas_used": 23720
+  }
+}

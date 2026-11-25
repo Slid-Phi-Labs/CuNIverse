@@ -317,9 +317,7 @@ impl Gen {
                 // builds the map; nested literals shadow __m legally.
                 let sets = pairs
                     .iter()
-                    .map(|(k, v)| {
-                        format!("cuni_map_set(&__m, {}, {})", self.expr(k), self.expr(v))
-                    })
+                    .map(|(k, v)| format!("cuni_map_set(&__m, {}, {})", self.expr(k), self.expr(v)))
                     .collect::<Vec<_>>()
                     .join("; ");
                 format!("({{ Val __m = V_map(); {sets}; __m; }})")
@@ -404,7 +402,8 @@ impl Gen {
                         "add_seconds" => "cuni_add_seconds",
                         "days_between" => "cuni_days_between",
                         // Wave-1 stdlib (docs/STDLIB.md §4).
-                        "sha256" => "cuni_sha256",                        _ => "",
+                        "sha256" => "cuni_sha256",
+                        _ => "",
                     };
                     if !mapped.is_empty() {
                         let a = args

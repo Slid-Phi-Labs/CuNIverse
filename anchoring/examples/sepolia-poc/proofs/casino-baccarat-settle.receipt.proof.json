@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "receipt_name": "casino-baccarat-settle.receipt.json",
+  "receipt_digest": "f13342857f73adb59852829df31e975bcb7e8c96026c0ea11ce48a4204cbf944",
+  "source_hash": "44bf488f09610fad0e535330dddc4dc066fee4e4ea5ff591c201c187c8f1d004",
+  "leaf_index": 2,
+  "leaf_count": 19,
+  "merkle_path": [
+    {
+      "side": "right",
+      "hash": "a077c569d63850240ac4ed2cc4cd91af3773c38c082e6100664b393d5709da3e"
+    },
+    {
+      "side": "left",
+      "hash": "efb05e624abaaed18995318ae157d6f68e6b60d1a54ed043a3f3f44966f85f56"
+    },
+    {
+      "side": "right",
+      "hash": "43ae9199c7f733b8ebad90db36fced30e8f38272ef602902101cd08cf3b7357d"
+    },
+    {
+      "side": "right",
+      "hash": "dcac8c8f6eff7d66ef8ff56da7207ac4be523fbcc6e8b89786943d1d9e3a847e"
+    },
+    {
+      "side": "right",
+      "hash": "f655509d0eb6f1c461f34265f8bd58d80f2713612787ca604fd9076fd549ec3a"
+    }
+  ],
+  "batch_id": "2026-10-22-exactodds-receipts-poc",
+  "batch_root": "30cd774cb620fbbebfe2f55f22971e7b4a03dfe39997d839b8e6840f49452a70",
+  "anchor": {
+    "chain_id": 84532,
+    "chain": "base-sepolia",
+    "tx_hash": "0x176fb27b7fb3ec9da3a3b89988398fb22549cca6ea0d012f1f2eafee0dccc9ab",
+    "from": "0x364b7b0864D9564A5f98225b78DefbB78F44b579",
+    "block_number": 48781694,
+    "block_timestamp": 1792678207,
+    "gas_used": 23720
+  }
+}

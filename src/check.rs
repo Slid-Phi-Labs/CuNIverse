@@ -24,7 +24,6 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 
-
 #[derive(Debug, Clone)]
 pub struct TargetResult {
     pub target: &'static str,
@@ -245,8 +244,10 @@ fn is_native_seat(id: &str) -> bool {
 /// Native-only exactness verdict over already-run targets.
 /// Returns (exact, summary).
 fn exactness_verdict(targets: &[TargetResult], program: &Program) -> (bool, String) {
-    let native: Vec<&TargetResult> =
-        targets.iter().filter(|t| is_native_seat(t.target)).collect();
+    let native: Vec<&TargetResult> = targets
+        .iter()
+        .filter(|t| is_native_seat(t.target))
+        .collect();
     if native.is_empty() {
         return (
             false,
@@ -584,7 +585,10 @@ pub fn sign_receipt_json(report: &CheckReport, signing: &SigningKey) -> String {
     let sig = signing.sign(unsigned.as_bytes());
     receipt_json_inner(
         report,
-        Some((&hex_of(&signing.verifying_key().to_bytes()), &hex_of(&sig.to_bytes()))),
+        Some((
+            &hex_of(&signing.verifying_key().to_bytes()),
+            &hex_of(&sig.to_bytes()),
+        )),
     )
 }
 
@@ -722,8 +726,7 @@ mod tests {
             },
         ];
         let rec = receipt_json(&report);
-        let v: serde_json::Value =
-            serde_json::from_str(&rec).expect("receipt must parse as JSON");
+        let v: serde_json::Value = serde_json::from_str(&rec).expect("receipt must parse as JSON");
         // contract fields
         for field in [
             "path",
@@ -796,7 +799,10 @@ mod tests {
             target("swift", true, false),
         ];
         let (exact, summary) = exactness_verdict(&targets, &empty_program());
-        assert!(exact, "lowering-seat failure must not fail the gate: {summary}");
+        assert!(
+            exact,
+            "lowering-seat failure must not fail the gate: {summary}"
+        );
         assert!(summary.contains("PASS"));
     }
 

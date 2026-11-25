@@ -164,7 +164,11 @@ fn conv<'a>(stmts: &[&'a Stmt], in_loop: bool, in_def: bool) -> Result<Vec<S<'a>
             } => items.push(S::If {
                 cond,
                 then_body: norm(conv(&refs(then_body), in_loop, in_def)?),
-                else_body: norm(conv(&refs(else_body.as_deref().unwrap_or(&[])), in_loop, in_def)?),
+                else_body: norm(conv(
+                    &refs(else_body.as_deref().unwrap_or(&[])),
+                    in_loop,
+                    in_def,
+                )?),
             }),
             StmtKind::For { .. } => return Err("for: beyond core subset; refusing".into()),
             StmtKind::Whl { cond, body } => items.push(S::Whl {
@@ -200,7 +204,12 @@ fn refs<'a>(stmts: &'a [Stmt]) -> Vec<&'a Stmt> {
 }
 
 fn assigned_outer(stmts: &[S], outer: &HashSet<String>) -> Vec<String> {
-    fn walk(stmts: &[S], outer: &HashSet<String>, seen: &mut HashSet<String>, out: &mut Vec<String>) {
+    fn walk(
+        stmts: &[S],
+        outer: &HashSet<String>,
+        seen: &mut HashSet<String>,
+        out: &mut Vec<String>,
+    ) {
         for s in stmts {
             match s {
                 S::Let { name, .. } | S::Mut { name, .. } | S::Assign { name, .. } => {
@@ -284,7 +293,9 @@ impl Gen {
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
             ExprKind::Ident(n) => lookup(env, n),
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -298,9 +309,11 @@ impl Gen {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut parts = Vec::new();
                 for a in args {
                     if a.is_named() {
@@ -414,7 +427,10 @@ impl Gen {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -422,7 +438,10 @@ impl Gen {
         if l == r {
             Ok(())
         } else {
-            Err(format!("`{}` across mismatched types: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` across mismatched types: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -430,14 +449,20 @@ impl Gen {
         if (l == Ty::Int && r == Ty::Int) || (l == Ty::Str && r == Ty::Str) {
             Ok(())
         } else {
-            Err(format!("`{}` across mismatched types: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` across mismatched types: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
     fn check_ann(ty: Option<Ty>, vt: Ty, name: &str, kw: &str) -> Result<(), String> {
         if let Some(at) = ty {
             if at != vt {
-                return Err(format!("{} {}: annotated type disagrees with value; refusing", kw, name));
+                return Err(format!(
+                    "{} {}: annotated type disagrees with value; refusing",
+                    kw, name
+                ));
             }
         }
         Ok(())
@@ -464,7 +489,10 @@ impl Gen {
                 }
                 S::Assign { name, value } => {
                     if !env.contains_key(*name) {
-                        return Err(format!("assignment to unknown variable `{}`: refusing", name));
+                        return Err(format!(
+                            "assignment to unknown variable `{}`: refusing",
+                            name
+                        ));
                     }
                     let (v, vt) = self.expr(value, env)?;
                     let var = self.fresh();
@@ -473,7 +501,12 @@ impl Gen {
                 }
                 S::Say(x) => {
                     let (v, vt) = self.expr(x, env)?;
-                    els.push(format!("{}cuni_say({}, {})", Self::ind(lv), v, Self::tyatom(vt)));
+                    els.push(format!(
+                        "{}cuni_say({}, {})",
+                        Self::ind(lv),
+                        v,
+                        Self::tyatom(vt)
+                    ));
                 }
                 S::If {
                     cond,
@@ -544,8 +577,10 @@ impl Gen {
                     let c = self.boolexpr(cond, &env_l)?;
                     let mut eb = env_l;
                     let b = self.elements(body, &mut eb, lv + 3)?;
-                    let news: Result<Vec<String>, String> =
-                        carried.iter().map(|n| lookup(&eb, n).map(|(v, _)| v)).collect();
+                    let news: Result<Vec<String>, String> = carried
+                        .iter()
+                        .map(|n| lookup(&eb, n).map(|(v, _)| v))
+                        .collect();
                     let news = news?;
                     let (wlist, ilist) = if wvars.is_empty() {
                         ("".to_string(), "".to_string())
@@ -587,7 +622,9 @@ impl Gen {
                     s.push_str(&format!("{}end)({})", Self::ind(lv), ilist));
                     els.push(s);
                 }
-                S::Ret(_) => return Err("ret not in tail position: internal error; refusing".into()),
+                S::Ret(_) => {
+                    return Err("ret not in tail position: internal error; refusing".into())
+                }
             }
         }
         Ok(els)
@@ -606,8 +643,10 @@ impl Gen {
     }
 
     fn tuple_of(&self, names: &[String], env: &Env) -> Result<String, String> {
-        let vs: Result<Vec<String>, String> =
-            names.iter().map(|n| lookup(env, n).map(|(v, _)| v)).collect();
+        let vs: Result<Vec<String>, String> = names
+            .iter()
+            .map(|n| lookup(env, n).map(|(v, _)| v))
+            .collect();
         Ok(format!("{{{}}}", vs?.join(", ")))
     }
 
@@ -675,10 +714,16 @@ pub fn generate(program: &Program) -> Result<String, String> {
         match item {
             Item::Def(f) => {
                 if f.fallible {
-                    return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: fallible functions beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if !f.generics.is_empty() {
-                    return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: generics beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if f.is_link {
                     return Err(format!("link {}: beyond core subset; refusing", f.name));

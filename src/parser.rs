@@ -16,6 +16,18 @@ pub struct ParseError {
 
 type PResult<T> = Result<T, ParseError>;
 
+/// True when the host has locked out `ext` blocks (CUNI_DENY_EXT set to a
+/// non-empty value other than "0"/"false"). Hosted Studio sets it.
+pub fn ext_denied() -> bool {
+    match std::env::var("CUNI_DENY_EXT") {
+        Ok(v) => {
+            let v = v.trim().to_ascii_lowercase();
+            !(v.is_empty() || v == "0" || v == "false" || v == "no")
+        }
+        Err(_) => false,
+    }
+}
+
 impl<'a> Parser<'a> {
     pub fn new(tokens: Vec<Tok>, source: &'a str) -> Self {
         Parser {
@@ -130,6 +142,16 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_ext(&mut self) -> PResult<Item> {
+        // Hosted lock (security fix 2026-11-22): `ext` bodies are raw target
+        // source that `cuni check` / `cuni run --lang` execute verbatim, so a
+        // public host must refuse them. Set CUNI_DENY_EXT=1 to lock. Checked
+        // at parse time so `use`d modules are covered too.
+        if ext_denied() {
+            return Err(self.error(
+                "`ext` is disabled on this host (CUNI_DENY_EXT): native target code \
+                 does not run here. Use portable CuNi, or run `cuni check` locally.",
+            ));
+        }
         self.expect(&Token::Ext)?;
         let (name, name_span) = self.expect_ident()?;
         self.expect(&Token::LParen)?;

@@ -320,48 +320,96 @@ impl Codegen {
         self.line(1, "return r;");
         self.line(0, "}");
         self.out.push('\n');
-        self.line(0, "// CuNi `dec`: fixed-point decimal, scale 10^4, as BigInt (docs/DECIMAL.md).");
-        self.line(0, "// A plain JS number is NOT exact (f64) — dec never touches Number.");
+        self.line(
+            0,
+            "// CuNi `dec`: fixed-point decimal, scale 10^4, as BigInt (docs/DECIMAL.md).",
+        );
+        self.line(
+            0,
+            "// A plain JS number is NOT exact (f64) — dec never touches Number.",
+        );
         self.line(0, "function _cuni_dec_str(v) {");
         self.line(1, "const neg = v < 0n;");
         self.line(1, "const mag = neg ? -v : v;");
         self.line(1, "const ip = mag / 10000n;");
-        self.line(1, "let fp = (mag % 10000n).toString().padStart(4, \"0\").replace(/0+$/, \"\");");
+        self.line(
+            1,
+            "let fp = (mag % 10000n).toString().padStart(4, \"0\").replace(/0+$/, \"\");",
+        );
         self.line(1, "if (fp === \"\") fp = \"0\";");
-        self.line(1, "return (neg ? \"-\" : \"\") + ip.toString() + \".\" + fp;");
+        self.line(
+            1,
+            "return (neg ? \"-\" : \"\") + ip.toString() + \".\" + fp;",
+        );
         self.line(0, "}");
         self.line(0, "function _cuni_dec_mul(a, b) {");
-        self.line(1, "return (a * b) / 10000n;  // BigInt / truncates toward zero, exact");
+        self.line(
+            1,
+            "return (a * b) / 10000n;  // BigInt / truncates toward zero, exact",
+        );
         self.line(0, "}");
         self.line(0, "function _cuni_dec_div(a, b) {");
-        self.line(1, "if (b === 0n) throw new Error(\"cuni: dec division by zero\");");
-        self.line(1, "return (a * 10000n) / b;  // BigInt / truncates toward zero, exact");
+        self.line(
+            1,
+            "if (b === 0n) throw new Error(\"cuni: dec division by zero\");",
+        );
+        self.line(
+            1,
+            "return (a * 10000n) / b;  // BigInt / truncates toward zero, exact",
+        );
         self.line(0, "}");
         self.line(0, "function _cuni_dec_of_int(n) {");
         self.line(1, "return BigInt(n) * 10000n;");
         self.line(0, "}");
         self.line(0, "function _cuni_int_of_dec(d) {");
-        self.line(1, "return Number(d / 10000n);  // truncates toward zero, like every seat");
+        self.line(
+            1,
+            "return Number(d / 10000n);  // truncates toward zero, like every seat",
+        );
         self.line(0, "}");
         self.out.push('\n');
-        self.line(0, "// CuNi `time`: unix epoch seconds as BigInt, UTC (docs/TIME.md).");
-        self.line(0, "// A plain JS number is NOT exact past 2^53 — time never touches Number,");
-        self.line(0, "// following dec's BigInt precedent (docs/DECIMAL.md §7).");
+        self.line(
+            0,
+            "// CuNi `time`: unix epoch seconds as BigInt, UTC (docs/TIME.md).",
+        );
+        self.line(
+            0,
+            "// A plain JS number is NOT exact past 2^53 — time never touches Number,",
+        );
+        self.line(
+            0,
+            "// following dec's BigInt precedent (docs/DECIMAL.md §7).",
+        );
         self.line(0, "function _cuni_time_str(v) {");
-        self.line(1, "// Canonical ISO-8601 UTC rendering (docs/TIME.md §4), BigInt math.");
+        self.line(
+            1,
+            "// Canonical ISO-8601 UTC rendering (docs/TIME.md §4), BigInt math.",
+        );
         self.line(1, "let days = v / 86400n, sod = v % 86400n;");
-        self.line(1, "if (sod < 0n) { days -= 1n; sod += 86400n; }  // floor division");
+        self.line(
+            1,
+            "if (sod < 0n) { days -= 1n; sod += 86400n; }  // floor division",
+        );
         self.line(1, "const z = days + 719468n;");
-        self.line(1, "const era = z >= 0n ? z / 146097n : -((-z + 146096n) / 146097n);");
+        self.line(
+            1,
+            "const era = z >= 0n ? z / 146097n : -((-z + 146096n) / 146097n);",
+        );
         self.line(1, "const doe = z - era * 146097n;");
-        self.line(1, "const yoe = (doe - doe / 1460n + doe / 36524n - doe / 146096n) / 365n;");
+        self.line(
+            1,
+            "const yoe = (doe - doe / 1460n + doe / 36524n - doe / 146096n) / 365n;",
+        );
         self.line(1, "const y = yoe + era * 400n;");
         self.line(1, "const doy = doe - (365n * yoe + yoe / 4n - yoe / 100n);");
         self.line(1, "const mp = (5n * doy + 2n) / 153n;");
         self.line(1, "const d = doy - (153n * mp + 2n) / 5n + 1n;");
         self.line(1, "const m = mp < 10n ? mp + 3n : mp - 9n;");
         self.line(1, "const yy = m <= 2n ? y + 1n : y;");
-        self.line(1, "const hh = sod / 3600n, mi = (sod % 3600n) / 60n, ss = sod % 60n;");
+        self.line(
+            1,
+            "const hh = sod / 3600n, mi = (sod % 3600n) / 60n, ss = sod % 60n;",
+        );
         self.line(1, "const ay = yy < 0n ? -yy : yy;");
         self.line(1, "let ys = ay.toString().padStart(4, \"0\");");
         self.line(1, "if (yy < 0n) ys = \"-\" + ys;");
@@ -369,20 +417,35 @@ impl Codegen {
         self.line(1, "return ys + \"-\" + p2(m) + \"-\" + p2(d) + \"T\" + p2(hh) + \":\" + p2(mi) + \":\" + p2(ss) + \"Z\";");
         self.line(0, "}");
         self.line(0, "function _cuni_parse_time(s) {");
-        self.line(1, "// Strict ISO-8601 UTC -> BigInt epoch (docs/TIME.md §2, §5).");
+        self.line(
+            1,
+            "// Strict ISO-8601 UTC -> BigInt epoch (docs/TIME.md §2, §5).",
+        );
         self.line(1, "// Bad input throws loudly — never a silent value.");
         self.line(1, "const bad = () => { throw new Error(\"cuni: parse_time: bad ISO-8601 UTC timestamp — refused\"); };");
         self.line(1, "if (typeof s !== \"string\" || s.length !== 20) bad();");
         self.line(1, "if (s[4] !== \"-\" || s[7] !== \"-\" || s[10] !== \"T\" || s[13] !== \":\" || s[16] !== \":\" || s[19] !== \"Z\") bad();");
         self.line(1, "const dig = (i) => { const c = s.charCodeAt(i); if (c < 48 || c > 57) bad(); return BigInt(c - 48); };");
-        self.line(1, "const y = dig(0)*1000n + dig(1)*100n + dig(2)*10n + dig(3);");
-        self.line(1, "const mo = dig(5)*10n + dig(6), d = dig(8)*10n + dig(9);");
+        self.line(
+            1,
+            "const y = dig(0)*1000n + dig(1)*100n + dig(2)*10n + dig(3);",
+        );
+        self.line(
+            1,
+            "const mo = dig(5)*10n + dig(6), d = dig(8)*10n + dig(9);",
+        );
         self.line(1, "const h = dig(11)*10n + dig(12), mi = dig(14)*10n + dig(15), sec = dig(17)*10n + dig(18);");
         self.line(1, "if (y < 1n || y > 9999n || mo < 1n || mo > 12n) bad();");
         self.line(1, "let dim = 31n;");
-        self.line(1, "if (mo === 4n || mo === 6n || mo === 9n || mo === 11n) dim = 30n;");
+        self.line(
+            1,
+            "if (mo === 4n || mo === 6n || mo === 9n || mo === 11n) dim = 30n;",
+        );
         self.line(1, "else if (mo === 2n) dim = (y % 4n === 0n && (y % 100n !== 0n || y % 400n === 0n)) ? 29n : 28n;");
-        self.line(1, "if (d < 1n || d > dim || h > 23n || mi > 59n || sec > 59n) bad();");
+        self.line(
+            1,
+            "if (d < 1n || d > dim || h > 23n || mi > 59n || sec > 59n) bad();",
+        );
         self.line(1, "const y0 = mo <= 2n ? y - 1n : y;");
         self.line(1, "const era = y0 / 400n, yoe = y0 - era * 400n;");
         self.line(1, "const mp = (mo + 9n) % 12n;");
@@ -392,10 +455,16 @@ impl Codegen {
         self.line(1, "return days * 86400n + h * 3600n + mi * 60n + sec;");
         self.line(0, "}");
         self.line(0, "function _cuni_add_seconds(t, s) {");
-        self.line(1, "return t + BigInt(s);  // BigInt: no overflow possible on this seat");
+        self.line(
+            1,
+            "return t + BigInt(s);  // BigInt: no overflow possible on this seat",
+        );
         self.line(0, "}");
         self.line(0, "function _cuni_days_between(a, b) {");
-        self.line(1, "return Number((a - b) / 86400n);  // BigInt / truncates toward zero");
+        self.line(
+            1,
+            "return Number((a - b) / 86400n);  // BigInt / truncates toward zero",
+        );
         self.line(0, "}");
         self.out.push('\n');
         self.out.push('\n');
@@ -412,14 +481,8 @@ impl Codegen {
             0,
             "// arithmetic) BEFORE JSON.parse sees them — JSON.parse would",
         );
-        self.line(
-            0,
-            "// silently round 9007199254740993 to 9007199254740992.",
-        );
-        self.line(
-            0,
-            "function _cuni_json_int_value(tok) {",
-        );
+        self.line(0, "// silently round 9007199254740993 to 9007199254740992.");
+        self.line(0, "function _cuni_json_int_value(tok) {");
         self.line(1, "const bad = () => { throw new CuNiError(\"json.parse: number is not an integer in ±(2^53−1)\"); };");
         self.line(1, "let t = tok, neg = false;");
         self.line(1, "if (t[0] === \"-\") { neg = true; t = t.slice(1); }");
@@ -441,26 +504,47 @@ impl Codegen {
         self.line(1, "digits = digits.replace(/^0+/, \"\");");
         self.line(1, "if (digits === \"\") return 0;");
         self.line(1, "const tz = digits.match(/0+$/);");
-        self.line(1, "if (tz) { f -= tz[0].length; digits = digits.slice(0, -tz[0].length); }");
+        self.line(
+            1,
+            "if (tz) { f -= tz[0].length; digits = digits.slice(0, -tz[0].length); }",
+        );
         self.line(1, "const k = f - exp;");
-        self.line(1, "if (k > 0) bad(); // no trailing zeros left: can't divide evenly");
+        self.line(
+            1,
+            "if (k > 0) bad(); // no trailing zeros left: can't divide evenly",
+        );
         self.line(1, "const total = digits + \"0\".repeat(-k);");
         self.line(1, "if (total.length > 16) bad();");
-        self.line(1, "if (total.padStart(16, \"0\") > \"9007199254740991\") bad();");
+        self.line(
+            1,
+            "if (total.padStart(16, \"0\") > \"9007199254740991\") bad();",
+        );
         self.line(1, "let v = parseInt(total, 10); // <= 2^53-1: exact in f64");
         self.line(1, "if (neg) v = -v;");
         self.line(1, "return v;");
         self.line(0, "}");
         self.out.push('\n');
+        self.line(0, "function _cuni_json_parse(s) {");
         self.line(
-            0,
-            "function _cuni_json_parse(s) {",
+            1,
+            "if (typeof s !== \"string\") throw new CuNiError(\"json.parse needs a str\");",
         );
-        self.line(1, "if (typeof s !== \"string\") throw new CuNiError(\"json.parse needs a str\");");
-        self.line(1, "// Lexical pre-check: string-aware scan so numbers inside strings");
-        self.line(1, "// are skipped; every number token outside strings must satisfy");
-        self.line(1, "// the integer rule. JSON.parse remains the syntax authority.");
-        self.line(1, "// NOTE: no regex literals containing quotes here — the ingest");
+        self.line(
+            1,
+            "// Lexical pre-check: string-aware scan so numbers inside strings",
+        );
+        self.line(
+            1,
+            "// are skipped; every number token outside strings must satisfy",
+        );
+        self.line(
+            1,
+            "// the integer rule. JSON.parse remains the syntax authority.",
+        );
+        self.line(
+            1,
+            "// NOTE: no regex literals containing quotes here — the ingest",
+        );
         self.line(1, "// extractor is quote-aware but not regex-aware.");
         self.line(
             1,
@@ -495,18 +579,27 @@ impl Codegen {
         self.line(2, "if (!Number.isInteger(v) || Math.abs(v) > 9007199254740991) throw new CuNiError(\"json.parse: number is not an integer in ±(2^53−1)\");");
         self.line(2, "return v;");
         self.line(1, "}");
-        self.line(1, "if (typeof v === \"string\" || typeof v === \"boolean\" || v === null) return v;");
+        self.line(
+            1,
+            "if (typeof v === \"string\" || typeof v === \"boolean\" || v === null) return v;",
+        );
         self.line(1, "if (Array.isArray(v)) return v.map(_cuni_json_walk);");
         self.line(1, "if (typeof v === \"object\") {");
         self.line(2, "const out = new Map();");
-        self.line(2, "for (const k of Object.keys(v)) out.set(k, _cuni_json_walk(v[k]));");
+        self.line(
+            2,
+            "for (const k of Object.keys(v)) out.set(k, _cuni_json_walk(v[k]));",
+        );
         self.line(2, "return out;");
         self.line(1, "}");
         self.line(1, "throw new CuNiError(\"json.parse: unexpected value\");");
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_json_set(o, k, v) {");
-        self.line(1, "// defineProperty: a plain assignment would route \"__proto__\" to the prototype.");
+        self.line(
+            1,
+            "// defineProperty: a plain assignment would route \"__proto__\" to the prototype.",
+        );
         self.line(1, "Object.defineProperty(o, k, { value: v, enumerable: true, writable: true, configurable: true });");
         self.line(0, "}");
         self.out.push('\n');
@@ -524,33 +617,54 @@ impl Codegen {
         self.line(2, "if (!Number.isInteger(v) || Math.abs(v) > 9007199254740991) throw new CuNiError(\"json.emit: floats have no JSON integer form\");");
         self.line(2, "return v;");
         self.line(1, "}");
-        self.line(1, "if (typeof v === \"string\" || typeof v === \"boolean\" || v === null) return v;");
-        self.line(1, "throw new CuNiError(\"json.emit: value has no JSON form\");");
+        self.line(
+            1,
+            "if (typeof v === \"string\" || typeof v === \"boolean\" || v === null) return v;",
+        );
+        self.line(
+            1,
+            "throw new CuNiError(\"json.emit: value has no JSON form\");",
+        );
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_json_emit(v) {");
-        self.line(1, "if (!(v instanceof Map)) throw new CuNiError(\"json.emit needs a map\");");
-        self.line(1, "return JSON.stringify(_cuni_json_sort(_cuni_json_norm(v)));");
+        self.line(
+            1,
+            "if (!(v instanceof Map)) throw new CuNiError(\"json.emit needs a map\");",
+        );
+        self.line(
+            1,
+            "return JSON.stringify(_cuni_json_sort(_cuni_json_norm(v)));",
+        );
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_json_sort(v) {");
         self.line(1, "if (Array.isArray(v)) return v.map(_cuni_json_sort);");
         self.line(1, "if (v !== null && typeof v === \"object\") {");
         self.line(2, "const o = {};");
-        self.line(2, "for (const k of Object.keys(v).sort()) _cuni_json_set(o, k, _cuni_json_sort(v[k]));");
+        self.line(
+            2,
+            "for (const k of Object.keys(v).sort()) _cuni_json_set(o, k, _cuni_json_sort(v[k]));",
+        );
         self.line(2, "return o;");
         self.line(1, "}");
         self.line(1, "return v;");
         self.line(0, "}");
         self.out.push('\n');
-        self.line(0, "// Time: proleptic Gregorian, no leap seconds, years 1..9999 (docs/STDLIB.md §2).");
+        self.line(
+            0,
+            "// Time: proleptic Gregorian, no leap seconds, years 1..9999 (docs/STDLIB.md §2).",
+        );
         self.line(0, "function _cuni_days_from_civil(y, m, d) {");
         self.line(1, "const y0 = m <= 2 ? y - 1 : y;");
         self.line(1, "const era = Math.floor(y0 / 400);");
         self.line(1, "const yoe = y0 - era * 400;");
         self.line(1, "const mp = (m + 9) % 12;");
         self.line(1, "const doy = Math.floor((153 * mp + 2) / 5) + d - 1;");
-        self.line(1, "const doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy;");
+        self.line(
+            1,
+            "const doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy;",
+        );
         self.line(1, "return era * 146097 + doe - 719468;");
         self.line(0, "}");
         self.out.push('\n');
@@ -560,7 +674,10 @@ impl Codegen {
         self.line(1, "const doe = z - era * 146097;");
         self.line(1, "const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);");
         self.line(1, "let y = yoe + era * 400;");
-        self.line(1, "const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));");
+        self.line(
+            1,
+            "const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));",
+        );
         self.line(1, "const mp = Math.floor((5 * doy + 2) / 153);");
         self.line(1, "const d = doy - Math.floor((153 * mp + 2) / 5) + 1;");
         self.line(1, "let m = mp < 10 ? mp + 3 : mp - 9;");
@@ -571,15 +688,27 @@ impl Codegen {
         self.line(0, "function _cuni_time_epoch(y, mo, d, h, mi, s) {");
         self.line(1, "const chk = (v, lo, hi, nm) => { if (!(v >= lo && v <= hi)) throw new CuNiError(\"time.epoch: \" + nm + \" out of range\"); };");
         self.line(1, "chk(y, 1, 9999, \"year\"); chk(mo, 1, 12, \"month\"); chk(h, 0, 23, \"hour\"); chk(mi, 0, 59, \"minute\"); chk(s, 0, 59, \"second\");");
-        self.line(1, "const leap = y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);");
-        self.line(1, "const dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];");
+        self.line(
+            1,
+            "const leap = y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);",
+        );
+        self.line(
+            1,
+            "const dim = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];",
+        );
         self.line(1, "if (!(d >= 1 && d <= dim)) throw new CuNiError(\"time.epoch: day out of range for month\");");
-        self.line(1, "return _cuni_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s;");
+        self.line(
+            1,
+            "return _cuni_days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s;",
+        );
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_time_parts(e) {");
         self.line(1, "const lo = _cuni_days_from_civil(1, 1, 1) * 86400;");
-        self.line(1, "const hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399;");
+        self.line(
+            1,
+            "const hi = _cuni_days_from_civil(9999, 12, 31) * 86400 + 86399;",
+        );
         self.line(1, "if (!(e >= lo && e <= hi)) throw new CuNiError(\"time.parts: epoch out of range 1..9999\");");
         self.line(1, "const days = Math.floor(e / 86400);");
         self.line(1, "const secs = e - days * 86400;");
@@ -587,23 +716,41 @@ impl Codegen {
         self.line(1, "return new Map([[\"year\", y], [\"month\", mo], [\"day\", d], [\"hour\", Math.floor(secs / 3600)], [\"min\", Math.floor((secs % 3600) / 60)], [\"sec\", secs % 60]]);");
         self.line(0, "}");
         self.out.push('\n');
-        self.line(0, "// String ops: byte-oriented on UTF-8 (docs/STDLIB.md §3).");
+        self.line(
+            0,
+            "// String ops: byte-oriented on UTF-8 (docs/STDLIB.md §3).",
+        );
         self.line(0, "function _cuni_split(s, sep) {");
         self.line(1, "if (typeof s !== \"string\" || typeof sep !== \"string\") throw new CuNiError(\".split needs strings\");");
-        self.line(1, "if (sep === \"\") throw new CuNiError(\".split: empty separator; refusing\");");
+        self.line(
+            1,
+            "if (sep === \"\") throw new CuNiError(\".split: empty separator; refusing\");",
+        );
         self.line(1, "return s.split(sep);");
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_join(sep, parts) {");
-        self.line(1, "if (typeof sep !== \"string\") throw new CuNiError(\".join needs a str separator\");");
-        self.line(1, "if (!Array.isArray(parts)) throw new CuNiError(\".join needs a list<str>\");");
+        self.line(
+            1,
+            "if (typeof sep !== \"string\") throw new CuNiError(\".join needs a str separator\");",
+        );
+        self.line(
+            1,
+            "if (!Array.isArray(parts)) throw new CuNiError(\".join needs a list<str>\");",
+        );
         self.line(1, "for (const x of parts) if (typeof x !== \"string\") throw new CuNiError(\".join: all parts must be str\");");
         self.line(1, "return parts.join(sep);");
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_trim(s) {");
-        self.line(1, "if (typeof s !== \"string\") throw new CuNiError(\".trim needs a str\");");
-        self.line(1, "return s.replace(/^[ \\t\\n\\v\\f\\r]+|[ \\t\\n\\v\\f\\r]+$/g, \"\");");
+        self.line(
+            1,
+            "if (typeof s !== \"string\") throw new CuNiError(\".trim needs a str\");",
+        );
+        self.line(
+            1,
+            "return s.replace(/^[ \\t\\n\\v\\f\\r]+|[ \\t\\n\\v\\f\\r]+$/g, \"\");",
+        );
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_contains(s, sub) {");
@@ -612,8 +759,12 @@ impl Codegen {
         self.line(0, "}");
         self.out.push('\n');
         self.line(0, "function _cuni_sha256(s) {");
-        self.line(1, "if (typeof s !== \"string\") throw new CuNiError(\"sha256 needs a str\");");
-        self.line(1, "return require(\"crypto\").createHash(\"sha256\").update(s, \"utf8\").digest(\"hex\");");        self.line(0, "}");
+        self.line(
+            1,
+            "if (typeof s !== \"string\") throw new CuNiError(\"sha256 needs a str\");",
+        );
+        self.line(1, "return require(\"crypto\").createHash(\"sha256\").update(s, \"utf8\").digest(\"hex\");");
+        self.line(0, "}");
         self.out.push('\n');
         self.line(
             0,
@@ -1311,12 +1462,7 @@ impl Codegen {
                                 return format!("({l} - BigInt({r}))");
                             }
                         }
-                        BinOp::Eq
-                        | BinOp::Ne
-                        | BinOp::Lt
-                        | BinOp::Gt
-                        | BinOp::Le
-                        | BinOp::Ge => {
+                        BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                             if lt && rt {
                                 return format!("({} {} {})", l, js_binop(*op), r);
                             }
@@ -1393,10 +1539,8 @@ fn is_dec_expr(
             _ => false,
         },
         ExprKind::Binary { op, lhs, .. } => {
-            matches!(
-                op,
-                BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div
-            ) && is_dec_expr(lhs, scope, fn_dec_rets)
+            matches!(op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div)
+                && is_dec_expr(lhs, scope, fn_dec_rets)
         }
         ExprKind::Unary { op, expr } => {
             matches!(op, UnOp::Neg) && is_dec_expr(expr, scope, fn_dec_rets)

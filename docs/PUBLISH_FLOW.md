@@ -7,7 +7,7 @@ Exactness-gated path from authoring in CuNi Studio to metadata that Agent-Rider 
 
 ## Live path (Studio UI)
 
-1. Open https://cuni-studio.fly.dev/
+1. Open https://spl-cuni-studio.fly.dev/
 2. Source loads with `spend-control.cuni` by default (or pick any example).
 3. Click **Run exactness** (or Check).
 4. When status shows **exactness PASS**, click **Publish**.

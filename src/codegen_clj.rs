@@ -164,7 +164,11 @@ fn conv<'a>(stmts: &[&'a Stmt], in_loop: bool, in_def: bool) -> Result<Vec<S<'a>
             } => items.push(S::If {
                 cond,
                 then_body: norm(conv(&refs(then_body), in_loop, in_def)?),
-                else_body: norm(conv(&refs(else_body.as_deref().unwrap_or(&[])), in_loop, in_def)?),
+                else_body: norm(conv(
+                    &refs(else_body.as_deref().unwrap_or(&[])),
+                    in_loop,
+                    in_def,
+                )?),
             }),
             StmtKind::For { .. } => return Err("for: beyond core subset; refusing".into()),
             StmtKind::Whl { cond, body } => items.push(S::Whl {
@@ -202,7 +206,12 @@ fn refs<'a>(stmts: &'a [Stmt]) -> Vec<&'a Stmt> {
 /// Names assigned (Assign, or Let/Mut rebinding) inside `stmts` that are
 /// already in `outer`, in first-appearance order.
 fn assigned_outer(stmts: &[S], outer: &HashSet<String>) -> Vec<String> {
-    fn walk(stmts: &[S], outer: &HashSet<String>, seen: &mut HashSet<String>, out: &mut Vec<String>) {
+    fn walk(
+        stmts: &[S],
+        outer: &HashSet<String>,
+        seen: &mut HashSet<String>,
+        out: &mut Vec<String>,
+    ) {
         for s in stmts {
             match s {
                 S::Let { name, .. } | S::Mut { name, .. } | S::Assign { name, .. } => {
@@ -299,7 +308,9 @@ impl Gen {
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
             ExprKind::Ident(n) => lookup(env, n),
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -313,9 +324,11 @@ impl Gen {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut parts = vec![name];
                 for a in args {
                     if a.is_named() {
@@ -417,7 +430,10 @@ impl Gen {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -425,7 +441,10 @@ impl Gen {
         if l == r {
             Ok(())
         } else {
-            Err(format!("`{}` across mismatched types: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` across mismatched types: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
@@ -479,7 +498,10 @@ impl Gen {
                 }
                 S::Assign { name, value } => {
                     if !env.contains_key(*name) {
-                        return Err(format!("assignment to unknown variable `{}`: refusing", name));
+                        return Err(format!(
+                            "assignment to unknown variable `{}`: refusing",
+                            name
+                        ));
                     }
                     let (v, vt) = self.expr(value, env)?;
                     let var = self.fresh();
@@ -505,14 +527,24 @@ impl Gen {
                     let c = self.boolexpr(cond, env)?;
                     let refs: Vec<&str> = merged.iter().map(|s| s.as_str()).collect();
                     if merged.is_empty() {
-                        let (t, _) = self.block_value(then_body, env.clone(), lv + 1, BlockTail::Nil)?;
-                        let (e, _) = self.block_value(else_body, env.clone(), lv + 1, BlockTail::Nil)?;
+                        let (t, _) =
+                            self.block_value(then_body, env.clone(), lv + 1, BlockTail::Nil)?;
+                        let (e, _) =
+                            self.block_value(else_body, env.clone(), lv + 1, BlockTail::Nil)?;
                         layers.push(Layer::Do(format!("(if {} {} {})", c, t, e)));
                     } else {
-                        let (t, _) =
-                            self.block_value(then_body, env.clone(), lv + 1, BlockTail::Tuple(refs.clone()))?;
-                        let (e, _) =
-                            self.block_value(else_body, env.clone(), lv + 1, BlockTail::Tuple(refs))?;
+                        let (t, _) = self.block_value(
+                            then_body,
+                            env.clone(),
+                            lv + 1,
+                            BlockTail::Tuple(refs.clone()),
+                        )?;
+                        let (e, _) = self.block_value(
+                            else_body,
+                            env.clone(),
+                            lv + 1,
+                            BlockTail::Tuple(refs),
+                        )?;
                         let mvars: Vec<String> = merged.iter().map(|_| self.fresh()).collect();
                         for (n, mv) in merged.iter().zip(mvars.iter()) {
                             let ty = lookup(env, n)?.1;
@@ -546,7 +578,13 @@ impl Gen {
                         .map(|b| b.split(' ').next().unwrap().to_string())
                         .collect();
                     let loop_code = if wnames.is_empty() {
-                        format!("(loop []\n{}(if {}\n{}\n{}nil))", Self::ind(lv + 1), c, body_code, Self::ind(lv + 1))
+                        format!(
+                            "(loop []\n{}(if {}\n{}\n{}nil))",
+                            Self::ind(lv + 1),
+                            c,
+                            body_code,
+                            Self::ind(lv + 1)
+                        )
                     } else {
                         format!(
                             "(loop [{}]\n{}(if {}\n{}\n{}[{}]))",
@@ -563,12 +601,11 @@ impl Gen {
                         let ty = lookup(env, n)?.1;
                         env.insert(n.clone(), (mv.clone(), ty));
                     }
-                    layers.push(Layer::While {
-                        mvars,
-                        loop_code,
-                    });
+                    layers.push(Layer::While { mvars, loop_code });
                 }
-                S::Ret(_) => return Err("ret not in tail position: internal error; refusing".into()),
+                S::Ret(_) => {
+                    return Err("ret not in tail position: internal error; refusing".into())
+                }
             }
         }
         Ok(layers)
@@ -586,13 +623,17 @@ impl Gen {
         let layers = self.layers(stmts, &mut env, lv)?;
         let tail_s = match tail {
             BlockTail::Tuple(names) => {
-                let vs: Result<Vec<String>, String> =
-                    names.iter().map(|n| lookup(&env, n).map(|(v, _)| v)).collect();
+                let vs: Result<Vec<String>, String> = names
+                    .iter()
+                    .map(|n| lookup(&env, n).map(|(v, _)| v))
+                    .collect();
                 format!("[{}]", vs?.join(" "))
             }
             BlockTail::Recur(names) => {
-                let vs: Result<Vec<String>, String> =
-                    names.iter().map(|n| lookup(&env, n).map(|(v, _)| v)).collect();
+                let vs: Result<Vec<String>, String> = names
+                    .iter()
+                    .map(|n| lookup(&env, n).map(|(v, _)| v))
+                    .collect();
                 let vs = vs?;
                 if vs.is_empty() {
                     "(recur)".to_string()
@@ -686,7 +727,8 @@ pub fn generate(program: &Program) -> Result<String, String> {
         next: 0,
         fn_ret: HashMap::new(),
     };
-    g.out.push_str(";; Generated by the CuNi Clojure backend. Do not hand-edit.\n");
+    g.out
+        .push_str(";; Generated by the CuNi Clojure backend. Do not hand-edit.\n");
     g.out.push_str(HEADER);
     // First pass: collect defs, refuse non-core items.
     let mut script: Vec<&Stmt> = Vec::new();
@@ -694,10 +736,16 @@ pub fn generate(program: &Program) -> Result<String, String> {
         match item {
             Item::Def(f) => {
                 if f.fallible {
-                    return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: fallible functions beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if !f.generics.is_empty() {
-                    return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: generics beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if f.is_link {
                     return Err(format!("link {}: beyond core subset; refusing", f.name));
@@ -727,7 +775,12 @@ pub fn generate(program: &Program) -> Result<String, String> {
             }
             let body = conv(&refs(&f.body), false, true)?;
             let (code, _) = g.def_value(&body, env, 1)?;
-            g.out.push_str(&format!("(defn {} [{}]\n{})\n\n", f.name, params.join(" "), code));
+            g.out.push_str(&format!(
+                "(defn {} [{}]\n{})\n\n",
+                f.name,
+                params.join(" "),
+                code
+            ));
         }
     }
     let body = conv(&script, false, false)?;

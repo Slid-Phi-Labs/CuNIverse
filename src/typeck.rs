@@ -77,14 +77,7 @@ fn ns_sig(ns: &str, name: &str) -> Option<(Vec<Type>, Type)> {
         ("json", "parse") => Some((vec![str_t()], map_of(any_t()))),
         ("json", "emit") => Some((vec![map_of(any_t())], str_t())),
         ("time", "epoch") => Some((
-            vec![
-                int_t(),
-                int_t(),
-                int_t(),
-                int_t(),
-                int_t(),
-                int_t(),
-            ],
+            vec![int_t(), int_t(), int_t(), int_t(), int_t(), int_t()],
             int_t(),
         )),
         ("time", "parts") => Some((vec![int_t()], map_of(int_t()))),
@@ -97,10 +90,7 @@ fn ns_sig(ns: &str, name: &str) -> Option<(Vec<Type>, Type)> {
 fn str_method_sig(name: &str) -> Option<(usize, Type)> {
     let str_t = || Type::Named("str".to_string());
     match name {
-        "split" => Some((
-            1,
-            Type::Generic("list".to_string(), vec![str_t()]),
-        )),
+        "split" => Some((1, Type::Generic("list".to_string(), vec![str_t()]))),
         "join" => Some((1, str_t())),
         "trim" => Some((0, str_t())),
         "contains" => Some((1, Type::Named("bool".to_string()))),
@@ -1013,8 +1003,7 @@ impl<'a> Checker<'a> {
         generics: &HashSet<String>,
         span: Span,
     ) -> Result<(), TypeError> {
-        let is_dec =
-            |t: &Option<Type>| matches!(t, Some(Type::Named(n)) if n == "dec");
+        let is_dec = |t: &Option<Type>| matches!(t, Some(Type::Named(n)) if n == "dec");
         let lt = self.infer_expr(lhs, scope, generics);
         let rt = self.infer_expr(rhs, scope, generics);
         let (ld, rd) = (is_dec(&lt), is_dec(&rt));
@@ -1076,8 +1065,7 @@ impl<'a> Checker<'a> {
         generics: &HashSet<String>,
         span: Span,
     ) -> Result<(), TypeError> {
-        let is_time =
-            |t: &Option<Type>| matches!(t, Some(Type::Named(n)) if n == "time");
+        let is_time = |t: &Option<Type>| matches!(t, Some(Type::Named(n)) if n == "time");
         let lt = self.infer_expr(lhs, scope, generics);
         let rt = self.infer_expr(rhs, scope, generics);
         let (ltr, rtr) = (is_time(&lt), is_time(&rt));

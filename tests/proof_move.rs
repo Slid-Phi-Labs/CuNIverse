@@ -68,8 +68,7 @@ fn toolchain_path() -> String {
 }
 
 fn workdir(tag: &str) -> PathBuf {
-    let dir =
-        std::env::temp_dir().join(format!("cuni_proof_move_{}_{}", tag, std::process::id()));
+    let dir = std::env::temp_dir().join(format!("cuni_proof_move_{}_{}", tag, std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("failed to create temp work dir");
     dir
@@ -268,8 +267,7 @@ fn money_bridge_fee_schedule() {
     );
     let dir = workdir("fee");
     let ref_path = dir.join("fee_ref.py");
-    let (ok, _, stderr) =
-        run_cuni(&[FEE_FIXTURE, "--emit-move-ref", ref_path.to_str().unwrap()]);
+    let (ok, _, stderr) = run_cuni(&[FEE_FIXTURE, "--emit-move-ref", ref_path.to_str().unwrap()]);
     assert!(ok, "--emit-move-ref failed on fee_schedule\n{stderr}");
     let stdout = python3_and_run(&ref_path);
     assert_eq!(
@@ -287,7 +285,10 @@ fn refusals_are_honest() {
     // integers, so they refuse at emit.
     let cases: &[(&str, &str)] = &[
         ("float", "def f() -> int do\n ret 1\nend\nsay(1.5)\n"),
-        ("list", "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n"),
+        (
+            "list",
+            "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n",
+        ),
         (
             "typ",
             "typ Point do\n x: int\nend\ndef f() -> int do\n ret 1\nend\nsay(1)\n",

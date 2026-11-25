@@ -1,7 +1,7 @@
 # CuNi Protocol
 
-**Canonical JSON:** https://cuni-studio.fly.dev/.well-known/cuni-protocol.json  
-**This document:** https://cuni-studio.fly.dev/PROTOCOL.md  
+**Canonical JSON:** https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json  
+**This document:** https://spl-cuni-studio.fly.dev/PROTOCOL.md  
 **Source:** https://github.com/ceedot-rock/cuni/blob/master/PROTOCOL.md
 
 CuNi is 53 targets. One program. Same stdout on every catalog seat, or the compiler refuses. That rule is the protocol.
@@ -71,8 +71,8 @@ Formulas, fills, and order. Not Combined GC. Not host xz.
 
 | Surface | URL |
 |---------|-----|
-| Studio | https://cuni-studio.fly.dev/ |
-| Well-known | https://cuni-studio.fly.dev/.well-known/cuni-protocol.json |
+| Studio | https://spl-cuni-studio.fly.dev/ |
+| Well-known | https://spl-cuni-studio.fly.dev/.well-known/cuni-protocol.json |
 | Protocol (lab site) | https://www.slidphilabs.com/.well-known/cuni-protocol.json |
 | Agent-Rider MCP | https://agentrider.fly.dev/api/mcp |
 | Agent-Rider card | https://agentrider.fly.dev/.well-known/agent.json |

@@ -1,0 +1,75 @@
+{
+  "product": "CuNi",
+  "tagline": "One product, one trunk, seven arms: exact or refuse.",
+  "trunk": {
+    "id": "compiler",
+    "path": "src",
+    "entry": "src/main.rs",
+    "command": "cuni check",
+    "catalog": 53
+  },
+  "arms": [
+    {
+      "id": "studio",
+      "name": "Studio",
+      "path": "playground",
+      "entry": "playground/server.py",
+      "doc": "playground/README.md",
+      "surface": "hosted browser workspace (emit, check, Agent mode, Publish)"
+    },
+    {
+      "id": "bank",
+      "name": "Bank",
+      "path": "src/bank.rs",
+      "entry": "src/bank.rs",
+      "doc": "docs/BANK.md",
+      "surface": "paste N, get X: ingest, emit, prove, or refuse"
+    },
+    {
+      "id": "audit",
+      "name": "Audit",
+      "path": "src/audit.rs",
+      "entry": "src/audit.rs",
+      "doc": "docs/FINANCIAL.md",
+      "surface": "prove a foreign implementation against a money law; file a signed receipt"
+    },
+    {
+      "id": "onchain",
+      "name": "Onchain",
+      "path": "src/emit.rs",
+      "entry": "src/emit.rs",
+      "doc": "docs/ONCHAIN.md",
+      "surface": "six chain profiles: proven logic core plus the chain shell"
+    },
+    {
+      "id": "exactness",
+      "name": "Exactness",
+      "path": "exactness",
+      "entry": "exactness/cuni_exactness/skill.py",
+      "doc": "exactness/README.md",
+      "surface": "EXACT-or-REFUSE skill over every local seat"
+    },
+    {
+      "id": "transparency",
+      "name": "Transparency",
+      "path": "transparency",
+      "entry": "transparency/verify.sh",
+      "doc": "transparency/README.md",
+      "surface": "append-only Merkle log for signed exactness receipts"
+    },
+    {
+      "id": "tap",
+      "name": "Tap",
+      "path": "homebrew",
+      "entry": "homebrew/Formula/cuni.rb",
+      "doc": "homebrew/README.md",
+      "surface": "Homebrew tap installing the cuni binary"
+    }
+  ],
+  "outside": [
+    {
+      "repo": "ceedot-rock/cuni-exact",
+      "reason": "private exactness workbench; separate TruKern material, not part of the public product"
+    }
+  ]
+}

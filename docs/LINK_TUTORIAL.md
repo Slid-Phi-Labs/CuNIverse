@@ -1,6 +1,6 @@
 # Flagship tutorial: one `link`, three languages
 
-**Try exactness first (no install):** [CuNi Studio](https://cuni-studio.fly.dev/) → example `full` → **Run exactness**.
+**Try exactness first (no install):** [CuNi Studio](https://spl-cuni-studio.fly.dev/) → example `full` → **Run exactness**.
 
 **Story in one line:** write a typed contract once in CuNi; run the **server in Go** and call it from **Python** and **JavaScript** — same JSON, same path, same answer. Or the compiler refuses.
 
@@ -19,7 +19,7 @@ examples/link.cuni
 ```
 
 This is **cross-program interop** (SPEC.md §16), not just “same file runs on three backends.”  
-For **same-file exactness** (stdout matches), use [Studio](https://cuni-studio.fly.dev/) or `cuni check examples/full.cuni`.
+For **same-file exactness** (stdout matches), use [Studio](https://spl-cuni-studio.fly.dev/) or `cuni check examples/full.cuni`.
 
 **Why this matters for multi-agent systems**  
 `link` is the concrete mechanism that lets agents written in different languages call each other with guaranteed identical contract behavior. It is the technical foundation for treating CuNi as the interop standard (one source of truth, multiple runtimes).

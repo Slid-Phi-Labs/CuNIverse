@@ -64,8 +64,7 @@ fn toolchain_path() -> String {
 }
 
 fn workdir(tag: &str) -> PathBuf {
-    let dir =
-        std::env::temp_dir().join(format!("cuni_proof_ink_{}_{}", tag, std::process::id()));
+    let dir = std::env::temp_dir().join(format!("cuni_proof_ink_{}_{}", tag, std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("failed to create temp work dir");
     dir
@@ -285,8 +284,7 @@ fn money_bridge_fee_schedule() {
     let dir = workdir("fee");
     let ref_path = dir.join("fee_ref.rs");
     let bin_path = dir.join("fee_ref_bin");
-    let (ok, _, stderr) =
-        run_cuni(&[FEE_FIXTURE, "--emit-ink-ref", ref_path.to_str().unwrap()]);
+    let (ok, _, stderr) = run_cuni(&[FEE_FIXTURE, "--emit-ink-ref", ref_path.to_str().unwrap()]);
     assert!(ok, "--emit-ink-ref failed on fee_schedule\n{stderr}");
     let stdout = rustc_and_run(&ref_path, &bin_path);
     assert_eq!(
@@ -302,7 +300,10 @@ fn refusals_are_honest() {
     // stderr and a non-zero exit — never a silent wrong artifact.
     let cases: &[(&str, &str)] = &[
         ("float", "def f() -> int do\n ret 1\nend\nsay(1.5)\n"),
-        ("list", "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n"),
+        (
+            "list",
+            "def f() -> int do\n ret 1\nend\nlet xs = [1, 2]\nsay(1)\n",
+        ),
         (
             "typ",
             "typ Point do\n x: int\nend\ndef f() -> int do\n ret 1\nend\nsay(1)\n",

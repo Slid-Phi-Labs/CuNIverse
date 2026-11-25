@@ -53,7 +53,7 @@ X-Cuni-Studio: called
 3. Exactness FAIL → **HTTP 400 REFUSE** — **no** remote push.
 4. Local stub (`POST /api/rider/register`) still runs as fallback.
 
-Live Studio: https://cuni-studio.fly.dev/ · Rider: https://agentrider.fly.dev/
+Live Studio: https://spl-cuni-studio.fly.dev/ · Rider: https://agentrider.fly.dev/
 
 ### 2. Rider-callable verify — `POST /api/pass` (second door)
 
@@ -127,7 +127,7 @@ python3 -m unittest playground.test_citizen_pass -v
 Live curl (after deploy), known-good spend-control:
 
 ```bash
-curl -sS -X POST https://cuni-studio.fly.dev/api/pass \
+curl -sS -X POST https://spl-cuni-studio.fly.dev/api/pass \
   -H 'Content-Type: application/json' \
   -d "{\"source\": $(python3 -c 'import json;print(json.dumps(open("examples/laws/spend-control.cuni").read()))')}" \
   | jq '{ok, verdict, citizen_receipt, studio}'
@@ -136,7 +136,7 @@ curl -sS -X POST https://cuni-studio.fly.dev/api/pass \
 Broken snippet must REFUSE:
 
 ```bash
-curl -sS -X POST https://cuni-studio.fly.dev/api/pass \
+curl -sS -X POST https://spl-cuni-studio.fly.dev/api/pass \
   -H 'Content-Type: application/json' \
   -d '{"source":"say(1+"}' | jq '{ok, verdict, studio}'
 ```

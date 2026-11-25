@@ -16,6 +16,11 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+
+try:
+    import sandbox  # playground/sandbox.py
+except ImportError:  # imported as playground.agent_lib
+    from . import sandbox
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,13 +64,8 @@ def list_skills() -> list[dict]:
 
 
 def _run(cmd: list[str], cwd: Path | None, timeout: int) -> subprocess.CompletedProcess:
-    return subprocess.run(
-        cmd,
-        cwd=str(cwd) if cwd else None,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
+    # Security fix 2026-11-22: unprivileged, rlimited, CUNI_DENY_EXT=1.
+    return sandbox.run(cmd, cwd, timeout)
 
 
 def _stage_modules(work: Path, source: str) -> None:
@@ -83,6 +83,7 @@ _STUDIO_GATE = ["py", "go", "js"]
 
 def check_source(cuni: Path, source: str, timeout: int) -> dict:
     with tempfile.TemporaryDirectory(prefix="cuni_prop_") as td:
+        sandbox.own_workdir(td)
         work = Path(td)
         main = work / "main.cuni"
         main.write_text(source, encoding="utf-8")
@@ -140,6 +141,8 @@ def run_skill(
         gen_err = None
 
     with tempfile.TemporaryDirectory(prefix="cuni_ag_") as td:
+
+        sandbox.own_workdir(td)
         work = Path(td)
         for mod in skill.get("modules") or []:
             src = AGENT / mod

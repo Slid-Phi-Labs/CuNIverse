@@ -174,7 +174,10 @@ fn time_malformed_literals_are_refused_at_the_front_end() {
     ] {
         let (ok, stdout, stderr) = run_scratch(src, &["--only", "py", "--timeout", "60"]);
         let both = format!("{stdout}\n{stderr}");
-        assert!(!ok, "malformed time literal was accepted: {src} — it must be refused");
+        assert!(
+            !ok,
+            "malformed time literal was accepted: {src} — it must be refused"
+        );
         assert!(
             both.contains("refus"),
             "malformed literal refusal message is unclear for {src}\n{both}"
@@ -188,17 +191,31 @@ fn time_bad_arithmetic_shapes_are_type_errors() {
     // time, `time + time` has no meaning, and time never implicitly mixes
     // with non-int. Every shape is a front-end refusal with a fix-it.
     for (src, want) in [
-        ("let t = \"2026-10-01T21:30:25Z\"t\nsay(t * 2)\n", "not defined"),
+        (
+            "let t = \"2026-10-01T21:30:25Z\"t\nsay(t * 2)\n",
+            "not defined",
+        ),
         ("let t = \"2026-10-01T21:30:25Z\"t\nsay(t + t)\n", "fix-it"),
-        ("let t = \"2026-10-01T21:30:25Z\"t\nsay(t + 1.5)\n", "fix-it"),
+        (
+            "let t = \"2026-10-01T21:30:25Z\"t\nsay(t + 1.5)\n",
+            "fix-it",
+        ),
         ("let t = \"2026-10-01T21:30:25Z\"t\nsay(2 - t)\n", "fix-it"),
     ] {
         let (ok, stdout, stderr) = run_scratch(
             src,
-            &["--only", "py,go,js,ts,c,cpp,rs,rb,lua,java,sql", "--timeout", "120"],
+            &[
+                "--only",
+                "py,go,js,ts,c,cpp,rs,rb,lua,java,sql",
+                "--timeout",
+                "120",
+            ],
         );
         let both = format!("{stdout}\n{stderr}");
-        assert!(!ok, "bad time arithmetic shape was accepted: {src} — it must be refused");
+        assert!(
+            !ok,
+            "bad time arithmetic shape was accepted: {src} — it must be refused"
+        );
         assert!(
             both.contains(want),
             "time arithmetic refusal lost its wording for {src}\n{both}"
@@ -216,7 +233,10 @@ fn time_parse_time_of_bad_input_is_loud() {
         &["--only", "py,go,js,rs,rb,lua,java", "--timeout", "180"],
     );
     let both = format!("{stdout}\n{stderr}");
-    assert!(!ok, "parse_time of a bad timestamp was accepted — it must fail loudly");
+    assert!(
+        !ok,
+        "parse_time of a bad timestamp was accepted — it must fail loudly"
+    );
     assert!(
         both.contains("front-end  ok"),
         "parse_time failure did not reach the run stage\n{both}"
@@ -239,7 +259,10 @@ fn time_parse_time_of_bad_input_is_loud() {
         .output()
         .expect("failed to run python3");
     let err = String::from_utf8_lossy(&out.stderr).into_owned();
-    assert!(!out.status.success(), "bad parse_time ran clean — it must fail");
+    assert!(
+        !out.status.success(),
+        "bad parse_time ran clean — it must fail"
+    );
     assert!(
         err.contains("parse_time") && err.to_lowercase().contains("refus"),
         "parse_time failure message is unclear\n{err}"
@@ -258,7 +281,10 @@ fn time_sql_seat_folds_literals_and_refuses_dynamic_strings() {
         "say(parse_time(\"2026-10-01T21:30:25Z\"))\n",
         &["--only", "sql", "--timeout", "60"],
     );
-    assert!(ok, "SQL seat refused a literal parse_time — it should fold it");
+    assert!(
+        ok,
+        "SQL seat refused a literal parse_time — it should fold it"
+    );
 
     let (ok, stdout, stderr) = run_scratch(
         "let s = \"2026-10-01T\" + \"21:30:25Z\"\nsay(parse_time(s))\n",
@@ -293,8 +319,7 @@ fn time_sol_seat_refuses_negative_times() {
 #[test]
 fn time_solana_seat_refuses() {
     // v1 has no time form in the Solana logic core — refuse, never fake.
-    let (ok, stdout, stderr) =
-        run_scratch_emit_solana("say(\"2026-10-01T21:30:25Z\"t)\n");
+    let (ok, stdout, stderr) = run_scratch_emit_solana("say(\"2026-10-01T21:30:25Z\"t)\n");
     let both = format!("{stdout}\n{stderr}");
     assert!(!ok, "Solana seat accepted a time literal — it must refuse");
     assert!(

@@ -391,9 +391,7 @@ impl Emitter {
                 let tname = match &target.kind {
                     ExprKind::Ident(n) => n.clone(),
                     _ => {
-                        return Err(
-                            "complex assignment target: beyond core subset; refusing".into()
-                        )
+                        return Err("complex assignment target: beyond core subset; refusing".into())
                     }
                 };
                 let (_, emitted) = self
@@ -472,7 +470,7 @@ impl Emitter {
                             if n == "say" {
                                 if args.len() != 1 {
                                     return Err(
-                                        "say: exactly one argument in core subset; refusing".into()
+                                        "say: exactly one argument in core subset; refusing".into(),
                                     );
                                 }
                                 let (v, vt) = self.gen_expr(args[0].expr())?;

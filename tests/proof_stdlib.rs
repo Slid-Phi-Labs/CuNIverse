@@ -72,14 +72,8 @@ fn fixture(name: &str) -> String {
 
 /// Behavioral exactness gate for one fixture across its green seats.
 fn assert_exactness(name: &str, seats: &str) {
-    let (ok, stdout, stderr) = run_cuni(&[
-        "check",
-        &fixture(name),
-        "--only",
-        seats,
-        "--timeout",
-        "240",
-    ]);
+    let (ok, stdout, stderr) =
+        run_cuni(&["check", &fixture(name), "--only", seats, "--timeout", "240"]);
     assert!(
         ok,
         "exactness gate failed for {name} on [{seats}]\nstdout:\n{stdout}\nstderr:\n{stderr}"
@@ -105,14 +99,8 @@ fn assert_pinned(name: &str, expected: &str) {
 
 /// A fixture must FAIL (nonzero exit) on the given seats.
 fn assert_fails(name: &str, seats: &str) {
-    let (ok, stdout, stderr) = run_cuni(&[
-        "check",
-        &fixture(name),
-        "--only",
-        seats,
-        "--timeout",
-        "240",
-    ]);
+    let (ok, stdout, stderr) =
+        run_cuni(&["check", &fixture(name), "--only", seats, "--timeout", "240"]);
     assert!(
         !ok,
         "expected failure for {name} on [{seats}] but it passed\nstdout:\n{stdout}"
@@ -163,7 +151,8 @@ fn stdlib_sol_refuses_all() {
     // The sol seat refuses every wave-1 function (docs/STDLIB.md §5).
     // `cuni check` treats an emit refusal as failure — that IS the assertion.
     for name in ["json", "time-epoch", "str-split", "sha"] {
-        let (ok, stdout, _) = run_cuni(&["check", &fixture(name), "--only", "sol", "--timeout", "120"]);
+        let (ok, stdout, _) =
+            run_cuni(&["check", &fixture(name), "--only", "sol", "--timeout", "120"]);
         assert!(!ok, "sol should refuse {name} but passed\n{stdout}");
         assert!(
             stdout.contains("REFUSE") || stdout.contains("refusing"),
@@ -176,7 +165,8 @@ fn stdlib_sol_refuses_all() {
 fn stdlib_sql_refuses_non_green() {
     // sql is green only for time.epoch, trim, contains (docs/STDLIB.md §5).
     for name in ["json", "time-parts", "str-split", "str-join", "sha"] {
-        let (ok, stdout, _) = run_cuni(&["check", &fixture(name), "--only", "sql", "--timeout", "120"]);
+        let (ok, stdout, _) =
+            run_cuni(&["check", &fixture(name), "--only", "sql", "--timeout", "120"]);
         assert!(!ok, "sql should refuse {name} but passed\n{stdout}");
         assert!(
             stdout.contains("refusing"),

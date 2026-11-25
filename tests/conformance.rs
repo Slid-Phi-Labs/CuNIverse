@@ -165,7 +165,12 @@ fn emit_top50_writes_first_fifty_catalog_languages() {
         .filter_map(|e| e.ok())
         .filter(|e| e.path().is_file())
         .collect();
-    assert_eq!(files.len(), 50, "emit-top50 wrote {} files, expected 50", files.len());
+    assert_eq!(
+        files.len(),
+        50,
+        "emit-top50 wrote {} files, expected 50",
+        files.len()
+    );
     // Spot-check LANGS-order naming: first seat py, fiftieth seat hack.
     assert!(dir.join("py.py").is_file(), "missing py.py");
     assert!(dir.join("hack.hack").is_file(), "missing hack.hack");

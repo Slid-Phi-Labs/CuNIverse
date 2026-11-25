@@ -347,9 +347,7 @@ impl Emitter {
                 let tname = match &target.kind {
                     ExprKind::Ident(n) => n.clone(),
                     _ => {
-                        return Err(
-                            "complex assignment target: beyond core subset; refusing".into()
-                        )
+                        return Err("complex assignment target: beyond core subset; refusing".into())
                     }
                 };
                 if self.lookup(&tname).is_none() {
@@ -416,7 +414,7 @@ impl Emitter {
                             if n == "say" {
                                 if args.len() != 1 {
                                     return Err(
-                                        "say: exactly one argument in core subset; refusing".into()
+                                        "say: exactly one argument in core subset; refusing".into(),
                                     );
                                 }
                                 let (v, _) = self.gen_expr(args[0].expr())?;
@@ -437,7 +435,11 @@ impl Emitter {
         match &e.kind {
             ExprKind::Int(n) => Ok((format!("{}L", n), Ty::Int)),
             ExprKind::Bool(b) => Ok((
-                if *b { "true".to_string() } else { "false".to_string() },
+                if *b {
+                    "true".to_string()
+                } else {
+                    "false".to_string()
+                },
                 Ty::Bool,
             )),
             ExprKind::Str(s) => Ok((kt_str(s), Ty::Str)),
@@ -563,6 +565,9 @@ fn require_bools(l: Ty, r: Ty, op: &str) -> Result<(), String> {
     if l == Ty::Bool && r == Ty::Bool {
         Ok(())
     } else {
-        Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+        Err(format!(
+            "`{}` on non-bool: beyond core subset; refusing",
+            op
+        ))
     }
 }

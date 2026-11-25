@@ -93,10 +93,7 @@ fn escrow_verdicts_are_pinned() {
     // The law itself must not silently change: the interpreter seat prints
     // the six driver verdicts, asserted byte-for-byte.
     let (ok, stdout, stderr) = run_cuni(&["run", FIXTURE]);
-    assert!(
-        ok,
-        "cuni run failed\nstdout:\n{stdout}\nstderr:\n{stderr}"
-    );
+    assert!(ok, "cuni run failed\nstdout:\n{stdout}\nstderr:\n{stderr}");
     assert_eq!(
         stdout, EXPECTED_VERDICTS,
         "validation verdicts drifted — the law changed without the gate catching it"

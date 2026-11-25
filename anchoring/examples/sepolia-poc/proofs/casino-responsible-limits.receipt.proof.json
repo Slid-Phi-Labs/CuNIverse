@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "receipt_name": "casino-responsible-limits.receipt.json",
+  "receipt_digest": "f141fc3f3a61710d8b842723acfd191aa1dee53c12f24345ba8814a6a098d4cf",
+  "source_hash": "7e2c64a7b2824bacbd5ee598c5ab5792fabf6815caa0bde9d05afd47b78d7f50",
+  "leaf_index": 10,
+  "leaf_count": 19,
+  "merkle_path": [
+    {
+      "side": "right",
+      "hash": "4de9d0ca9842662a72afacd451041171c0bc9d0e36398143fecb209ba51d3a25"
+    },
+    {
+      "side": "left",
+      "hash": "83ac3049c5aa25d2c4034307c07d12ed2d2492f5c082ce7a19af2e77523e4fcf"
+    },
+    {
+      "side": "right",
+      "hash": "ff08cdf98b13d83c288ebe51d9b7598761b428e3f39774aab8bd671598a8011f"
+    },
+    {
+      "side": "left",
+      "hash": "0d5882b51281d7926592dcf4f686369d7869ec997e874149a81910c4a6ed3afe"
+    },
+    {
+      "side": "right",
+      "hash": "f655509d0eb6f1c461f34265f8bd58d80f2713612787ca604fd9076fd549ec3a"
+    }
+  ],
+  "batch_id": "2026-10-22-exactodds-receipts-poc",
+  "batch_root": "30cd774cb620fbbebfe2f55f22971e7b4a03dfe39997d839b8e6840f49452a70",
+  "anchor": {
+    "chain_id": 84532,
+    "chain": "base-sepolia",
+    "tx_hash": "0x176fb27b7fb3ec9da3a3b89988398fb22549cca6ea0d012f1f2eafee0dccc9ab",
+    "from": "0x364b7b0864D9564A5f98225b78DefbB78F44b579",
+    "block_number": 48781694,
+    "block_timestamp": 1792678207,
+    "gas_used": 23720
+  }
+}

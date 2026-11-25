@@ -12,7 +12,7 @@ Spend caps, floors, and approval thresholds often exist in more than one place (
 - Only then **run** or **register** the rule
 
 ## 30-second proof
-1. Open https://cuni-studio.fly.dev/  
+1. Open https://spl-cuni-studio.fly.dev/  
 2. Flagship example loads: can I spend `amount` under `cap`?  
 3. Click **Run exactness** → PASS or clear FAIL  
 4. Optional: **Publish** (only after PASS)  
@@ -33,7 +33,7 @@ Teams that ship multi-runtime or agent automation where a wrong limit costs mone
 - **Paid (planned):** private workspace — saved policies, history, audit trail  
 
 ## Links
-- Studio: https://cuni-studio.fly.dev/  
+- Studio: https://spl-cuni-studio.fly.dev/  
 - Plain walkthrough: [DEMO_PLAIN.md](DEMO_PLAIN.md)  
 - Positioning: [POSITIONING.md](POSITIONING.md)  
 - Release: [v0.1.7](https://github.com/ceedot-rock/cuni/releases/tag/v0.1.7)

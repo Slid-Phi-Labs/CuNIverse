@@ -66,13 +66,20 @@ fn run(cmd: &str, args: &[&str]) -> String {
 /// toolchains, and require byte-identical stdout equal to `expected`.
 fn assert_sql_matches_py(name: &str, src: &str, expected: &str) {
     let dir = std::env::temp_dir();
-    let cuni = dir.join(format!("cuni_failhandler_{}_{}.cuni", std::process::id(), name));
+    let cuni = dir.join(format!(
+        "cuni_failhandler_{}_{}.cuni",
+        std::process::id(),
+        name
+    ));
     std::fs::write(&cuni, src).expect("write fixture");
     let sql = tmp_path(&format!("{name}.sql"));
     let py = tmp_path(&format!("{name}.py"));
     emit(&cuni, "sql", &sql);
     emit(&cuni, "py", &py);
-    let out_sql = run("sqlite3", &[":memory:", &format!(".read {}", sql.display())]);
+    let out_sql = run(
+        "sqlite3",
+        &[":memory:", &format!(".read {}", sql.display())],
+    );
     let out_py = run("python3", &[py.to_str().unwrap()]);
     assert_eq!(out_sql, out_py, "sql and py seats diverged for {name}");
     assert_eq!(out_sql, expected, "wrong output for {name}");

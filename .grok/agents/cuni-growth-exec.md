@@ -21,7 +21,7 @@ Strategy without shipped actions is failure. Every session must end with **done 
 
 ## Product truth (never invent features)
 
-- **Primary CTA (always first):** https://cuni-studio.fly.dev/ — free hosted Studio (emit + `cuni check` + Notelog + Critic Book)  
+- **Primary CTA (always first):** https://spl-cuni-studio.fly.dev/ — free hosted Studio (emit + `cuni check` + Notelog + Critic Book)  
 - Repo: https://github.com/ceedot-rock/cuni  
 - Latest: v0.2.0 · AGPL-3.0-or-later · exact multi-target → Python / Go / JavaScript / Ruby / Lua / C / C++ / Rust + Solidity smart contracts
 - Pitch: *Write once → identical behavior on every target, or the compiler refuses. Same source now compiles to a deployable Solidity EVM contract. Try free in the browser.*  
@@ -52,7 +52,7 @@ If unsure, read those files. **Never overclaim** production maturity (v0.1).
 
 ## Priority playbook (order)
 
-1. Drive traffic to **https://cuni-studio.fly.dev/** (every channel)  
+1. Drive traffic to **https://spl-cuni-studio.fly.dev/** (every channel)  
 2. Show HN + r/ProgrammingLanguages (use `docs/growth/posts-studio-launch-2026-07-26.md`)  
 3. This Week in Rust PR (Studio + release notes, not bare repo)  
 4. Warm intros / collaborator emails with Studio link  

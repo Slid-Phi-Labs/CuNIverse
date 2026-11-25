@@ -165,7 +165,11 @@ fn conv<'a>(stmts: &[&'a Stmt], in_loop: bool, in_def: bool) -> Result<Vec<S<'a>
             } => items.push(S::If {
                 cond,
                 then_body: norm(conv(&refs(then_body), in_loop, in_def)?),
-                else_body: norm(conv(&refs(else_body.as_deref().unwrap_or(&[])), in_loop, in_def)?),
+                else_body: norm(conv(
+                    &refs(else_body.as_deref().unwrap_or(&[])),
+                    in_loop,
+                    in_def,
+                )?),
             }),
             StmtKind::For { .. } => return Err("for: beyond core subset; refusing".into()),
             StmtKind::Whl { cond, body } => items.push(S::Whl {
@@ -201,7 +205,12 @@ fn refs<'a>(stmts: &'a [Stmt]) -> Vec<&'a Stmt> {
 }
 
 fn assigned_outer(stmts: &[S], outer: &HashSet<String>) -> Vec<String> {
-    fn walk(stmts: &[S], outer: &HashSet<String>, seen: &mut HashSet<String>, out: &mut Vec<String>) {
+    fn walk(
+        stmts: &[S],
+        outer: &HashSet<String>,
+        seen: &mut HashSet<String>,
+        out: &mut Vec<String>,
+    ) {
         for s in stmts {
             match s {
                 S::Let { name, .. } | S::Mut { name, .. } | S::Assign { name, .. } => {
@@ -273,14 +282,20 @@ impl Gen {
     fn expr(&mut self, e: &Expr, env: &Env) -> Result<(Vec<String>, String, Ty), String> {
         match &e.kind {
             ExprKind::Int(n) => Ok((vec![], n.to_string(), Ty::Int)),
-            ExprKind::Bool(b) => Ok((vec![], if *b { "true" } else { "false" }.to_string(), Ty::Bool)),
+            ExprKind::Bool(b) => Ok((
+                vec![],
+                if *b { "true" } else { "false" }.to_string(),
+                Ty::Bool,
+            )),
             ExprKind::Str(s) => Ok((vec![], pro_str(s), Ty::Str)),
             ExprKind::Float(_) => Err("float: beyond core subset; refusing".into()),
             ExprKind::Dec(_) => Err("dec: beyond core subset; refusing".into()),
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
             ExprKind::Ident(n) => lookup(env, n).map(|(v, t)| (vec![], v, t)),
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -294,9 +309,11 @@ impl Gen {
                 if name == "say" {
                     return Err("say: use as a statement, not an expression; refusing".into());
                 }
-                let ret = self.fn_ret.get(&name).copied().ok_or_else(|| {
-                    format!("call to unknown function `{}`: refusing", name)
-                })?;
+                let ret = self
+                    .fn_ret
+                    .get(&name)
+                    .copied()
+                    .ok_or_else(|| format!("call to unknown function `{}`: refusing", name))?;
                 let mut pre = Vec::new();
                 let mut parts = Vec::new();
                 for a in args {
@@ -350,7 +367,10 @@ impl Gen {
                         // Comparisons and logic reify to true/false.
                         let goal = self.cmp_goal(op, &l, lt, &r, rt)?;
                         let tmp = self.fresh();
-                        pre.push(format!("(( {}) -> {} = true ; {} = false )", goal, tmp, tmp));
+                        pre.push(format!(
+                            "(( {}) -> {} = true ; {} = false )",
+                            goal, tmp, tmp
+                        ));
                         Ok((pre, tmp, Ty::Bool))
                     }
                 }
@@ -364,7 +384,10 @@ impl Gen {
                         }
                         let tmp = self.fresh();
                         let mut pre = pre;
-                        pre.push(format!("(( {} == true ) -> {} = false ; {} = true )", v, tmp, tmp));
+                        pre.push(format!(
+                            "(( {} == true ) -> {} = false ; {} = true )",
+                            v, tmp, tmp
+                        ));
                         Ok((pre, tmp, Ty::Bool))
                     }
                     UnOp::Neg => {
@@ -400,7 +423,14 @@ impl Gen {
         }
     }
 
-    fn eq_goal(lt: Ty, rt: Ty, l: &str, r: &str, int_op: &str, str_op: &str) -> Result<String, String> {
+    fn eq_goal(
+        lt: Ty,
+        rt: Ty,
+        l: &str,
+        r: &str,
+        int_op: &str,
+        str_op: &str,
+    ) -> Result<String, String> {
         if lt == Ty::Int && rt == Ty::Int {
             Ok(format!("{} {} {}", l, int_op, r))
         } else if lt == Ty::Str && rt == Ty::Str {
@@ -412,7 +442,14 @@ impl Gen {
         }
     }
 
-    fn ord_goal(lt: Ty, rt: Ty, l: &str, r: &str, int_op: &str, str_op: &str) -> Result<String, String> {
+    fn ord_goal(
+        lt: Ty,
+        rt: Ty,
+        l: &str,
+        r: &str,
+        int_op: &str,
+        str_op: &str,
+    ) -> Result<String, String> {
         if lt == Ty::Int && rt == Ty::Int {
             Ok(format!("{} {} {}", l, int_op, r))
         } else if lt == Ty::Str && rt == Ty::Str {
@@ -442,14 +479,20 @@ impl Gen {
         if l == Ty::Bool && r == Ty::Bool {
             Ok(())
         } else {
-            Err(format!("`{}` on non-bool: beyond core subset; refusing", op))
+            Err(format!(
+                "`{}` on non-bool: beyond core subset; refusing",
+                op
+            ))
         }
     }
 
     fn check_ann(ty: Option<Ty>, vt: Ty, name: &str, kw: &str) -> Result<(), String> {
         if let Some(at) = ty {
             if at != vt {
-                return Err(format!("{} {}: annotated type disagrees with value; refusing", kw, name));
+                return Err(format!(
+                    "{} {}: annotated type disagrees with value; refusing",
+                    kw, name
+                ));
             }
         }
         Ok(())
@@ -457,12 +500,7 @@ impl Gen {
 
     /// Goals for `stmts`; threads SSA env. `ret_var` is Some in def bodies
     /// (the result variable); statements append to `out`.
-    fn goals(
-        &mut self,
-        stmts: &[S],
-        env: &mut Env,
-        out: &mut Vec<String>,
-    ) -> Result<(), String> {
+    fn goals(&mut self, stmts: &[S], env: &mut Env, out: &mut Vec<String>) -> Result<(), String> {
         for s in stmts {
             match s {
                 S::Let { name, ty, value } => {
@@ -483,7 +521,10 @@ impl Gen {
                 }
                 S::Assign { name, value } => {
                     if !env.contains_key(*name) {
-                        return Err(format!("assignment to unknown variable `{}`: refusing", name));
+                        return Err(format!(
+                            "assignment to unknown variable `{}`: refusing",
+                            name
+                        ));
                     }
                     let (pre, v, vt) = self.expr(value, env)?;
                     let var = self.fresh();
@@ -636,7 +677,9 @@ impl Gen {
                     }
                     out.push(format!("{}({})", pname, call_args.join(", ")));
                 }
-                S::Ret(_) => return Err("ret not in tail position: internal error; refusing".into()),
+                S::Ret(_) => {
+                    return Err("ret not in tail position: internal error; refusing".into())
+                }
             }
         }
         Ok(())
@@ -721,10 +764,16 @@ pub fn generate(program: &Program) -> Result<String, String> {
         match item {
             Item::Def(f) => {
                 if f.fallible {
-                    return Err(format!("def {}: fallible functions beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: fallible functions beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if !f.generics.is_empty() {
-                    return Err(format!("def {}: generics beyond core subset; refusing", f.name));
+                    return Err(format!(
+                        "def {}: generics beyond core subset; refusing",
+                        f.name
+                    ));
                 }
                 if f.is_link {
                     return Err(format!("link {}: beyond core subset; refusing", f.name));

@@ -201,7 +201,10 @@ impl Emitter {
         if self.n_str > MAX_STR_TEMPS {
             return Err("expression too complex for the COBOL seat; refusing".into());
         }
-        Ok((format!("CUNI-S{}", self.n_str), format!("CUNI-S{}-LEN", self.n_str)))
+        Ok((
+            format!("CUNI-S{}", self.n_str),
+            format!("CUNI-S{}-LEN", self.n_str),
+        ))
     }
 }
 
@@ -262,7 +265,10 @@ impl Emitter {
                             ));
                         }
                         m.insert(name.to_string(), ty);
-                        self.flocal_order.entry(f.clone()).or_default().push(name.to_string());
+                        self.flocal_order
+                            .entry(f.clone())
+                            .or_default()
+                            .push(name.to_string());
                     }
                 }
             }
@@ -358,13 +364,19 @@ impl Emitter {
                     Ok(Ty::Bool)
                 }
             },
-            ExprKind::Unary { op: UnOp::Not, expr } => {
+            ExprKind::Unary {
+                op: UnOp::Not,
+                expr,
+            } => {
                 if self.infer(expr)? != Ty::Bool {
                     return Err("`not` on non-bool: beyond core subset; refusing".into());
                 }
                 Ok(Ty::Bool)
             }
-            ExprKind::Unary { op: UnOp::Neg, expr } => {
+            ExprKind::Unary {
+                op: UnOp::Neg,
+                expr,
+            } => {
                 if self.infer(expr)? != Ty::Int {
                     return Err("unary `-` on non-int: beyond core subset; refusing".into());
                 }
@@ -375,7 +387,9 @@ impl Emitter {
             ExprKind::Dec(_) => Err("dec: beyond core subset; refusing".into()),
             ExprKind::Time(_) => Err("time: beyond core subset; refusing".into()),
             ExprKind::NoneLit => Err("none: beyond core subset; refusing".into()),
-            ExprKind::InterpStr(_) => Err("interpolated string: beyond core subset; refusing".into()),
+            ExprKind::InterpStr(_) => {
+                Err("interpolated string: beyond core subset; refusing".into())
+            }
             ExprKind::List(_) => Err("list: beyond core subset; refusing".into()),
             ExprKind::Map(_) => Err("map: beyond core subset; refusing".into()),
             ExprKind::Index { .. } => Err("indexing: beyond core subset; refusing".into()),
@@ -417,7 +431,12 @@ impl Emitter {
     }
 
     /// Evaluate call arguments into the callee's parameter globals.
-    fn call_args(&mut self, name: &str, params: &[(String, Ty)], args: &[CallArg]) -> Result<(), String> {
+    fn call_args(
+        &mut self,
+        name: &str,
+        params: &[(String, Ty)],
+        args: &[CallArg],
+    ) -> Result<(), String> {
         if args.len() != params.len() {
             return Err(format!(
                 "call to `{name}`: arity mismatch ({} given, {} expected); refusing",
@@ -432,7 +451,9 @@ impl Emitter {
             }
             let at = self.infer(a.expr())?;
             if at != *pt {
-                return Err(format!("call to `{name}`: argument type mismatch; refusing"));
+                return Err(format!(
+                    "call to `{name}`: argument type mismatch; refusing"
+                ));
             }
             let pg = format!("CUNI-P-{cf}-{}", cob_name(pn));
             match pt {
@@ -460,7 +481,9 @@ impl Emitter {
             ExprKind::Int(n) => Ok(IPlace::Simple(n.to_string())),
             ExprKind::Ident(n) => match self.place_of(n)? {
                 Place::Int(p) => Ok(IPlace::Simple(p)),
-                _ => Err(format!("variable `{n}` is not an int: beyond core subset; refusing")),
+                _ => Err(format!(
+                    "variable `{n}` is not an int: beyond core subset; refusing"
+                )),
             },
             ExprKind::Binary { op, lhs, rhs } => match op {
                 BinOp::Add | BinOp::Sub | BinOp::Mul => {
@@ -496,16 +519,16 @@ impl Emitter {
                     self.ln("DIVIDE CUNI-MB INTO CUNI-MA GIVING CUNI-MQ REMAINDER CUNI-MR.");
                     self.ln("IF CUNI-MR NOT = 0");
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     self.ln("IF (CUNI-MA < 0 AND CUNI-MB > 0) OR (CUNI-MA > 0 AND CUNI-MB < 0)");
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     self.ln("COMPUTE CUNI-MR = CUNI-MR + CUNI-MB.");
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                     self.ln("END-IF.");
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                     self.ln("END-IF.");
                     let t = self.fresh_int()?;
                     self.ln(&format!("MOVE CUNI-MR TO {t}."));
@@ -516,7 +539,10 @@ impl Emitter {
                     op_name(op)
                 )),
             },
-            ExprKind::Unary { op: UnOp::Neg, expr } => {
+            ExprKind::Unary {
+                op: UnOp::Neg,
+                expr,
+            } => {
                 let v = self.int_item(expr)?;
                 Ok(IPlace::Expr(format!("(0 - {v})")))
             }
@@ -559,9 +585,15 @@ impl Emitter {
             ExprKind::Str(s) => Ok(StrPlace::Lit(cob_str(s), s.len())),
             ExprKind::Ident(n) => match self.place_of(n)? {
                 Place::Str(b, l) => Ok(StrPlace::Pair(b, l)),
-                _ => Err(format!("variable `{n}` is not a str: beyond core subset; refusing")),
+                _ => Err(format!(
+                    "variable `{n}` is not a str: beyond core subset; refusing"
+                )),
             },
-            ExprKind::Binary { op: BinOp::Add, lhs, rhs } => {
+            ExprKind::Binary {
+                op: BinOp::Add,
+                lhs,
+                rhs,
+            } => {
                 if self.infer(lhs)? != Ty::Str || self.infer(rhs)? != Ty::Str {
                     return Err("mixed-type `+`: beyond core subset; refusing".into());
                 }
@@ -572,11 +604,11 @@ impl Emitter {
                 let (tb, tl) = self.fresh_str()?;
                 self.ln(&format!("IF {ll} + {rl} > {STR_BUF}"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln("DISPLAY \"cuni: string too long; refusing\".");
                 self.ln("STOP RUN RETURNING 1.");
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("END-IF.");
                 self.ln(&format!(
                     "STRING {lb} DELIMITED BY SIZE {rb} DELIMITED BY SIZE INTO {tb}."
@@ -662,7 +694,9 @@ impl Emitter {
                     self.ln(&format!("MOVE {p} TO {out}."));
                     Ok(())
                 }
-                _ => Err(format!("variable `{n}` is not a bool: beyond core subset; refusing")),
+                _ => Err(format!(
+                    "variable `{n}` is not a bool: beyond core subset; refusing"
+                )),
             },
             ExprKind::Binary { op, lhs, rhs } => match op {
                 BinOp::And => {
@@ -670,18 +704,18 @@ impl Emitter {
                     self.gen_bool(lhs, &t1)?;
                     self.ln(&format!("IF {t1} = 1"));
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     let t2 = self.fresh_bool()?;
                     self.gen_bool(rhs, &t2)?;
                     self.bool_move(&t2, out)?;
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                     self.ln("ELSE");
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     self.ln(&format!("MOVE 0 TO {out}."));
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                     self.ln("END-IF.");
                     Ok(())
                 }
@@ -690,18 +724,18 @@ impl Emitter {
                     self.gen_bool(lhs, &t1)?;
                     self.ln(&format!("IF {t1} = 1"));
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     self.ln(&format!("MOVE 1 TO {out}."));
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                     self.ln("ELSE");
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     let t2 = self.fresh_bool()?;
                     self.gen_bool(rhs, &t2)?;
                     self.bool_move(&t2, out)?;
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                     self.ln("END-IF.");
                     Ok(())
                 }
@@ -710,7 +744,10 @@ impl Emitter {
                 }
                 _ => Err("non-bool operator in bool position: beyond core subset; refusing".into()),
             },
-            ExprKind::Unary { op: UnOp::Not, expr } => {
+            ExprKind::Unary {
+                op: UnOp::Not,
+                expr,
+            } => {
                 let t = self.fresh_bool()?;
                 self.gen_bool(expr, &t)?;
                 self.ln(&format!("COMPUTE {out} = 1 - {t}."));
@@ -773,16 +810,16 @@ impl Emitter {
                 };
                 self.ln(&format!("IF {l} {o} {r}"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln(&format!("MOVE 1 TO {out}."));
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("ELSE");
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln(&format!("MOVE 0 TO {out}."));
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("END-IF.");
                 Ok(())
             }
@@ -803,16 +840,16 @@ impl Emitter {
                 };
                 self.ln(&format!("IF {t1} {o} {t2}"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln(&format!("MOVE 1 TO {out}."));
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("ELSE");
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln(&format!("MOVE 0 TO {out}."));
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("END-IF.");
                 Ok(())
             }
@@ -834,16 +871,16 @@ impl Emitter {
                 };
                 self.ln(&format!("IF CUNI-CCMP {o}"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln(&format!("MOVE 1 TO {out}."));
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("ELSE");
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln(&format!("MOVE 0 TO {out}."));
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("END-IF.");
                 Ok(())
             }
@@ -1062,16 +1099,16 @@ impl Emitter {
                 self.gen_bool(e, &t)?;
                 self.ln(&format!("IF {t} = 1"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln("DISPLAY \"True\".");
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("ELSE");
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 self.ln("DISPLAY \"False\".");
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("END-IF.");
                 Ok(())
             }
@@ -1106,9 +1143,7 @@ impl Emitter {
                 let tname = match &target.kind {
                     ExprKind::Ident(n) => n.clone(),
                     _ => {
-                        return Err(
-                            "complex assignment target: beyond core subset; refusing".into()
-                        )
+                        return Err("complex assignment target: beyond core subset; refusing".into())
                     }
                 };
                 let place = self.place_of(&tname)?;
@@ -1135,11 +1170,9 @@ impl Emitter {
                 match rt {
                     Ty::Int => self.store_int(x, &format!("CUNI-R-{cf}"))?,
                     Ty::Bool => self.gen_bool(x, &format!("CUNI-R-{cf}"))?,
-                    Ty::Str => self.store_str(
-                        x,
-                        &format!("CUNI-R-{cf}"),
-                        &format!("CUNI-R-{cf}-LEN"),
-                    )?,
+                    Ty::Str => {
+                        self.store_str(x, &format!("CUNI-R-{cf}"), &format!("CUNI-R-{cf}-LEN"))?
+                    }
                 }
                 // Pop the frame and leave the paragraph; a `ret` inside a
                 // branch must not fall through.
@@ -1147,7 +1180,11 @@ impl Emitter {
                 Ok(())
             }
             StmtKind::Fail(_) => Err("fail: beyond core subset; refusing".into()),
-            StmtKind::If { cond, then_body, else_body } => {
+            StmtKind::If {
+                cond,
+                then_body,
+                else_body,
+            } => {
                 if self.infer(cond)? != Ty::Bool {
                     return Err("if condition must be bool; refusing".into());
                 }
@@ -1155,21 +1192,21 @@ impl Emitter {
                 self.gen_bool(cond, &t)?;
                 self.ln(&format!("IF {t} = 1"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 for s in then_body {
                     self.gen_stmt(s)?;
                 }
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 if let Some(eb) = else_body {
                     self.ln("ELSE");
                     self.level += 1;
-        self.scope += 1;
+                    self.scope += 1;
                     for s in eb {
                         self.gen_stmt(s)?;
                     }
                     self.level -= 1;
-        self.scope -= 1;
+                    self.scope -= 1;
                 }
                 self.ln("END-IF.");
                 Ok(())
@@ -1185,13 +1222,13 @@ impl Emitter {
                 self.gen_bool(cond, &t)?;
                 self.ln(&format!("PERFORM UNTIL {t} = 0"));
                 self.level += 1;
-        self.scope += 1;
+                self.scope += 1;
                 for s in body {
                     self.gen_stmt(s)?;
                 }
                 self.gen_bool(cond, &t)?;
                 self.level -= 1;
-        self.scope -= 1;
+                self.scope -= 1;
                 self.ln("END-PERFORM.");
                 Ok(())
             }
@@ -1205,9 +1242,7 @@ impl Emitter {
                                 );
                             }
                             if args[0].is_named() {
-                                return Err(
-                                    "named arguments: beyond core subset; refusing".into()
-                                );
+                                return Err("named arguments: beyond core subset; refusing".into());
                             }
                             return self.gen_say(args[0].expr());
                         }
@@ -1340,10 +1375,7 @@ impl Emitter {
         o.push_str("PROGRAM-ID. CUNI-MAIN.\n");
         o.push_str("DATA DIVISION.\n");
         o.push_str("WORKING-STORAGE SECTION.\n");
-        o.push_str(&format!(
-            "01 CUNI-INT-EDIT PIC {}9.\n",
-            "-".repeat(18)
-        ));
+        o.push_str(&format!("01 CUNI-INT-EDIT PIC {}9.\n", "-".repeat(18)));
         for i in 1..=self.n_int {
             o.push_str(&format!("01 CUNI-T{i} PIC S9(19).\n"));
         }
@@ -1374,8 +1406,7 @@ impl Emitter {
         for f in &self.order.clone() {
             let cf = cob_name(f);
             if let Some(names) = self.flocal_order.get(f).cloned() {
-                let tys: HashMap<String, Ty> =
-                    self.flocals.get(f).cloned().unwrap_or_default();
+                let tys: HashMap<String, Ty> = self.flocals.get(f).cloned().unwrap_or_default();
                 for n in &names {
                     let ty = tys[n];
                     let cn = cob_name(n);

@@ -240,238 +240,271 @@ impl Codegen {
     /// Emit `_cuni_itoa` / `_cuni_dec_str` when interpolation or `say`
     /// needed them. Called after all statements are generated.
     fn emit_helpers(&mut self) {
-            // _cuni_itoa helper if any interpolation needs it.
-            if self.needs_dec_str {
-                // _cuni_dec_str reuses _cuni_itoa for the integer part.
-                self.needs_itoa = true;
-            }
-            if self.needs_itoa {
-                self.line(
-                    1,
-                    "/// @notice int256 -> decimal string (for interpolated output).",
-                );
-                self.line(
-                    1,
-                    "function _cuni_itoa(int256 v) internal pure returns (string memory) {",
-                );
-                self.line(2, "if (v == 0) return \"0\";");
-                self.line(2, "bool neg = v < 0;");
-                self.line(2, "uint256 u = neg ? uint256(-v) : uint256(v);");
-                self.line(2, "bytes memory b = new bytes(78);");
-                self.line(2, "uint256 i = 78;");
-                self.line(
-                    2,
-                    "while (u > 0) { i--; b[i] = bytes1(uint8(48 + u % 10)); u /= 10; }",
-                );
-                self.line(2, "bytes memory s = new bytes(78 - i + (neg ? 1 : 0));");
-                self.line(2, "if (neg) s[0] = \"-\";");
-                self.line(
-                    2,
-                    "for (uint256 j = 0; j < 78 - i; j++) s[j + (neg ? 1 : 0)] = b[i + j];",
-                );
-                self.line(2, "return string(s);");
-                self.line(1, "}");
-                // String lexicographic comparison helpers (CuNi `<`, `>` on strings).
-                self.line(
+        // _cuni_itoa helper if any interpolation needs it.
+        if self.needs_dec_str {
+            // _cuni_dec_str reuses _cuni_itoa for the integer part.
+            self.needs_itoa = true;
+        }
+        if self.needs_itoa {
+            self.line(
+                1,
+                "/// @notice int256 -> decimal string (for interpolated output).",
+            );
+            self.line(
+                1,
+                "function _cuni_itoa(int256 v) internal pure returns (string memory) {",
+            );
+            self.line(2, "if (v == 0) return \"0\";");
+            self.line(2, "bool neg = v < 0;");
+            self.line(2, "uint256 u = neg ? uint256(-v) : uint256(v);");
+            self.line(2, "bytes memory b = new bytes(78);");
+            self.line(2, "uint256 i = 78;");
+            self.line(
+                2,
+                "while (u > 0) { i--; b[i] = bytes1(uint8(48 + u % 10)); u /= 10; }",
+            );
+            self.line(2, "bytes memory s = new bytes(78 - i + (neg ? 1 : 0));");
+            self.line(2, "if (neg) s[0] = \"-\";");
+            self.line(
+                2,
+                "for (uint256 j = 0; j < 78 - i; j++) s[j + (neg ? 1 : 0)] = b[i + j];",
+            );
+            self.line(2, "return string(s);");
+            self.line(1, "}");
+            // String lexicographic comparison helpers (CuNi `<`, `>` on strings).
+            self.line(
                     1,
                     "function cuniStrLt(string memory a, string memory b) internal pure returns (bool) {",
                 );
-                self.line(2, "bytes memory ba = bytes(a); bytes memory bb = bytes(b);");
-                self.line(2, "uint len = ba.length < bb.length ? ba.length : bb.length;");
-                self.line(2, "for (uint i = 0; i < len; i++) {");
-                self.line(3, "if (ba[i] < bb[i]) return true;");
-                self.line(3, "if (ba[i] > bb[i]) return false;");
-                self.line(2, "}");
-                self.line(2, "return ba.length < bb.length;");
-                self.line(1, "}");
-                self.line(
+            self.line(2, "bytes memory ba = bytes(a); bytes memory bb = bytes(b);");
+            self.line(
+                2,
+                "uint len = ba.length < bb.length ? ba.length : bb.length;",
+            );
+            self.line(2, "for (uint i = 0; i < len; i++) {");
+            self.line(3, "if (ba[i] < bb[i]) return true;");
+            self.line(3, "if (ba[i] > bb[i]) return false;");
+            self.line(2, "}");
+            self.line(2, "return ba.length < bb.length;");
+            self.line(1, "}");
+            self.line(
                     1,
                     "function cuniStrGt(string memory a, string memory b) internal pure returns (bool) {",
                 );
-                self.line(2, "return cuniStrLt(b, a);");
-                self.line(1, "}");
-                self.out.push('\n');
-            }
-            // _cuni_dec_str helper if any dec say / interpolation needs it.
-            // Canonical dec rendering (docs/DECIMAL.md §6); reuses _cuni_itoa
-            // for the integer part (emitted above when needs_itoa).
-            if self.needs_dec_str {
-                self.line(
-                    1,
-                    "/// @notice scaled int256 -> canonical decimal string (docs/DECIMAL.md §6).",
-                );
-                self.line(
-                    1,
-                    "function _cuni_dec_str(int256 v) internal pure returns (string memory) {",
-                );
-                self.line(2, "bool neg = v < 0;");
-                self.line(2, "uint256 mag = neg ? uint256(-(v + 1)) + 1 : uint256(v);");
-                self.line(2, "uint256 ip = mag / 10000;");
-                self.line(2, "uint256 fp = mag % 10000;");
-                self.line(2, "bytes memory fb = new bytes(4);");
-                self.line(2, "for (uint256 i = 0; i < 4; i++) {");
-                self.line(3, "fb[3 - i] = bytes1(uint8(48 + (fp % 10)));");
-                self.line(3, "fp /= 10;");
-                self.line(2, "}");
-                self.line(2, "uint256 flen = 4;");
-                self.line(2, "while (flen > 1 && fb[flen - 1] == bytes1(uint8(48))) {");
-                self.line(3, "unchecked { flen--; }");
-                self.line(2, "}");
-                self.line(2, "bytes memory frac = new bytes(flen);");
-                self.line(2, "for (uint256 i = 0; i < flen; i++) { frac[i] = fb[i]; }");
-                self.line(2, "string memory istr = _cuni_itoa(int256(ip));");
-                self.line(2, "if (neg) {");
-                self.line(3, "return string(abi.encodePacked(\"-\", istr, \".\", frac));");
-                self.line(2, "}");
-                self.line(2, "return string(abi.encodePacked(istr, \".\", frac));");
-                self.line(1, "}");
-                self.out.push('\n');
-            }
-            // _cuni_time_str (+ _cuni_time_padded) when a time is said or
-            // interpolated. Canonical ISO-8601 UTC (docs/TIME.md §4); the
-            // sol seat's uint256 epochs are non-negative by construction.
-            if self.needs_time_str {
-                self.line(
-                    1,
-                    "/// @notice zero-pad a component to at least `width` digits.",
-                );
-                self.line(
+            self.line(2, "return cuniStrLt(b, a);");
+            self.line(1, "}");
+            self.out.push('\n');
+        }
+        // _cuni_dec_str helper if any dec say / interpolation needs it.
+        // Canonical dec rendering (docs/DECIMAL.md §6); reuses _cuni_itoa
+        // for the integer part (emitted above when needs_itoa).
+        if self.needs_dec_str {
+            self.line(
+                1,
+                "/// @notice scaled int256 -> canonical decimal string (docs/DECIMAL.md §6).",
+            );
+            self.line(
+                1,
+                "function _cuni_dec_str(int256 v) internal pure returns (string memory) {",
+            );
+            self.line(2, "bool neg = v < 0;");
+            self.line(2, "uint256 mag = neg ? uint256(-(v + 1)) + 1 : uint256(v);");
+            self.line(2, "uint256 ip = mag / 10000;");
+            self.line(2, "uint256 fp = mag % 10000;");
+            self.line(2, "bytes memory fb = new bytes(4);");
+            self.line(2, "for (uint256 i = 0; i < 4; i++) {");
+            self.line(3, "fb[3 - i] = bytes1(uint8(48 + (fp % 10)));");
+            self.line(3, "fp /= 10;");
+            self.line(2, "}");
+            self.line(2, "uint256 flen = 4;");
+            self.line(2, "while (flen > 1 && fb[flen - 1] == bytes1(uint8(48))) {");
+            self.line(3, "unchecked { flen--; }");
+            self.line(2, "}");
+            self.line(2, "bytes memory frac = new bytes(flen);");
+            self.line(2, "for (uint256 i = 0; i < flen; i++) { frac[i] = fb[i]; }");
+            self.line(2, "string memory istr = _cuni_itoa(int256(ip));");
+            self.line(2, "if (neg) {");
+            self.line(
+                3,
+                "return string(abi.encodePacked(\"-\", istr, \".\", frac));",
+            );
+            self.line(2, "}");
+            self.line(2, "return string(abi.encodePacked(istr, \".\", frac));");
+            self.line(1, "}");
+            self.out.push('\n');
+        }
+        // _cuni_time_str (+ _cuni_time_padded) when a time is said or
+        // interpolated. Canonical ISO-8601 UTC (docs/TIME.md §4); the
+        // sol seat's uint256 epochs are non-negative by construction.
+        if self.needs_time_str {
+            self.line(
+                1,
+                "/// @notice zero-pad a component to at least `width` digits.",
+            );
+            self.line(
                     1,
                     "function _cuni_time_padded(uint256 x, uint256 width) internal pure returns (string memory) {",
                 );
-                self.line(2, "bytes memory b = new bytes(78);");
-                self.line(2, "uint256 i = 78;");
-                self.line(2, "if (x == 0) { i--; b[i] = \"0\"; }");
-                self.line(
-                    2,
-                    "else { while (x > 0) { i--; b[i] = bytes1(uint8(48 + x % 10)); x /= 10; } }",
-                );
-                self.line(2, "uint256 len = 78 - i;");
-                self.line(2, "uint256 pad = len < width ? width - len : 0;");
-                self.line(2, "bytes memory s = new bytes(len + pad);");
-                self.line(2, "for (uint256 j = 0; j < pad; j++) s[j] = \"0\";");
-                self.line(2, "for (uint256 j = 0; j < len; j++) s[pad + j] = b[i + j];");
-                self.line(2, "return string(s);");
-                self.line(1, "}");
-                self.out.push('\n');
-                self.line(
-                    1,
-                    "/// @notice uint256 epoch -> canonical ISO-8601 UTC string (docs/TIME.md §4).",
-                );
-                self.line(
-                    1,
-                    "function _cuni_time_str(uint256 v) internal pure returns (string memory) {",
-                );
-                self.line(2, "uint256 ddays = v / 86400;  // `days` is a Solidity keyword");
-                self.line(2, "uint256 sod = v % 86400;");
-                self.line(2, "uint256 z = ddays + 719468;");
-                self.line(2, "uint256 era = z / 146097;");
-                self.line(2, "uint256 doe = z - era * 146097;");
-                self.line(2, "uint256 yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;");
-                self.line(2, "uint256 y = yoe + era * 400;");
-                self.line(2, "uint256 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);");
-                self.line(2, "uint256 mp = (5 * doy + 2) / 153;");
-                self.line(2, "uint256 d = doy - (153 * mp + 2) / 5 + 1;");
-                self.line(2, "uint256 m = mp < 10 ? mp + 3 : mp - 9;");
-                self.line(2, "if (m <= 2) y += 1;");
-                self.line(2, "uint256 hh = sod / 3600;");
-                self.line(2, "uint256 mi = (sod % 3600) / 60;");
-                self.line(2, "uint256 ss = sod % 60;");
-                self.line(
+            self.line(2, "bytes memory b = new bytes(78);");
+            self.line(2, "uint256 i = 78;");
+            self.line(2, "if (x == 0) { i--; b[i] = \"0\"; }");
+            self.line(
+                2,
+                "else { while (x > 0) { i--; b[i] = bytes1(uint8(48 + x % 10)); x /= 10; } }",
+            );
+            self.line(2, "uint256 len = 78 - i;");
+            self.line(2, "uint256 pad = len < width ? width - len : 0;");
+            self.line(2, "bytes memory s = new bytes(len + pad);");
+            self.line(2, "for (uint256 j = 0; j < pad; j++) s[j] = \"0\";");
+            self.line(
+                2,
+                "for (uint256 j = 0; j < len; j++) s[pad + j] = b[i + j];",
+            );
+            self.line(2, "return string(s);");
+            self.line(1, "}");
+            self.out.push('\n');
+            self.line(
+                1,
+                "/// @notice uint256 epoch -> canonical ISO-8601 UTC string (docs/TIME.md §4).",
+            );
+            self.line(
+                1,
+                "function _cuni_time_str(uint256 v) internal pure returns (string memory) {",
+            );
+            self.line(
+                2,
+                "uint256 ddays = v / 86400;  // `days` is a Solidity keyword",
+            );
+            self.line(2, "uint256 sod = v % 86400;");
+            self.line(2, "uint256 z = ddays + 719468;");
+            self.line(2, "uint256 era = z / 146097;");
+            self.line(2, "uint256 doe = z - era * 146097;");
+            self.line(
+                2,
+                "uint256 yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;",
+            );
+            self.line(2, "uint256 y = yoe + era * 400;");
+            self.line(2, "uint256 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);");
+            self.line(2, "uint256 mp = (5 * doy + 2) / 153;");
+            self.line(2, "uint256 d = doy - (153 * mp + 2) / 5 + 1;");
+            self.line(2, "uint256 m = mp < 10 ? mp + 3 : mp - 9;");
+            self.line(2, "if (m <= 2) y += 1;");
+            self.line(2, "uint256 hh = sod / 3600;");
+            self.line(2, "uint256 mi = (sod % 3600) / 60;");
+            self.line(2, "uint256 ss = sod % 60;");
+            self.line(
                     2,
                     "return string(abi.encodePacked(_cuni_time_padded(y, 4), \"-\", _cuni_time_padded(m, 2), \"-\", _cuni_time_padded(d, 2), \"T\", _cuni_time_padded(hh, 2), \":\", _cuni_time_padded(mi, 2), \":\", _cuni_time_padded(ss, 2), \"Z\"));",
                 );
-                self.line(1, "}");
-                self.out.push('\n');
-            }
-            // Time arithmetic/parse helpers (docs/TIME.md §3, §5). Solidity
-            // 0.8 checked arithmetic REVERTS on overflow — the loud refusal.
-            if self.needs_time_helpers {
-                self.line(
+            self.line(1, "}");
+            self.out.push('\n');
+        }
+        // Time arithmetic/parse helpers (docs/TIME.md §3, §5). Solidity
+        // 0.8 checked arithmetic REVERTS on overflow — the loud refusal.
+        if self.needs_time_helpers {
+            self.line(
                     1,
                     "/// @notice strict ISO-8601 UTC -> uint256 epoch (docs/TIME.md §2, §5); reverts loudly on bad input.",
                 );
-                self.line(
+            self.line(
                     1,
                     "function _cuni_time_num(bytes memory b, uint256 lo, uint256 n) internal pure returns (uint256) {",
                 );
-                self.line(2, "uint256 v = 0;");
-                self.line(2, "for (uint256 i = 0; i < n; i++) {");
-                self.line(3, "uint8 c = uint8(b[lo + i]);");
-                self.line(3, "if (c < 48 || c > 57) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
-                self.line(3, "v = v * 10 + (c - 48);");
-                self.line(2, "}");
-                self.line(2, "return v;");
-                self.line(1, "}");
-                self.out.push('\n');
-                self.line(
-                    1,
-                    "function _cuni_parse_time(string memory s) internal pure returns (uint256) {",
-                );
-                self.line(2, "bytes memory b = bytes(s);");
-                self.line(2, "if (b.length != 20) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
-                self.line(2, "if (uint8(b[4]) != 45 || uint8(b[7]) != 45 || uint8(b[10]) != 84 || uint8(b[13]) != 58 || uint8(b[16]) != 58 || uint8(b[19]) != 90)");
-                self.line(3, "revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
-                self.line(2, "uint256 y = _cuni_time_num(b, 0, 4);");
-                self.line(2, "uint256 mo = _cuni_time_num(b, 5, 2);");
-                self.line(2, "uint256 d = _cuni_time_num(b, 8, 2);");
-                self.line(2, "uint256 h = _cuni_time_num(b, 11, 2);");
-                self.line(2, "uint256 mi = _cuni_time_num(b, 14, 2);");
-                self.line(2, "uint256 sec = _cuni_time_num(b, 17, 2);");
-                self.line(2, "if (y < 1 || y > 9999 || mo < 1 || mo > 12) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
-                self.line(2, "uint256 dim = 31;");
-                self.line(2, "if (mo == 4 || mo == 6 || mo == 9 || mo == 11) dim = 30;");
-                self.line(2, "else if (mo == 2) dim = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 29 : 28;");
-                self.line(2, "if (d < 1 || d > dim || h > 23 || mi > 59 || sec > 59) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
-                self.line(2, "uint256 y0 = mo <= 2 ? y - 1 : y;");
-                self.line(2, "uint256 era = y0 / 400;");
-                self.line(2, "uint256 yoe = y0 - era * 400;");
-                self.line(2, "uint256 mp = (mo + 9) % 12;");
-                self.line(2, "uint256 doy = (153 * mp + 2) / 5 + d - 1;");
-                self.line(2, "uint256 doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;");
-                self.line(2, "uint256 ddays = era * 146097 + doe - 719468;  // `days` is a Solidity keyword");
-                self.line(2, "return ddays * 86400 + h * 3600 + mi * 60 + sec;");
-                self.line(1, "}");
-                self.out.push('\n');
-                self.line(
-                    1,
-                    "/// @notice checked time + int seconds (docs/TIME.md §3); reverts on overflow.",
-                );
-                self.line(
-                    1,
-                    "function _cuni_add_seconds(uint256 t, int256 s) internal pure returns (uint256) {",
-                );
-                self.line(2, "if (s >= 0) return t + uint256(s);");
-                self.line(2, "uint256 u = uint256(-(s + 1)) + 1;");
-                self.line(2, "return t - u;");
-                self.line(1, "}");
-                self.out.push('\n');
-                self.line(
-                    1,
-                    "/// @notice checked time - int seconds (docs/TIME.md §3); reverts on underflow.",
-                );
-                self.line(
-                    1,
-                    "function _cuni_sub_seconds(uint256 t, int256 s) internal pure returns (uint256) {",
-                );
-                self.line(2, "if (s >= 0) return t - uint256(s);");
-                self.line(2, "uint256 u = uint256(-(s + 1)) + 1;");
-                self.line(2, "return t + u;");
-                self.line(1, "}");
-                self.out.push('\n');
-                self.line(
-                    1,
-                    "/// @notice whole days between two times, trunc toward zero (docs/TIME.md §5).",
-                );
-                self.line(
+            self.line(2, "uint256 v = 0;");
+            self.line(2, "for (uint256 i = 0; i < n; i++) {");
+            self.line(3, "uint8 c = uint8(b[lo + i]);");
+            self.line(
+                3,
+                "if (c < 48 || c > 57) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");",
+            );
+            self.line(3, "v = v * 10 + (c - 48);");
+            self.line(2, "}");
+            self.line(2, "return v;");
+            self.line(1, "}");
+            self.out.push('\n');
+            self.line(
+                1,
+                "function _cuni_parse_time(string memory s) internal pure returns (uint256) {",
+            );
+            self.line(2, "bytes memory b = bytes(s);");
+            self.line(
+                2,
+                "if (b.length != 20) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");",
+            );
+            self.line(2, "if (uint8(b[4]) != 45 || uint8(b[7]) != 45 || uint8(b[10]) != 84 || uint8(b[13]) != 58 || uint8(b[16]) != 58 || uint8(b[19]) != 90)");
+            self.line(
+                3,
+                "revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");",
+            );
+            self.line(2, "uint256 y = _cuni_time_num(b, 0, 4);");
+            self.line(2, "uint256 mo = _cuni_time_num(b, 5, 2);");
+            self.line(2, "uint256 d = _cuni_time_num(b, 8, 2);");
+            self.line(2, "uint256 h = _cuni_time_num(b, 11, 2);");
+            self.line(2, "uint256 mi = _cuni_time_num(b, 14, 2);");
+            self.line(2, "uint256 sec = _cuni_time_num(b, 17, 2);");
+            self.line(2, "if (y < 1 || y > 9999 || mo < 1 || mo > 12) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
+            self.line(2, "uint256 dim = 31;");
+            self.line(
+                2,
+                "if (mo == 4 || mo == 6 || mo == 9 || mo == 11) dim = 30;",
+            );
+            self.line(
+                2,
+                "else if (mo == 2) dim = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 29 : 28;",
+            );
+            self.line(2, "if (d < 1 || d > dim || h > 23 || mi > 59 || sec > 59) revert(\"cuni: parse_time: bad ISO-8601 UTC timestamp\");");
+            self.line(2, "uint256 y0 = mo <= 2 ? y - 1 : y;");
+            self.line(2, "uint256 era = y0 / 400;");
+            self.line(2, "uint256 yoe = y0 - era * 400;");
+            self.line(2, "uint256 mp = (mo + 9) % 12;");
+            self.line(2, "uint256 doy = (153 * mp + 2) / 5 + d - 1;");
+            self.line(2, "uint256 doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;");
+            self.line(
+                2,
+                "uint256 ddays = era * 146097 + doe - 719468;  // `days` is a Solidity keyword",
+            );
+            self.line(2, "return ddays * 86400 + h * 3600 + mi * 60 + sec;");
+            self.line(1, "}");
+            self.out.push('\n');
+            self.line(
+                1,
+                "/// @notice checked time + int seconds (docs/TIME.md §3); reverts on overflow.",
+            );
+            self.line(
+                1,
+                "function _cuni_add_seconds(uint256 t, int256 s) internal pure returns (uint256) {",
+            );
+            self.line(2, "if (s >= 0) return t + uint256(s);");
+            self.line(2, "uint256 u = uint256(-(s + 1)) + 1;");
+            self.line(2, "return t - u;");
+            self.line(1, "}");
+            self.out.push('\n');
+            self.line(
+                1,
+                "/// @notice checked time - int seconds (docs/TIME.md §3); reverts on underflow.",
+            );
+            self.line(
+                1,
+                "function _cuni_sub_seconds(uint256 t, int256 s) internal pure returns (uint256) {",
+            );
+            self.line(2, "if (s >= 0) return t - uint256(s);");
+            self.line(2, "uint256 u = uint256(-(s + 1)) + 1;");
+            self.line(2, "return t + u;");
+            self.line(1, "}");
+            self.out.push('\n');
+            self.line(
+                1,
+                "/// @notice whole days between two times, trunc toward zero (docs/TIME.md §5).",
+            );
+            self.line(
                     1,
                     "function _cuni_days_between(uint256 a, uint256 b) internal pure returns (int256) {",
                 );
-                self.line(2, "if (a >= b) return int256((a - b) / 86400);");
-                self.line(2, "return -int256((b - a) / 86400);");
-                self.line(1, "}");
-                self.out.push('\n');
-            }
+            self.line(2, "if (a >= b) return int256((a - b) / 86400);");
+            self.line(2, "return -int256((b - a) / 86400);");
+            self.line(1, "}");
+            self.out.push('\n');
+        }
     }
 
     fn gen_struct(&mut self, t: &TypDecl) -> Result<(), String> {
@@ -707,17 +740,11 @@ impl Codegen {
                     SolKind::Int => self.line(indent, &format!("emit LogInt({});", text)),
                     SolKind::Dec => {
                         self.needs_dec_str = true;
-                        self.line(
-                            indent,
-                            &format!("emit LogDec(_cuni_dec_str({}));", text),
-                        )
+                        self.line(indent, &format!("emit LogDec(_cuni_dec_str({}));", text))
                     }
                     SolKind::Time => {
                         self.needs_time_str = true;
-                        self.line(
-                            indent,
-                            &format!("emit LogTime(_cuni_time_str({}));", text),
-                        )
+                        self.line(indent, &format!("emit LogTime(_cuni_time_str({}));", text))
                     }
                     SolKind::Str => self.line(indent, &format!("emit LogString({});", text)),
                     SolKind::Bool => self.line(indent, &format!("emit LogBool({});", text)),
@@ -866,9 +893,7 @@ impl Codegen {
                         BinOp::Gt => format!("({l} > {r})"),
                         BinOp::Le => format!("({l} <= {r})"),
                         BinOp::Ge => format!("({l} >= {r})"),
-                        _ => {
-                            return Err("this operator is not defined on `time`; refusing".into())
-                        }
+                        _ => return Err("this operator is not defined on `time`; refusing".into()),
                     };
                     return Ok(code);
                 }
@@ -883,9 +908,7 @@ impl Codegen {
                         BinOp::Sub => format!("({l} - {r})"),
                         BinOp::Mul => format!("(({l}) * ({r}) / 10000)"),
                         BinOp::Div => format!("(({l}) * 10000 / ({r}))"),
-                        BinOp::Mod => {
-                            return Err("`%` is not defined on `dec`; refusing".into())
-                        }
+                        BinOp::Mod => return Err("`%` is not defined on `dec`; refusing".into()),
                         BinOp::Eq => format!("({l} == {r})"),
                         BinOp::Ne => format!("({l} != {r})"),
                         BinOp::Lt => format!("({l} < {r})"),

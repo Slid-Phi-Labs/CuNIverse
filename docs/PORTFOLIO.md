@@ -6,7 +6,7 @@
 
 ## Primary convert path
 
-1. **[CuNi Studio](https://cuni-studio.fly.dev/)** — free browser playground + **Agent** mode  
+1. **[CuNi Studio](https://spl-cuni-studio.fly.dev/)** — free browser playground + **Agent** mode  
 2. **[Repo](https://github.com/ceedot-rock/cuni)** · tag `v0.1.6`  
 3. Install: `cargo install --git https://github.com/ceedot-rock/cuni --tag v0.1.6`
 
@@ -14,7 +14,7 @@
 
 | Project | One line | Status | Links |
 |---------|----------|--------|-------|
-| **CuNi Studio** | Exact multi-target playground: one source → identical py/go/js or refuse. **Agent** skills (speech routes; law is CuNi). Notelog + Critic Book. | **Live** (Fly) | https://cuni-studio.fly.dev/ · https://github.com/ceedot-rock/cuni |
+| **CuNi Studio** | Exact multi-target playground: one source → identical py/go/js or refuse. **Agent** skills (speech routes; law is CuNi). Notelog + Critic Book. | **Live** (Fly) | https://spl-cuni-studio.fly.dev/ · https://github.com/ceedot-rock/cuni |
 | **CuNi (language)** | Code:uNiTY — exactness compiler + `link` interop | **v0.1.6** open source | https://github.com/ceedot-rock/cuni · [AI is CuNi](AI_IS_CUNI.md) |
 | **$CuNi** | Community signal token for the language (not a product, not financial advice) | **Live on pump** · thin curve after creator bag sold to SOL 2026-07-27 · do **not** lead with this | https://pump.fun/62U1zus7pQfpjsq5xW7DiF6MebtThDeRitaqKBM5jgnd |
 | **Quikgater** | Pay-per-fetch for agents (x402 / USDC on Base) | **Repo live** · worker responds (needs `url` param) | https://github.com/ceedot-rock/quikgater · https://quikgater-worker.ceedotrock.workers.dev |
@@ -27,8 +27,8 @@
 
 | URL | HTTP |
 |-----|------|
-| cuni-studio.fly.dev | 200 |
-| cuni-studio.fly.dev/api/health | 200 |
+| spl-cuni-studio.fly.dev | 200 |
+| spl-cuni-studio.fly.dev/api/health | 200 |
 | github.com/ceedot-rock/cuni | 200 |
 | pump.fun/62U1zus… | 200 |
 | pinata-pools.pages.dev | 200 |
@@ -48,7 +48,7 @@
 ## Positioning lines
 
 **Studio / language:**  
-> Write once in CuNi → identical Python, Go, and JavaScript — or refuse. Try free: cuni-studio.fly.dev
+> Write once in CuNi → identical Python, Go, and JavaScript — or refuse. Try free: spl-cuni-studio.fly.dev
 
 **Agent:**  
 > Speech can route. Law is CuNi and must pass exactness before it runs on py/go/js.
@@ -70,4 +70,4 @@ Ready-to-post bodies: [`growth/posts-portfolio-allowlist-2026-07-27.md`](growth/
 
 ## Legacy Vercel oddity
 
-`cuni.vercel.app` still returns HTTP 200 (“CodeUnity” SPA) and is **not** the canonical Studio. Canonical: https://cuni-studio.fly.dev/. Take-down/301 requires a working Vercel dashboard session; other lab `*.vercel.app` hosts already 402 (account appears billing-locked for those projects). No `vercel.json` redirect is controllable from this repo.
+`cuni.vercel.app` still returns HTTP 200 (“CodeUnity” SPA) and is **not** the canonical Studio. Canonical: https://spl-cuni-studio.fly.dev/. Take-down/301 requires a working Vercel dashboard session; other lab `*.vercel.app` hosts already 402 (account appears billing-locked for those projects). No `vercel.json` redirect is controllable from this repo.

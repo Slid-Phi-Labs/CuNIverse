@@ -370,7 +370,8 @@ impl Gen {
                         "add_seconds" => "v_add_seconds",
                         "days_between" => "v_days_between",
                         // Wave-1 stdlib (docs/STDLIB.md §4).
-                        "sha256" => "v_sha256",                        _ => n.as_str(),
+                        "sha256" => "v_sha256",
+                        _ => n.as_str(),
                     };
                     return format!("{mapped}({a})");
                 }
