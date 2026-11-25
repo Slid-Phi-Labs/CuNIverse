@@ -178,3 +178,70 @@ fn source_hash(bytes: &[u8]) -> String {
     }
     format!("{h:016x}")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::ExitCode;
+
+    fn args(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
+    fn failed(code: ExitCode) -> bool {
+        format!("{code:?}") != format!("{:?}", ExitCode::SUCCESS)
+    }
+
+    #[test]
+    fn hash_empty_is_fnv_offset_basis() {
+        assert_eq!(source_hash(b""), "cbf29ce484222325");
+    }
+
+    #[test]
+    fn hash_is_deterministic_hex16() {
+        let a = source_hash(b"print(1)");
+        assert_eq!(a, source_hash(b"print(1)"));
+        assert_eq!(a.len(), 16);
+        assert!(a.chars().all(|c| c.is_ascii_hexdigit()));
+        assert_ne!(a, source_hash(b"print(2)"));
+    }
+
+    #[test]
+    fn usage_errors_fail_before_any_work() {
+        assert!(failed(cmd_bank(&[])));
+        assert!(failed(cmd_bank(&args(&["--help"]))));
+        assert!(failed(cmd_bank(&args(&["emit"]))));
+        assert!(failed(cmd_bank(&args(&["paste"]))));
+        assert!(failed(cmd_bank(&args(&[
+            "paste", "x", "--to", "py", "--bogus"
+        ]))));
+    }
+
+    #[test]
+    fn unknown_lang_refused_before_disk() {
+        // The lang gate runs before any read: this path touches no files.
+        assert!(failed(cmd_bank(&args(&[
+            "paste",
+            "definitely-not-here.cuni",
+            "--to",
+            "bogus"
+        ]))));
+    }
+
+    #[test]
+    fn non_py_from_refused() {
+        assert!(failed(cmd_bank(&args(&[
+            "paste", "x", "--from", "java", "--to", "py"
+        ]))));
+    }
+
+    #[test]
+    fn missing_file_fails_cleanly() {
+        assert!(failed(cmd_bank(&args(&[
+            "paste",
+            "definitely-not-here.cuni",
+            "--to",
+            "py"
+        ]))));
+    }
+}
