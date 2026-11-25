@@ -56,6 +56,7 @@ mod codegen_scala;
 mod codegen_sh;
 mod codegen_tcl;
 mod emit;
+mod host;
 mod ingest;
 mod interp;
 mod langs;
@@ -74,6 +75,8 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::{Duration, SystemTime};
 
+use cuni::install;
+
 /// Exit-code contract. The gate is machine-readable: a shell, Rider, or
 /// Studio must be able to tell "the program diverged" from "you forgot a
 /// file" without parsing prose.
@@ -87,6 +90,25 @@ use std::time::{Duration, SystemTime};
 /// 53-entry catalog stays available via `cuni check --all`; `--only`
 /// overrides both.
 const DEFAULT_CHECK_SEATS: &[&str] = &["py", "rs", "go", "java", "sql", "js"];
+/// Decimal and finance gold. Same seats `cuni audit` proves against.
+const MONEY_SEATS: &[&str] = &["py", "rs", "go", "java", "sql"];
+/// Time law: the seats the time proof runs that a lab image can install.
+const TIME_SEATS: &[&str] = &["py", "go", "js", "c", "cpp", "rs", "java", "sql"];
+/// Firmware promote gate: C and Rust, or nothing ships.
+const SHIP_SEATS: &[&str] = &["c", "rs"];
+/// ML kernel, crypto digest, and the SQL seat.
+const PARITY_SEATS: &[&str] = &["py", "rs", "c", "go", "sql"];
+/// Chain call. Flag, file name, public id.
+const CHAIN_TARGETS: &[(&str, &str, &str)] = &[
+    ("sol", "--emit-sol", "out.sol"),
+    ("solana", "--emit-solana", "out_solana.rs"),
+    ("ink", "--emit-ink", "out_ink.rs"),
+    ("move", "--emit-move", "out.move"),
+    ("vyper", "--emit-vyper", "out.vy"),
+    ("cairo", "--emit-cairo", "out.cairo"),
+    ("clarity", "--emit-clarity", "out.clar"),
+    ("cadence", "--emit-cadence", "out.cdc"),
+];
 
 fn ex_usage() -> ExitCode {
     ExitCode::from(2)
@@ -107,7 +129,19 @@ fn work_dir(prefix: &str) -> PathBuf {
 fn print_usage() {
     eprintln!(
         "\
-cuni — CuNi (Code:uNiTY) compiler. 53 catalog entries (top 50 + 3 onchain profiles). Exactness or refuse.
+cuni — nine calls. Exact stdout, or refuse.
+  check     exactness gate
+  translate paste N, get X (same as `cuni bank`)
+  ingest    foreign source → .cuni, or refuse
+  audit     money law vs a foreign implementation, signed receipt
+  money     decimal / finance seats (py, rs, go, java, sql)
+  time      time law (py, go, js, c, cpp, rs, java, sql)
+  chain     Solidity, Solana, ink!, Move, Vyper, Cairo, Clarity, Cadence
+  ship      firmware gate (c, rs). Fail the proof, nothing ships
+  parity    one kernel, py + rs + c + go + sql
+  install   place the nine calls for the system and arch you name
+Hosted calls bill the lab. This binary is the unmetered AGPL clone.
+The catalog is still 53 entries. It is not the product list.
 
 Usage (the frozen surface):
   cuni check <file.cuni|dir> [--all] [--only id,id] [--json] [--receipt]
@@ -146,13 +180,31 @@ Extra commands (explicit; unchanged behavior):
           subset); anything else refuses. The result must pass the CuNi
           front-end or ingest refuses.
   bank    Paste N, get X. Ingest → emit → prove, or refuse. v1 --from py|cuni.
+          `cuni translate` is this call. `translate paste ...` matches bank.
   prove   Run a foreign implementation; it must match CuNi gold stdout.
+  money   `check` on the money seats. `--only` / `--all` still override.
+  time    `check` on the time-law seats.
+  ship    `check` on c,rs. The firmware promote gate.
+  parity  `check` on py,rs,c,go,sql.
+  chain   <file.cuni> [--to sol,solana,ink,move,vyper,cairo,clarity,cadence]
+          [--json] [--timeout <secs>]
+          Emits each chain target, then proves the law on the py seat.
   audit   Financial Division: prove a foreign implementation against a
           money law (.cuni) and file a signed JSON receipt. The gold gate
           runs the money seats (py, rs, go, java, sql) via check; the impl
           runs by extension (.py/.go/.rs/.java/.sql/.js) and must print
           byte-identical stdout. PASS or REFUSE is always filed.
           `audit --gen-key [name]` mints an Ed25519 receipt-signing keypair.
+  install [--os windows|macos|linux|any] [--arch x86_64|aarch64|arm64|any]
+          [--avx yes|no|any] [--dir PATH] [--manifest PATH] [--arms a,b] [--show]
+          The machine is the one you name, not the PC where you type this.
+          any × any writes a tree for Windows, macOS, and Linux, on x86_64
+          and ARM. Arms are the nine CuNi calls. Compressors are not calls.
+          On a terminal, an empty system or arch answer means any.
+          With no --arms, a terminal asks. Otherwise the nine public
+          arms are selected and no sealed arm is fetched.
+          install/setup.sh and install/setup.ps1 do this on a machine
+          that does not have cuni yet.
 
 Exit codes:
   0  exactness pass / success
@@ -220,8 +272,199 @@ fn main() -> ExitCode {
     if args[0] == "audit" {
         return cmd_audit(&args[1..]);
     }
+    if args[0] == "translate" {
+        return cmd_translate(&args[1..]);
+    }
+    if args[0] == "money" {
+        return cmd_profile(MONEY_SEATS, &args[1..]);
+    }
+    if args[0] == "time" {
+        return cmd_profile(TIME_SEATS, &args[1..]);
+    }
+    if args[0] == "ship" {
+        return cmd_profile(SHIP_SEATS, &args[1..]);
+    }
+    if args[0] == "parity" {
+        return cmd_profile(PARITY_SEATS, &args[1..]);
+    }
+    if args[0] == "chain" {
+        return cmd_chain(&args[1..]);
+    }
+    if args[0] == "install" {
+        return install::cmd(&args[1..]);
+    }
 
     cmd_compile(&args)
+}
+
+fn cmd_translate(args: &[String]) -> ExitCode {
+    if args.first().map(|s| s.as_str()) == Some("paste") {
+        return bank::cmd_bank(args);
+    }
+    let mut forwarded = Vec::with_capacity(args.len() + 1);
+    forwarded.push("paste".to_string());
+    forwarded.extend_from_slice(args);
+    bank::cmd_bank(&forwarded)
+}
+
+/// A named call that is `check` with that product's seat set.
+/// `--only` and `--all` still win, so a caller can narrow a broken toolchain.
+fn cmd_profile(seats: &[&str], args: &[String]) -> ExitCode {
+    let pinned = args.iter().any(|s| s == "--only" || s == "--all");
+    let mut forwarded = Vec::with_capacity(args.len() + 2);
+    if !pinned {
+        forwarded.push("--only".to_string());
+        forwarded.push(seats.join(","));
+    }
+    forwarded.extend_from_slice(args);
+    cmd_check(&forwarded)
+}
+
+fn exit_ok(code: ExitCode) -> bool {
+    format!("{code:?}") == format!("{:?}", ExitCode::SUCCESS)
+}
+
+fn cmd_chain(args: &[String]) -> ExitCode {
+    let mut path: Option<String> = None;
+    let mut json = false;
+    let mut timeout_secs: u64 = 60;
+    let mut want: Option<Vec<String>> = None;
+    let mut i = 0;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--json" => {
+                json = true;
+                i += 1;
+            }
+            "--to" => {
+                let v = args.get(i + 1).cloned().unwrap_or_else(|| {
+                    eprintln!("cuni chain: --to requires sol,solana,ink,move,vyper,cairo,clarity,cadence");
+                    std::process::exit(2);
+                });
+                want = Some(
+                    v.split(',')
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty())
+                        .collect(),
+                );
+                i += 2;
+            }
+            "--timeout" => {
+                let v = args.get(i + 1).unwrap_or_else(|| {
+                    eprintln!("cuni chain: --timeout requires seconds");
+                    std::process::exit(2);
+                });
+                timeout_secs = v.parse().unwrap_or_else(|_| {
+                    eprintln!("cuni chain: invalid --timeout value `{v}`");
+                    std::process::exit(2);
+                });
+                i += 2;
+            }
+            s if s.starts_with('-') => {
+                eprintln!("cuni chain: unknown flag `{s}`");
+                return ex_usage();
+            }
+            s => {
+                if path.is_some() {
+                    eprintln!("cuni chain: unexpected argument `{s}`");
+                    return ex_usage();
+                }
+                path = Some(s.to_string());
+                i += 1;
+            }
+        }
+    }
+    let Some(path) = path else {
+        eprintln!("cuni chain: missing file.cuni");
+        return ex_usage();
+    };
+    let selected: Vec<(&str, &str, &str)> = CHAIN_TARGETS
+        .iter()
+        .copied()
+        .filter(|(id, _, _)| match &want {
+            Some(names) => names.iter().any(|n| n == id),
+            None => true,
+        })
+        .collect();
+    if selected.is_empty() {
+        eprintln!("cuni chain: --to matched no target");
+        return ex_usage();
+    }
+    if let Some(names) = &want {
+        for name in names {
+            if !CHAIN_TARGETS.iter().any(|(id, _, _)| id == name) {
+                eprintln!("cuni chain: unknown target `{name}`");
+                return ex_usage();
+            }
+        }
+    }
+    let work = work_dir("cuni_chain");
+    if let Err(e) = fs::create_dir_all(&work) {
+        eprintln!("cuni chain: couldn't create temp dir: {e}");
+        return ex_usage();
+    }
+    let chain_count = selected.len();
+    let mut artifacts = serde_json::Map::new();
+    for (id, flag, name) in selected {
+        let out = work.join(name);
+        let code = cmd_compile(&[path.clone(), flag.to_string(), out.display().to_string()]);
+        if !exit_ok(code) {
+            let _ = fs::remove_dir_all(&work);
+            return code;
+        }
+        match fs::read_to_string(&out) {
+            Ok(text) if !text.trim().is_empty() => {
+                artifacts.insert(id.to_string(), serde_json::Value::String(text));
+            }
+            Ok(_) => {
+                eprintln!("cuni chain: {id} emitted an empty file");
+                let _ = fs::remove_dir_all(&work);
+                return ExitCode::FAILURE;
+            }
+            Err(e) => {
+                eprintln!("cuni chain: read {id}: {e}");
+                let _ = fs::remove_dir_all(&work);
+                return ex_usage();
+            }
+        }
+    }
+    let report = check::check_file_only(
+        Path::new(&path),
+        &work.join("py"),
+        Duration::from_secs(timeout_secs),
+        Some(&["py".to_string()]),
+    );
+    let missing = !report.toolchain_missing.is_empty();
+    let passed = report.passed() && !missing;
+    if json {
+        let body = serde_json::json!({
+            "verb": "chain",
+            "ok": passed,
+            "targets": serde_json::Value::Object(artifacts),
+            "check": serde_json::from_str::<serde_json::Value>(&check::receipt_json(&report)).unwrap_or(serde_json::Value::Null),
+        });
+        println!("{body}");
+    } else {
+        check::print_report(&report, false);
+        if passed {
+            println!("chain: PASS ({chain_count})");
+        } else {
+            println!("chain: FAIL");
+        }
+    }
+    let _ = fs::remove_dir_all(&work);
+    if missing {
+        eprintln!(
+            "cuni chain: toolchain missing: {}",
+            report.toolchain_missing.join(", ")
+        );
+        return ex_usage();
+    }
+    if passed {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::FAILURE
+    }
 }
 
 fn cmd_check(args: &[String]) -> ExitCode {
@@ -1378,5 +1621,58 @@ fn cmd_prove(args: &[String]) -> ExitCode {
             eprintln!("prove: FAIL — {e}");
             ExitCode::FAILURE
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::ExitCode;
+
+    fn args(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn profile_seats_are_pinned() {
+        // These lists ARE the money/time/ship/parity arms: the seats each
+        // profile checks. A changed list changes the protocol.
+        assert_eq!(MONEY_SEATS, &["py", "rs", "go", "java", "sql"]);
+        assert_eq!(
+            TIME_SEATS,
+            &["py", "go", "js", "c", "cpp", "rs", "java", "sql"]
+        );
+        assert_eq!(SHIP_SEATS, &["c", "rs"]);
+        assert_eq!(PARITY_SEATS, &["py", "rs", "c", "go", "sql"]);
+    }
+
+    #[test]
+    fn audit_and_money_share_gold_seats() {
+        assert_eq!(MONEY_SEATS, audit::GOLD_SEATS);
+    }
+
+    #[test]
+    fn exit_ok_matches_success_only() {
+        assert!(exit_ok(ExitCode::SUCCESS));
+        assert!(!exit_ok(ExitCode::FAILURE));
+        assert!(!exit_ok(ExitCode::from(2)));
+    }
+
+    #[test]
+    fn chain_rejects_bad_invocations() {
+        assert!(!exit_ok(cmd_chain(&args(&["--bogus"]))));
+        assert!(!exit_ok(cmd_chain(&args(&["prog.cuni", "extra.cuni"]))));
+    }
+
+    #[test]
+    fn chain_usage_is_exit_2() {
+        // ex_usage is the contract for malformed chain invocations.
+        // NOTE: --to/--timeout without (or with unparsable) values call
+        // std::process::exit(2) directly, so they are NOT covered here —
+        // testing them would kill the test runner.
+        assert_eq!(
+            format!("{:?}", cmd_chain(&args(&["--bogus"]))),
+            format!("{:?}", ExitCode::from(2))
+        );
     }
 }

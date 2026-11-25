@@ -294,7 +294,7 @@ fn run_blocking(cmd: &str, args: &[String], timeout: Duration) -> Result<Vec<u8>
 /// bytes. Shared by `cuni prove` and `cuni audit` — one runner, one
 /// behavior.
 ///
-/// Supported: `.py` (python3), `.js`/`.mjs` (node), `.go` (`go run`),
+/// Supported: `.py` (python3, else python, else py -3), `.js`/`.mjs` (node), `.go` (`go run`),
 /// `.rs` (rustc + exec), `.java` (javac + `java -cp <dir> <Class>`),
 /// `.sql` (sqlite3 against `:memory:`, same shape as the sql gold seat).
 /// Anything else is refused.
@@ -306,7 +306,10 @@ pub fn run_foreign_impl(impl_path: &Path, timeout: Duration) -> Result<Vec<u8>, 
         .to_ascii_lowercase();
     let path_s = impl_path.to_string_lossy().into_owned();
     match ext.as_str() {
-        "py" => run_blocking("python3", &[path_s], timeout),
+        "py" => {
+            let (cmd, args) = crate::host::python_argv(path_s);
+            run_blocking(&cmd, &args, timeout)
+        },
         "js" | "mjs" => run_blocking("node", &[path_s], timeout),
         "go" => run_blocking("go", &["run".to_string(), path_s], timeout),
         "rs" => {
@@ -314,7 +317,7 @@ pub fn run_foreign_impl(impl_path: &Path, timeout: Duration) -> Result<Vec<u8>, 
             fs::create_dir_all(&dir)
                 .map_err(|e| format!("create scratch dir {}: {e}", dir.display()))?;
             let bin = dir.join("impl_bin");
-            let bin_s = bin.to_string_lossy().into_owned();
+            let bin_s = crate::host::linked_exe(&bin);
             let r = (|| {
                 run_blocking(
                     "rustc",
@@ -477,5 +480,130 @@ impl ZeroizeOnDrop for [u8; 32] {
         }
         // Prevent the wipe from being optimized away.
         std::sync::atomic::compiler_fence(std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample_receipt() -> Receipt {
+        Receipt {
+            law_sha256: "aa".into(),
+            impl_sha256: "bb".into(),
+            gold_stdout_sha256: Some("cc".into()),
+            seats_run: vec!["py".into(), "rs".into()],
+            verdict: "PASS".into(),
+            timestamp_utc: "2026-01-15T12:00:00Z".into(),
+            cuni_version: "0.10.0".into(),
+            signer_pubkey: None,
+            signature: None,
+        }
+    }
+
+    #[test]
+    fn sha256_known_vectors() {
+        assert_eq!(
+            sha256_hex(b""),
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        );
+        assert_eq!(
+            sha256_hex(b"abc"),
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        );
+    }
+
+    #[test]
+    fn gold_seats_pin_the_money_seats() {
+        assert_eq!(GOLD_SEATS, &["py", "rs", "go", "java", "sql"]);
+    }
+
+    #[test]
+    fn timestamp_is_iso8601_utc() {
+        let ts = utc_timestamp();
+        assert_eq!(ts.len(), 20);
+        assert_eq!(&ts[10..11], "T");
+        assert!(ts.ends_with('Z'));
+        let year: i32 = ts[0..4].parse().expect("year parses");
+        assert!((2025..=2035).contains(&year));
+    }
+
+    #[test]
+    fn verdict_decides_pass() {
+        assert!(sample_receipt().passed());
+        let mut refused = sample_receipt();
+        refused.verdict = "REFUSE".into();
+        assert!(!refused.passed());
+    }
+
+    #[test]
+    fn canonical_bytes_exclude_only_the_signature() {
+        let plain = sample_receipt();
+        let mut signed_form = sample_receipt();
+        signed_form.signature = Some("00".into());
+        // The signature never covers itself.
+        assert_eq!(
+            canonical_receipt_bytes(&plain),
+            canonical_receipt_bytes(&signed_form)
+        );
+        // But it does cover the signer pubkey: key identity is bound.
+        signed_form.signer_pubkey = Some("aa".into());
+        signed_form.signature = None;
+        assert_ne!(
+            canonical_receipt_bytes(&plain),
+            canonical_receipt_bytes(&signed_form)
+        );
+    }
+
+    #[test]
+    fn keygen_validates_names_and_never_overwrites() {
+        let dir = scratch_dir("audit_test_keys");
+        let _ = fs::create_dir_all(&dir);
+        assert!(gen_keypair("", &dir).is_err());
+        assert!(gen_keypair("bad name!", &dir).is_err());
+        let (key_path, pub_path) = gen_keypair("unit", &dir).expect("gen");
+        assert!(key_path.exists() && pub_path.exists());
+        assert_eq!(fs::read_to_string(&pub_path).unwrap().len(), 64);
+        assert!(gen_keypair("unit", &dir).is_err());
+        assert!(load_signing_key(&key_path).is_ok());
+        let short = dir.join("short.key");
+        fs::write(&short, b"123").unwrap();
+        assert!(load_signing_key(&short).is_err());
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn sign_verify_roundtrip_and_tamper() {
+        let dir = scratch_dir("audit_test_roundtrip");
+        let _ = fs::create_dir_all(&dir);
+        let (key_path, _) = gen_keypair("rt", &dir).expect("gen");
+        let signing = load_signing_key(&key_path).expect("load");
+        let mut receipt = sample_receipt();
+        let unsigned = serde_json::to_string(&receipt).unwrap();
+        assert_eq!(verify_receipt(&unsigned), Ok(false));
+        sign_receipt(&mut receipt, &signing);
+        assert_eq!(receipt.signature.as_ref().unwrap().len(), 128);
+        let json = serde_json::to_string(&receipt).unwrap();
+        assert_eq!(verify_receipt(&json), Ok(true));
+        // Tampering with the verdict breaks the signature.
+        let mut tampered: serde_json::Value = serde_json::from_str(&json).unwrap();
+        tampered["verdict"] = serde_json::Value::String("REFUSE".into());
+        assert!(verify_receipt(&tampered.to_string()).is_err());
+        // Tampering with the signature bytes breaks it too (stays valid hex).
+        let mut sigtamper: serde_json::Value = serde_json::from_str(&json).unwrap();
+        let sig = sigtamper["signature"].as_str().unwrap().to_string();
+        let flipped = if sig.starts_with('0') {
+            "1".to_string() + &sig[1..]
+        } else {
+            "0".to_string() + &sig[1..]
+        };
+        sigtamper["signature"] = serde_json::Value::String(flipped);
+        assert!(verify_receipt(&sigtamper.to_string()).is_err());
+        // Malformed and half-signed receipts are refused loudly.
+        assert!(verify_receipt("not json").is_err());
+        let mut half = sample_receipt();
+        half.signer_pubkey = Some("aa".into());
+        assert!(verify_receipt(&serde_json::to_string(&half).unwrap()).is_err());
+        let _ = fs::remove_dir_all(&dir);
     }
 }
